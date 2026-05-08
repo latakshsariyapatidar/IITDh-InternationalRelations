@@ -31,8 +31,8 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-background/85 backdrop-blur-md border-b border-border" : "bg-transparent"
+      className={`sticky top-0 z-50 transition-all duration-300 bg-background/90 backdrop-blur-md ${
+        scrolled ? "border-b border-border shadow-soft" : ""
       }`}
     >
       <div className="container-editorial">
