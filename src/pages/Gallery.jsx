@@ -29,7 +29,7 @@ export default function Gallery() {
               className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg aspect-square flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer group"
             >
               <div className="text-center">
-                <p className="text-gray-600 font-semibold text-sm group-hover:text-blue-700 transition">
+                <p className="text-gray-600 font-semibold text-sm group-hover:text-[#7F5283] transition">
                   {item}
                 </p>
               </div>

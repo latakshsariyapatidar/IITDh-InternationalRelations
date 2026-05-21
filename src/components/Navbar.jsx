@@ -1,68 +1,105 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import LanguageSelector from './LanguageSelector'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
-  return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-blue-700">IRO</span>
-            <span className="ml-2 text-sm text-gray-600 hidden sm:block">IITDH</span>
-          </Link>
+  const menuItems = [
+    { label: 'Home', path: '/' },
+    { label: 'About Us', path: '/about' },
+    { label: 'Collaboration', path: '/collaboration' },
+    { label: 'Admission', path: '/admission' },
+    { label: 'Partners', path: '/partners' },
+    { label: 'Visa', path: '/visa' },
+    { label: 'Downloads', path: '/downloads' },
+    { label: 'Life @ IITDH', path: '/life' },
+    { label: 'Gallery', path: '/gallery' },
+    { label: 'Contact', path: '/contact' },
+  ]
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-700 font-medium">
-              Home
+  return (
+    <nav className="sticky top-0 z-50 bg-white">
+      {/* Top Bar */}
+      <div className="bg-[#FEFBF6] border-b border-[#7F5283]/10">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="flex flex-col sm:flex-row gap-4 text-xs font-medium text-[#7F5283]">
+            <div className="flex items-center gap-2">
+              <span>✉</span>
+              <a href="mailto:iro@iitdh.ac.in" className="hover:text-[#A6D1E6]">iro@iitdh.ac.in</a>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>☎</span>
+              <span>+91-836-XXXXXXX</span>
+            </div>
+          </div>
+          <LanguageSelector />
+        </div>
+      </div>
+
+      {/* Main Navbar */}
+      <div className="border-b border-[#FEFBF6]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+              <img
+                src="/IITDh Logo.svg"
+                alt="IIT Dharwad"
+                className="h-12 w-auto"
+              />
+              <div className="hidden sm:flex flex-col">
+                <span className="text-lg font-bold text-[#7F5283]">IRO</span>
+                <span className="text-xs font-semibold text-[#7F5283]">IITDH</span>
+              </div>
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-blue-700 font-medium">
-              About Us
-            </Link>
-            <Link to="/life" className="text-gray-700 hover:text-blue-700 font-medium">
-              Life @ IITDH
-            </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-blue-700 font-medium">
-              Contact Us
-            </Link>
-            <button className="text-gray-500 hover:text-gray-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+
+            {/* Desktop Menu */}
+            <div className="hidden lg:flex items-center gap-8">
+              {menuItems.slice(0, 5).map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="text-gray-700 hover:text-[#A6D1E6] font-semibold text-sm transition-colors relative group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#A6D1E6] group-hover:w-full transition-all"></span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile/Tablet Menu Button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-[#FEFBF6] transition-colors"
+            >
+              <svg className="w-6 h-6 text-[#7F5283]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                />
               </svg>
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
-          </button>
+          {/* Mobile Menu */}
+          {isOpen && (
+            <div className="lg:hidden pb-4 border-t border-[#FEFBF6]">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-3 text-gray-700 hover:bg-[#FEFBF6] hover:text-[#7F5283] font-medium transition-colors border-b border-[#FEFBF6]/50"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden pb-4 space-y-2">
-            <Link to="/" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded">
-              Home
-            </Link>
-            <Link to="/about" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded">
-              About Us
-            </Link>
-            <Link to="/life" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded">
-              Life @ IITDH
-            </Link>
-            <Link to="/contact" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded">
-              Contact Us
-            </Link>
-          </div>
-        )}
       </div>
     </nav>
   )

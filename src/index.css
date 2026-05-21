@@ -1,1 +1,76 @@
 @import "tailwindcss";
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes dot {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(7px);
+    opacity: 0.3;
+  }
+}
+
+/* Utility classes for animations */
+.au {
+  opacity: 0;
+}
+
+.au.v {
+  animation: fadeUp 0.65s ease forwards;
+}
+
+.d1 {
+  animation-delay: 0.1s !important;
+}
+
+.d2 {
+  animation-delay: 0.2s !important;
+}
+
+.d3 {
+  animation-delay: 0.3s !important;
+}
+
+/* Marquee styles */
+.marquee-wrapper {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

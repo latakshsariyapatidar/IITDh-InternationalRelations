@@ -9,6 +9,7 @@ export default function Collaboration() {
       <HeroSection
         title="International Collaboration & Mobility"
         subtitle="Global opportunities for students, faculty, and institutions"
+        cta={{ label: 'Explore Programs', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
       />
 
       {/* International Students */}
@@ -16,85 +17,51 @@ export default function Collaboration() {
         <SectionHeader
           title="International Students Programs"
           subtitle="Exchange and learning opportunities"
+          badge="🎓"
         />
         <div className="grid md:grid-cols-3 gap-8">
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Coursework Exchange</h3>
-            <p className="text-gray-700 mb-4 text-sm">Spend a semester taking courses at IITDH while completing degree requirements from your home institution.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: 1 semester</div>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Research Exchange</h3>
-            <p className="text-gray-700 mb-4 text-sm">Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: Flexible</div>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Project Work</h3>
-            <p className="text-gray-700 mb-4 text-sm">Undertake industry-relevant projects under faculty guidance with hands-on experience.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: 2-6 months</div>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Internships</h3>
-            <p className="text-gray-700 mb-4 text-sm">Gain practical experience through internships in laboratories or industry partner organizations.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: 2-4 months</div>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Study Tours</h3>
-            <p className="text-gray-700 mb-4 text-sm">Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: 1-2 weeks</div>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Master's Programs</h3>
-            <p className="text-gray-700 mb-4 text-sm">Pursue full MS degree with research focus under expert faculty guidance.</p>
-            <div className="text-sm text-blue-700 font-semibold">Duration: 2 years</div>
-          </Card>
+          {[
+            { icon: '📚', title: 'Coursework Exchange', desc: 'Spend a semester taking courses at IITDH while completing degree requirements from your home institution.', duration: '1 semester' },
+            { icon: '🔬', title: 'Research Exchange', desc: 'Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.', duration: 'Flexible' },
+            { icon: '⚙️', title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
+            { icon: '💼', title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
+            { icon: '✈️', title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
+            { icon: '🎯', title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
+          ].map((prog, idx) => (
+            <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
+              <p className="text-gray-700 mb-4 text-sm">{prog.desc}</p>
+              <p className="text-sm text-[#A6D1E6] font-semibold">Duration: {prog.duration}</p>
+            </Card>
+          ))}
         </div>
       </section>
 
       {/* International Faculty */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-[#FEFBF6] py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="International Faculty Programs"
             subtitle="Funding and collaboration schemes for faculty"
+            badge="👨‍🏫"
           />
           <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">SPARC</h3>
-              <p className="text-gray-700 mb-4">Scheme for Promotion of Academic and Research Collaboration - Government of India initiative for research partnerships.</p>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>✓ Funding for international collaboration</li>
-                <li>✓ Faculty exchange programs</li>
-                <li>✓ Joint research projects</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">VAJRA</h3>
-              <p className="text-gray-700 mb-4">Visiting Advanced Joint Research Faculty scheme - enables world-class scientists to work with Indian institutions.</p>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>✓ Visiting faculty positions</li>
-                <li>✓ Research collaborations</li>
-                <li>✓ Knowledge transfer programs</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">GIAN</h3>
-              <p className="text-gray-700 mb-4">Global Initiative of Academic Networks - facilitates international faculty to teach and conduct research.</p>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>✓ Short-term visiting positions</li>
-                <li>✓ Specialized courses</li>
-                <li>✓ Research mentoring</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">SERB</h3>
-              <p className="text-gray-700 mb-4">Science and Engineering Research Board programs supporting international research initiatives.</p>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>✓ Research grants</li>
-                <li>✓ International bilateral programs</li>
-                <li>✓ Collaborative projects</li>
-              </ul>
-            </Card>
+            {[
+              { title: 'SPARC', desc: 'Scheme for Promotion of Academic and Research Collaboration - Government of India initiative for research partnerships.', points: ['Funding for international collaboration', 'Faculty exchange programs', 'Joint research projects'] },
+              { title: 'VAJRA', desc: 'Visiting Advanced Joint Research Faculty scheme - enables world-class scientists to work with Indian institutions.', points: ['Visiting faculty positions', 'Research collaborations', 'Knowledge transfer programs'] },
+              { title: 'GIAN', desc: 'Global Initiative of Academic Networks - facilitates international faculty to teach and conduct research.', points: ['Short-term visiting positions', 'Specialized courses', 'Research mentoring'] },
+              { title: 'SERB', desc: 'Science and Engineering Research Board programs supporting international research initiatives.', points: ['Research grants', 'International bilateral programs', 'Collaborative projects'] }
+            ].map((prog, idx) => (
+              <Card key={idx} variant="default" title={prog.title}>
+                <p className="text-gray-700 mb-4">{prog.desc}</p>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {prog.points.map((point, pidx) => (
+                    <li key={pidx} className="flex items-center gap-2">
+                      <span className="text-[#A6D1E6]">✓</span> {point}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -104,79 +71,49 @@ export default function Collaboration() {
         <SectionHeader
           title="IITDH Students: Opportunities Abroad"
           subtitle="Exchange and learning programs for our students"
+          badge="🌍"
         />
         <div className="grid md:grid-cols-2 gap-8">
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Undergraduate Exchange</h3>
-            <p className="text-gray-700 mb-4">Study abroad during 3rd or 4th year at partner universities worldwide.</p>
-            <p className="text-sm text-gray-600">Eligibility: CGPA ≥ 7.0</p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Dual Degree Programs</h3>
-            <p className="text-gray-700 mb-4">Earn dual degrees from IITDH and international partner institutions.</p>
-            <p className="text-sm text-gray-600">Duration: 4-5 years</p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Postgraduate Exchange</h3>
-            <p className="text-gray-700 mb-4">Research internships and thesis work at leading universities globally.</p>
-            <p className="text-sm text-gray-600">For M.Tech and PhD students</p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Summer Internships</h3>
-            <p className="text-gray-700 mb-4">Industry and research internships with companies and institutions abroad.</p>
-            <p className="text-sm text-gray-600">Typically 2 months in summer</p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Immersion Programs</h3>
-            <p className="text-gray-700 mb-4">Short-term cultural and technical learning programs in partner countries.</p>
-            <p className="text-sm text-gray-600">Duration: 2-4 weeks</p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">PhD Programs</h3>
-            <p className="text-gray-700 mb-4">Pursue PhD at international universities with IITDH faculty collaboration.</p>
-            <p className="text-sm text-gray-600">Joint degree options available</p>
-          </Card>
+          {[
+            { icon: '✈️', title: 'Undergraduate Exchange', desc: 'Study abroad during 3rd or 4th year at partner universities worldwide.', info: 'Eligibility: CGPA ≥ 7.0' },
+            { icon: '🎓', title: 'Dual Degree Programs', desc: 'Earn dual degrees from IITDH and international partner institutions.', info: 'Duration: 4-5 years' },
+            { icon: '📊', title: 'Postgraduate Exchange', desc: 'Research internships and thesis work at leading universities globally.', info: 'For M.Tech and PhD students' },
+            { icon: '💼', title: 'Summer Internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
+            { icon: '🌐', title: 'Immersion Programs', desc: 'Short-term cultural and technical learning programs in partner countries.', info: 'Duration: 2-4 weeks' },
+            { icon: '🔭', title: 'PhD Programs', desc: 'Pursue PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' }
+          ].map((prog, idx) => (
+            <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
+              <p className="text-gray-700 mb-4">{prog.desc}</p>
+              <p className="text-sm text-[#7F5283] font-semibold">{prog.info}</p>
+            </Card>
+          ))}
         </div>
       </section>
 
       {/* Faculty Funding */}
-      <section className="bg-blue-50 py-16">
+      <section className="bg-[#7F5283] py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader
-            title="IITDH Faculty: International Funding"
-            subtitle="Government and institutional resources for collaboration"
-          />
+          <div className="text-center mb-12">
+            <p className="text-[#A6D1E6] text-xs font-bold tracking-widest uppercase mb-3">Funding</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">IITDH Faculty: International Funding</h2>
+            <p className="text-gray-100 max-w-2xl mx-auto">Government and institutional resources for collaboration</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Government Schemes</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>• SPARC Program</li>
-                <li>• VAJRA Scheme</li>
-                <li>• GIAN Initiative</li>
-                <li>• SERB Programs</li>
-                <li>• DST-FIST</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">University Partnerships</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>• Research collaboration funds</li>
-                <li>• Faculty exchange grants</li>
-                <li>• Joint publications support</li>
-                <li>• Dual appointment programs</li>
-                <li>• Sabbatical positions</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Internal Support</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>• Travel grants</li>
-                <li>• Collaborative research funds</li>
-                <li>• Visiting scholar support</li>
-                <li>• Conference presentation aid</li>
-                <li>• Publication grants</li>
-              </ul>
-            </Card>
+            {[
+              { title: '🏛️ Government Schemes', items: ['SPARC Program', 'VAJRA Scheme', 'GIAN Initiative', 'SERB Programs', 'DST-FIST'] },
+              { title: '🤝 University Partnerships', items: ['Research collaboration funds', 'Faculty exchange grants', 'Joint publications support', 'Dual appointment programs', 'Sabbatical positions'] },
+              { title: '💳 Internal Support', items: ['Travel grants', 'Collaborative research funds', 'Visiting scholar support', 'Conference presentation aid', 'Publication grants'] }
+            ].map((section, idx) => (
+              <Card key={idx} variant="accent" title={section.title.split(' ')[1]}>
+                <ul className="space-y-2 text-sm">
+                  {section.items.map((item, iidx) => (
+                    <li key={iidx} className="flex items-center gap-2 text-[#2d0a1e]">
+                      <span>•</span> {item}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -186,24 +123,22 @@ export default function Collaboration() {
         <SectionHeader
           title="International Admissions"
           subtitle="Study in India programs and pathways"
+          badge="🎓"
         />
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-8">
+        <div className="bg-[#7F5283]/10 rounded-xl p-8 border border-[#FEFBF6]">
           <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">SII Program</h3>
-              <p className="text-gray-700 text-sm mb-4">Study in India - Government of India initiative promoting higher education for international students.</p>
-              <CTAButton to="/admission" className="text-sm">Learn More</CTAButton>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Self-Financed</h3>
-              <p className="text-gray-700 text-sm mb-4">Direct admissions for self-funded international students with flexible payment options.</p>
-              <CTAButton to="/admission" className="text-sm">Apply</CTAButton>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">ICCR Scholarships</h3>
-              <p className="text-gray-700 text-sm mb-4">Indian Council for Cultural Relations scholarships for nominated international students.</p>
-              <CTAButton to="/admission" className="text-sm">Details</CTAButton>
-            </div>
+            {[
+              { icon: '🇮🇳', title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
+              { icon: '💰', title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
+              { icon: '🎖️', title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
+            ].map((prog, idx) => (
+              <div key={idx}>
+                <div className="text-4xl mb-3">{prog.icon}</div>
+                <h3 className="text-xl font-bold text-[#7F5283] mb-3">{prog.title}</h3>
+                <p className="text-gray-700 text-sm mb-4">{prog.desc}</p>
+                <CTAButton label="Learn More" to="/admission" variant="primary" size="sm" />
+              </div>
+            ))}
           </div>
         </div>
       </section>

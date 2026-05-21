@@ -16,12 +16,13 @@ export default function Partners() {
         <SectionHeader
           title="Partner Universities"
           subtitle="Leading institutions from around the world"
+          badge="🏫"
         />
         <div className="grid md:grid-cols-3 gap-6">
           {mockData.partnerships.universities.map((uni, idx) => (
-            <Card key={idx} className="text-center">
+            <Card key={idx} variant="light" className="text-center">
               <div className="text-5xl mb-4">🎓</div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{uni.name}</h3>
+              <h3 className="text-lg font-bold text-[#7F5283] mb-2">{uni.name}</h3>
               <p className="text-gray-600">{uni.country}</p>
             </Card>
           ))}
@@ -29,15 +30,16 @@ export default function Partners() {
       </section>
 
       {/* Organizations */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-[#FEFBF6] py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Partner Organizations"
             subtitle="Collaborating bodies and agencies"
+            badge="🤝"
           />
           <div className="grid md:grid-cols-3 gap-8">
             {mockData.partnerships.organizations.map((org, idx) => (
-              <Card key={idx}>
+              <Card key={idx} variant="default">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">{org.name}</h3>
                   <span className="text-3xl">🌐</span>

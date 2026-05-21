@@ -37,7 +37,7 @@ export default function Life() {
           <SectionHeader title="Accommodation" subtitle="Comfortable and safe living spaces" />
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Hostel Facilities</h3>
+              <h3 className="text-xl font-bold text-[#3D3C42] mb-3">Hostel Facilities</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Well-furnished rooms</li>
                 <li>✓ High-speed WiFi</li>
@@ -47,7 +47,7 @@ export default function Life() {
               </ul>
             </Card>
             <Card>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Support Services</h3>
+              <h3 className="text-xl font-bold text-[#3D3C42] mb-3">Support Services</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Residential Counselors</li>
                 <li>✓ Health Services</li>
@@ -57,7 +57,7 @@ export default function Life() {
               </ul>
             </Card>
             <Card>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Community</h3>
+              <h3 className="text-xl font-bold text-[#3D3C42] mb-3">Community</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Socials & Events</li>
                 <li>✓ Study Groups</li>
@@ -78,14 +78,14 @@ export default function Life() {
         />
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Main Mess</h3>
+            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">Main Mess</h3>
             <p className="text-gray-700 mb-3">
               Serves diverse cuisines including vegetarian, non-vegetarian, and international options. Hygienic preparation and nutrition-focused menus.
             </p>
             <p className="text-sm text-gray-600">Open: 7:00 AM - 9:30 PM daily</p>
           </Card>
           <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Cafeterias</h3>
+            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">Cafeterias</h3>
             <p className="text-gray-700 mb-3">
               Multiple eating outlets across campus serving snacks, beverages, and light meals. Convenient locations near academic buildings.
             </p>
@@ -95,7 +95,7 @@ export default function Life() {
       </section>
 
       {/* Campus Life */}
-      <section className="bg-blue-50 py-16">
+      <section className="bg-[#FEFBF6] py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Campus Life & Facilities"
@@ -106,22 +106,22 @@ export default function Life() {
               <p className="text-gray-600">Campus Life Video</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Explore Our Campus</h3>
+              <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Explore Our Campus</h3>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-1">🏋️ Sports Complex</h4>
+                  <h4 className="font-bold text-[#3D3C42] mb-1">🏋️ Sports Complex</h4>
                   <p className="text-gray-700 text-sm">Fitness center, basketball, volleyball, badminton courts</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-1">📚 Library</h4>
+                  <h4 className="font-bold text-[#3D3C42] mb-1">📚 Library</h4>
                   <p className="text-gray-700 text-sm">Modern library with vast digital and physical collections</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-1">🎭 Cultural Hub</h4>
+                  <h4 className="font-bold text-[#3D3C42] mb-1">🎭 Cultural Hub</h4>
                   <p className="text-gray-700 text-sm">Auditorium, performance spaces for events</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-1">🏥 Medical Center</h4>
+                  <h4 className="font-bold text-[#3D3C42] mb-1">🏥 Medical Center</h4>
                   <p className="text-gray-700 text-sm">24/7 health services and emergency care</p>
                 </div>
               </div>
@@ -130,15 +130,15 @@ export default function Life() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Clubs & Societies</h3>
+              <h3 className="text-lg font-bold text-[#3D3C42] mb-3">Clubs & Societies</h3>
               <p className="text-gray-700 text-sm">100+ student clubs covering cultural, technical, and interest areas</p>
             </Card>
             <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Events & Festivals</h3>
+              <h3 className="text-lg font-bold text-[#3D3C42] mb-3">Events & Festivals</h3>
               <p className="text-gray-700 text-sm">Annual festivals, technical fests, and cultural celebrations</p>
             </Card>
             <Card>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Outdoor Activities</h3>
+              <h3 className="text-lg font-bold text-[#3D3C42] mb-3">Outdoor Activities</h3>
               <p className="text-gray-700 text-sm">Trekking, adventure sports, and exploration opportunities</p>
             </Card>
           </div>
@@ -153,7 +153,7 @@ export default function Life() {
         />
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Karnataka Attractions</h3>
+            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">Karnataka Attractions</h3>
             <ul className="space-y-3 text-gray-700 text-sm">
               <li>🏛️ <strong>Hampi:</strong> UNESCO World Heritage Site with ancient temples</li>
               <li>🏞️ <strong>Western Ghats:</strong> Coffee plantations and scenic trekking routes</li>
@@ -162,7 +162,7 @@ export default function Life() {
             </ul>
           </Card>
           <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Travel from Dharwad</h3>
+            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">Travel from Dharwad</h3>
             <ul className="space-y-3 text-gray-700 text-sm">
               <li>✈️ <strong>Bengaluru:</strong> 4-5 hours (major tech hub, museums)</li>
               <li>🚂 <strong>Goa:</strong> 6 hours (beaches, Portuguese heritage)</li>

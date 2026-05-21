@@ -1,22 +1,37 @@
-export default function HeroSection({ title, subtitle, backgroundImage }) {
+import { useState } from 'react'
+import CTAButton from './ui/CTAButton'
+
+export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
   return (
     <div
-      className="relative h-80 bg-gradient-to-r from-blue-700 to-blue-600 overflow-hidden"
+      className="relative min-h-[50vh] md:min-h-[calc(100vh-140px)] bg-[#7F5283] overflow-hidden flex items-center"
       style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
     >
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      <div className="absolute inset-0 bg-[#3D3C42]/80 mix-blend-multiply"></div>
 
       {/* Content */}
-      <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-xl md:text-2xl text-blue-100 max-w-2xl">
-            {subtitle}
-          </p>
-        )}
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 flex flex-col items-start text-left">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#FEFBF6] mb-6 leading-tight animate-fadeUp">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-lg md:text-xl text-[#A6D1E6] font-light max-w-2xl mb-10 animate-fadeUp d1">
+              {subtitle}
+            </p>
+          )}
+          {cta && (
+            <div className="animate-fadeUp d2">
+              <CTAButton
+                label={cta.label}
+                onClick={cta.onClick}
+                variant="primary"
+                size="lg"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -1,65 +1,81 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import ContactCard from '../components/ui/ContactCard'
+import Card from '../components/ui/Card'
+import CTAButton from '../components/ui/CTAButton'
 import { mockData } from '../data/mockData'
 
 export default function Contact() {
   return (
     <div>
-      <HeroSection title="Contact Us" subtitle="Get in touch with the International Relations Office" />
+      <HeroSection
+        title="Contact Us"
+        subtitle="Get in touch with the International Relations Office"
+        cta={{ label: 'Send Message', onClick: () => document.querySelector('form').scrollIntoView({ behavior: 'smooth' }) }}
+      />
 
       {/* Contact Cards */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="International Relations Contacts"
           subtitle="Reach out to the right person for your needs"
+          badge="📞"
         />
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <ContactCard {...mockData.contacts.chairperson} />
-          <ContactCard {...mockData.contacts.iro} />
-          <ContactCard {...mockData.contacts.internationalMobility} />
-          <ContactCard {...mockData.contacts.admission} />
+          {[
+            { name: 'Dr. Chairperson', role: 'IRO Chairperson', email: 'chairperson@iitdh.ac.in', phone: '+91-8364-241-201' },
+            { name: 'Ms. Priya Sharma', role: 'IRO Director', email: 'iro@iitdh.ac.in', phone: '+91-8364-241-202' },
+            { name: 'Mr. Arun Kumar', role: 'International Mobility', email: 'mobility@iitdh.ac.in', phone: '+91-8364-241-203' },
+            { name: 'Ms. Sneha Patel', role: 'Admissions', email: 'admission@iitdh.ac.in', phone: '+91-8364-241-204' }
+          ].map((contact, idx) => (
+            <Card key={idx} variant="light" border>
+              <h3 className="text-lg font-bold text-[#7F5283] mb-1">{contact.name}</h3>
+              <p className="text-sm text-[#A6D1E6] font-semibold mb-3">{contact.role}</p>
+              <div className="space-y-2 text-sm">
+                <p><span className="font-semibold text-[#7F5283]">📧</span> <a href={`mailto:${contact.email}`} className="text-gray-700 hover:text-[#A6D1E6]">{contact.email}</a></p>
+                <p><span className="font-semibold text-[#7F5283]">☎</span> <a href={`tel:${contact.phone}`} className="text-gray-700 hover:text-[#A6D1E6]">{contact.phone}</a></p>
+              </div>
+            </Card>
+          ))}
         </div>
       </section>
 
       {/* Contact Form */}
-      <section className="bg-blue-50 py-16">
+      <section className="bg-[#FEFBF6] py-16">
         <div className="max-w-2xl mx-auto px-4">
           <SectionHeader
             title="Send us a Message"
             subtitle="We'll get back to you within 24 hours"
+            badge="✉️"
           />
-          <form className="space-y-6">
+          <form className="space-y-6 bg-white rounded-xl p-8 shadow-lg">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name</label>
-                <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none" placeholder="Your name" />
+                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Full Name</label>
+                <input type="text" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Your name" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
-                <input type="email" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none" placeholder="your@email.com" />
+                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Email</label>
+                <input type="email" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="your@email.com" />
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Phone</label>
-                <input type="tel" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none" placeholder="+1 234 567 8900" />
+                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Phone</label>
+                <input type="tel" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="+1 234 567 8900" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Subject</label>
-                <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none" placeholder="Inquiry subject" />
+                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Subject</label>
+                <input type="text" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Inquiry subject" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Message</label>
-              <textarea rows="5" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none" placeholder="Your message..."></textarea>
+              <label className="block text-sm font-semibold text-[#7F5283] mb-2">Message</label>
+              <textarea rows="5" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Your message..."></textarea>
             </div>
 
-            <button type="submit" className="w-full bg-blue-700 text-white font-semibold py-3 rounded-lg hover:bg-blue-800 transition-colors">
-              Send Message
-            </button>
+            <CTAButton label="Send Message" variant="primary" size="lg" className="w-full" onClick={() => alert('Message sent! We will contact you soon.')} />
           </form>
         </div>
       </section>
@@ -69,34 +85,36 @@ export default function Contact() {
         <SectionHeader
           title="Visit Us"
           subtitle="International Relations Office Location"
+          badge="📍"
         />
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-blue-100 rounded-lg aspect-video flex items-center justify-center">
-            <p className="text-gray-500">Map Placeholder</p>
+          <div className="bg-[#FEFBF6] rounded-xl aspect-video flex items-center justify-center border-2 border-[#FEFBF6]">
+            <p className="text-gray-400 text-center">📍 Map Placeholder</p>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Office Address</h3>
+            <h3 className="text-2xl font-bold text-[#7F5283] mb-6">Office Address</h3>
             <div className="space-y-4">
-              <div>
-                <p className="font-semibold text-gray-900">Building Location:</p>
-                <p className="text-gray-700">Building 2, Near Central Library</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">Campus Address:</p>
-                <p className="text-gray-700">IIT Dharwad, NH 48, Chikhaldroog Road<br />Dharwad - 580011, Karnataka, India</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">Office Hours:</p>
-                <p className="text-gray-700">Monday - Friday: 9:00 AM - 5:30 PM<br />Saturday: 10:00 AM - 2:00 PM<br />Sunday & Holidays: Closed</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">Phone:</p>
-                <p className="text-gray-700">+91-8364-241-200</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">Email:</p>
-                <a href="mailto:iro@iitdh.ac.in" className="text-blue-700 hover:underline">iro@iitdh.ac.in</a>
-              </div>
+              {[
+                { icon: '🏢', label: 'Building Location', value: 'Building 2, Near Central Library' },
+                { icon: '📮', label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
+                { icon: '⏰', label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
+                { icon: '☎', label: 'Phone', value: '+91-8364-241-200' },
+                { icon: '📧', label: 'Email', value: 'iro@iitdh.ac.in' }
+              ].map((item, idx) => (
+                <Card key={idx} variant="light">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{item.icon}</span>
+                    <div>
+                      <p className="font-semibold text-[#7F5283]">{item.label}:</p>
+                      {item.label === 'Email' ? (
+                        <a href={`mailto:${item.value}`} className="text-gray-700 hover:text-[#A6D1E6]">{item.value}</a>
+                      ) : (
+                        <p className="text-gray-700">{item.value}</p>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
