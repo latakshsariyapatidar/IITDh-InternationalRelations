@@ -17,16 +17,16 @@ export default function Collaboration() {
         <SectionHeader
           title="International Students Programs"
           subtitle="Exchange and learning opportunities"
-          badge="🎓"
+          badge="EXCHANGE"
         />
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { icon: '📚', title: 'Coursework Exchange', desc: 'Spend a semester taking courses at IITDH while completing degree requirements from your home institution.', duration: '1 semester' },
-            { icon: '🔬', title: 'Research Exchange', desc: 'Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.', duration: 'Flexible' },
-            { icon: '⚙️', title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
-            { icon: '💼', title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
-            { icon: '✈️', title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
-            { icon: '🎯', title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
+            { icon: '01', title: 'Coursework Exchange', desc: 'Spend a semester taking courses at IITDH while completing degree requirements from your home institution.', duration: '1 semester' },
+            { icon: '02', title: 'Research Exchange', desc: 'Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.', duration: 'Flexible' },
+            { icon: '03', title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
+            { icon: '04', title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
+            { icon: '05', title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
+            { icon: '06', title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4 text-sm">{prog.desc}</p>
@@ -42,7 +42,7 @@ export default function Collaboration() {
           <SectionHeader
             title="International Faculty Programs"
             subtitle="Funding and collaboration schemes for faculty"
-            badge="👨‍🏫"
+            badge="FACULTY"
           />
           <div className="grid md:grid-cols-2 gap-8">
             {[
@@ -71,16 +71,16 @@ export default function Collaboration() {
         <SectionHeader
           title="IITDH Students: Opportunities Abroad"
           subtitle="Exchange and learning programs for our students"
-          badge="🌍"
+          badge="GLOBAL"
         />
         <div className="grid md:grid-cols-2 gap-8">
           {[
-            { icon: '✈️', title: 'Undergraduate Exchange', desc: 'Study abroad during 3rd or 4th year at partner universities worldwide.', info: 'Eligibility: CGPA ≥ 7.0' },
-            { icon: '🎓', title: 'Dual Degree Programs', desc: 'Earn dual degrees from IITDH and international partner institutions.', info: 'Duration: 4-5 years' },
-            { icon: '📊', title: 'Postgraduate Exchange', desc: 'Research internships and thesis work at leading universities globally.', info: 'For M.Tech and PhD students' },
-            { icon: '💼', title: 'Summer Internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
-            { icon: '🌐', title: 'Immersion Programs', desc: 'Short-term cultural and technical learning programs in partner countries.', info: 'Duration: 2-4 weeks' },
-            { icon: '🔭', title: 'PhD Programs', desc: 'Pursue PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' }
+            { icon: '01', title: 'Undergraduate Exchange', desc: 'Study abroad during 3rd or 4th year at partner universities worldwide.', info: 'Eligibility: CGPA ≥ 7.0' },
+            { icon: '02', title: 'Dual Degree Programs', desc: 'Earn dual degrees from IITDH and international partner institutions.', info: 'Duration: 4-5 years' },
+            { icon: '03', title: 'Postgraduate Exchange', desc: 'Research internships and thesis work at leading universities globally.', info: 'For M.Tech and PhD students' },
+            { icon: '04', title: 'Summer Internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
+            { icon: '05', title: 'Immersion Programs', desc: 'Short-term cultural and technical learning programs in partner countries.', info: 'Duration: 2-4 weeks' },
+            { icon: '06', title: 'PhD Programs', desc: 'Pursue PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' }
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4">{prog.desc}</p>
@@ -100,9 +100,9 @@ export default function Collaboration() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { title: '🏛️ Government Schemes', items: ['SPARC Program', 'VAJRA Scheme', 'GIAN Initiative', 'SERB Programs', 'DST-FIST'] },
-              { title: '🤝 University Partnerships', items: ['Research collaboration funds', 'Faculty exchange grants', 'Joint publications support', 'Dual appointment programs', 'Sabbatical positions'] },
-              { title: '💳 Internal Support', items: ['Travel grants', 'Collaborative research funds', 'Visiting scholar support', 'Conference presentation aid', 'Publication grants'] }
+              { title: 'Government Schemes', items: ['SPARC Program', 'VAJRA Scheme', 'GIAN Initiative', 'SERB Programs', 'DST-FIST'] },
+              { title: 'University Partnerships', items: ['Research collaboration funds', 'Faculty exchange grants', 'Joint publications support', 'Dual appointment programs', 'Sabbatical positions'] },
+              { title: 'Internal Support', items: ['Travel grants', 'Collaborative research funds', 'Visiting scholar support', 'Conference presentation aid', 'Publication grants'] }
             ].map((section, idx) => (
               <Card key={idx} variant="accent" title={section.title.split(' ')[1]}>
                 <ul className="space-y-2 text-sm">
@@ -123,14 +123,14 @@ export default function Collaboration() {
         <SectionHeader
           title="International Admissions"
           subtitle="Study in India programs and pathways"
-          badge="🎓"
+          badge="SCHOLARSHIPS"
         />
         <div className="bg-brand-purpleLight/30 rounded-xl p-8 border border-brand-purpleLight/70">
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: '🇮🇳', title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
-              { icon: '💰', title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
-              { icon: '🎖️', title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
+              { icon: 'IN', title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
+              { icon: 'SF', title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
+              { icon: 'IC', title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
             ].map((prog, idx) => (
               <div key={idx}>
                 <div className="text-4xl mb-3">{prog.icon}</div>

@@ -109,19 +109,19 @@ export default function Life() {
               <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Explore Our Campus</h3>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-bold text-brand-purpleDark mb-1">🏋️ Sports Complex</h4>
+                  <h4 className="font-bold text-brand-purpleDark mb-1">Sports Complex</h4>
                   <p className="text-gray-700 text-sm">Fitness center, basketball, volleyball, badminton courts</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-brand-purpleDark mb-1">📚 Library</h4>
+                  <h4 className="font-bold text-brand-purpleDark mb-1">Library</h4>
                   <p className="text-gray-700 text-sm">Modern library with vast digital and physical collections</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-brand-purpleDark mb-1">🎭 Cultural Hub</h4>
+                  <h4 className="font-bold text-brand-purpleDark mb-1">Cultural Hub</h4>
                   <p className="text-gray-700 text-sm">Auditorium, performance spaces for events</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-brand-purpleDark mb-1">🏥 Medical Center</h4>
+                  <h4 className="font-bold text-brand-purpleDark mb-1">Medical Center</h4>
                   <p className="text-gray-700 text-sm">24/7 health services and emergency care</p>
                 </div>
               </div>
@@ -155,19 +155,19 @@ export default function Life() {
           <Card>
             <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Karnataka Attractions</h3>
             <ul className="space-y-3 text-gray-700 text-sm">
-              <li>🏛️ <strong>Hampi:</strong> UNESCO World Heritage Site with ancient temples</li>
-              <li>🏞️ <strong>Western Ghats:</strong> Coffee plantations and scenic trekking routes</li>
-              <li>🐘 <strong>Bandipur:</strong> National park with wildlife and nature reserves</li>
-              <li>🏖️ <strong>Coastal Karnataka:</strong> Beaches and fishing villages</li>
+              <li><strong>Hampi:</strong> UNESCO World Heritage Site with ancient temples</li>
+              <li><strong>Western Ghats:</strong> Coffee plantations and scenic trekking routes</li>
+              <li><strong>Bandipur:</strong> National park with wildlife and nature reserves</li>
+              <li><strong>Coastal Karnataka:</strong> Beaches and fishing villages</li>
             </ul>
           </Card>
           <Card>
             <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Travel from Dharwad</h3>
             <ul className="space-y-3 text-gray-700 text-sm">
-              <li>✈️ <strong>Bengaluru:</strong> 4-5 hours (major tech hub, museums)</li>
-              <li>🚂 <strong>Goa:</strong> 6 hours (beaches, Portuguese heritage)</li>
-              <li>🏔️ <strong>Coorg:</strong> 5 hours (hill station, waterfalls)</li>
-              <li>🕌 <strong>Bijapur:</strong> 2 hours (Mughal architecture)</li>
+              <li><strong>Bengaluru:</strong> 4-5 hours (major tech hub, museums)</li>
+              <li><strong>Goa:</strong> 6 hours (beaches, Portuguese heritage)</li>
+              <li><strong>Coorg:</strong> 5 hours (hill station, waterfalls)</li>
+              <li><strong>Bijapur:</strong> 2 hours (Mughal architecture)</li>
             </ul>
           </Card>
         </div>

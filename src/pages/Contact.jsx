@@ -17,7 +17,7 @@ export default function Contact() {
         <SectionHeader
           title="International Relations Contacts"
           subtitle="Reach out to the right person for your needs"
-          badge="📞"
+          badge="CONTACT"
         />
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {[
@@ -30,8 +30,8 @@ export default function Contact() {
               <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
               <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.role}</p>
               <div className="space-y-2 text-sm">
-                <p><span className="font-semibold text-brand-purple">📧</span> <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.email}</a></p>
-                <p><span className="font-semibold text-brand-purple">☎</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>
+                <p><span className="font-semibold text-brand-purple">Email:</span> <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.email}</a></p>
+                <p><span className="font-semibold text-brand-purple">Phone:</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>
               </div>
             </Card>
           ))}
@@ -44,7 +44,7 @@ export default function Contact() {
           <SectionHeader
             title="Send us a Message"
             subtitle="We'll get back to you within 24 hours"
-            badge="✉️"
+            badge="FORM"
           />
           <form className="space-y-6 bg-white rounded-xl p-8 shadow-lg">
             <div className="grid md:grid-cols-2 gap-6">
@@ -84,21 +84,21 @@ export default function Contact() {
         <SectionHeader
           title="Visit Us"
           subtitle="International Relations Office Location"
-          badge="📍"
+          badge="LOCATION"
         />
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-white rounded-xl aspect-video flex items-center justify-center border border-brand-purpleLight/70">
-            <p className="text-gray-400 text-center">📍 Map Placeholder</p>
+            <p className="text-gray-400 text-center">Map Placeholder</p>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-brand-purpleDark mb-6">Office Address</h3>
             <div className="space-y-4">
               {[
-                { icon: '🏢', label: 'Building Location', value: 'Building 2, Near Central Library' },
-                { icon: '📮', label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
-                { icon: '⏰', label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
-                { icon: '☎', label: 'Phone', value: '+91-8364-241-200' },
-                { icon: '📧', label: 'Email', value: 'iro@iitdh.ac.in' }
+                { icon: 'BLD', label: 'Building Location', value: 'Building 2, Near Central Library' },
+                { icon: 'ADDR', label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
+                { icon: 'HRS', label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
+                { icon: 'TEL', label: 'Phone', value: '+91-8364-241-200' },
+                { icon: 'MAIL', label: 'Email', value: 'iro@iitdh.ac.in' }
               ].map((item, idx) => (
                 <Card key={idx} variant="light">
                   <div className="flex items-start gap-3">

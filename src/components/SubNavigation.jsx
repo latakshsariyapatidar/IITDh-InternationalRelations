@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import SubNavigationData from '../data/subNavigationLinks'
+import SubNavigationData from '../data/SubNavigationData'
 
 export default function SubNavigation() {
   return (

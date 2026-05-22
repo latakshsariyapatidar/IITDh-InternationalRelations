@@ -203,11 +203,11 @@ export default function Visa() {
             <Card>
               <h3 className="text-lg font-bold text-brand-purpleDark mb-4">Visa Compliance</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
-                <li>⚠️ Never overstay your visa</li>
-                <li>⚠️ Maintain valid passport and registration documents</li>
-                <li>⚠️ Report address changes to FRRO within 14 days</li>
-                <li>⚠️ Keep photocopies of important documents</li>
-                <li>⚠️ Inform IRO of any visa issues immediately</li>
+                <li>Never overstay your visa</li>
+                <li>Maintain valid passport and registration documents</li>
+                <li>Report address changes to FRRO within 14 days</li>
+                <li>Keep photocopies of important documents</li>
+                <li>Inform IRO of any visa issues immediately</li>
               </ul>
             </Card>
             <Card>

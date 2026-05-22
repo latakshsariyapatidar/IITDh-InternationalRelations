@@ -19,7 +19,7 @@ export default function Admission() {
         <SectionHeader
           title="Why Study at IITDH?"
           subtitle="Excellence in engineering and technology education"
-          badge="🎓"
+          badge="ADMISSION"
         />
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
@@ -51,7 +51,7 @@ export default function Admission() {
                   { label: 'Doctoral', programs: mockData.programs.phd }
                 ].map((section, sidx) => (
                   <div key={sidx}>
-                    <p className="font-bold text-brand-purple mb-2">📚 {section.label}</p>
+                    <p className="font-bold text-brand-purple mb-2">{section.label}</p>
                     <ul className="space-y-1 text-sm text-neutral-textDark/80 ml-4">
                       {section.programs.map((prog, idx) => (
                         <li key={idx}>✓ {prog}</li>
@@ -86,7 +86,7 @@ export default function Admission() {
         <SectionHeader
           title="How to Apply"
           subtitle="Simple and transparent admission process"
-          badge="📋"
+          badge="PROCESS"
         />
         <div className="grid md:grid-cols-4 gap-6">
           {[
@@ -132,7 +132,7 @@ export default function Admission() {
         <SectionHeader
           title="Student Testimonials"
           subtitle="Hear from our international students"
-          badge="⭐"
+          badge="TESTIMONIALS"
         />
         <div className="grid md:grid-cols-3 gap-8">
           {mockData.testimonials.map((testimonial, idx) => (
@@ -154,7 +154,7 @@ export default function Admission() {
           <SectionHeader
             title="Frequently Asked Questions"
             subtitle="Find answers to common questions"
-            badge="❓"
+            badge="FAQ"
           />
           <FAQAccordion items={mockData.faqs} />
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import LanguageSelector from './LanguageSelector'
-import menuItems from '../data/navigationLinks'
+import NavigationLinks from '../data/navigationLinks'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -31,17 +31,18 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 py-1 flex flex-col sm:flex-row justify-between items-center gap-3">
           <div className="flex flex-col sm:flex-row gap-4 text-xs font-medium text-brand-purple">
             <div className="flex items-center gap-2">
-              <span>✉</span>
+              <span>Email</span>
               <a href="mailto:iro@iitdh.ac.in" className="hover:text-brand-marigold">iro@iitdh.ac.in</a>
             </div>
             <div className="flex items-center gap-2">
-              <span>☎</span>
+              <span>Phone</span>
               <span>+91-836-XXXXXXX</span>
             </div>
           </div>
           <LanguageSelector />
         </div>
-      </div> */}
+      </div> */
+      }
 
       {/* Main Navbar */}
       <div className="border-b border-white/10">
@@ -62,7 +63,7 @@ export default function Navbar() {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-8">
-              {menuItems.slice(0, 5).map((item) => (
+              {NavigationLinks.slice(0, 5).map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -100,7 +101,7 @@ export default function Navbar() {
             aria-hidden={!isOpen}
           >
             <div className="pt-2">
-              {menuItems.map((item) => (
+              {NavigationLinks.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}

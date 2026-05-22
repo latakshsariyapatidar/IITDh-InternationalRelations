@@ -20,7 +20,7 @@ export default function About() {
             <SectionHeader
               title="Dean, International Outreach"
               centered={false}
-              badge="👔"
+              badge="LEADERSHIP"
             />
             <p className="text-gray-700 leading-relaxed mb-4">
               Our international programs are designed to create meaningful partnerships and foster collaborative research. We believe in building bridges across institutions and cultures.
@@ -33,7 +33,7 @@ export default function About() {
             </div>
           </div>
           <div className="bg-white rounded-xl h-80 flex items-center justify-center border border-brand-purpleLight/70">
-            <p className="text-gray-400">👔 Dean's Photo</p>
+            <p className="text-gray-400">Dean's Photo</p>
           </div>
         </div>
       </section>
@@ -43,13 +43,13 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="bg-neutral-canvas rounded-xl h-80 flex items-center justify-center order-2 md:order-1 border-2 border-brand-purple/20">
-              <p className="text-gray-400">👥 Team Photo</p>
+              <p className="text-gray-400">Team Photo</p>
             </div>
             <div className="order-1 md:order-2">
               <SectionHeader
                 title="International Relations Office"
                 centered={false}
-                badge="🌍"
+                badge="INTERNATIONAL"
               />
               <p className="text-gray-700 leading-relaxed mb-4">
                 The IRO serves as the central hub for all international activities at IITDH. We facilitate student exchanges, faculty collaborations, and institutional partnerships.
@@ -70,13 +70,13 @@ export default function About() {
         <SectionHeader
           title="Faculty Advisors"
           subtitle="Department-wise international coordination"
-          badge="👨‍🎓"
+          badge="FACULTY"
         />
         <div className="grid md:grid-cols-2 gap-8">
           {mockData.faculty.map((prof, idx) => (
             <Card key={idx} variant="light" border>
               <div className="flex items-start gap-3">
-                <div className="text-3xl">👨‍🏫</div>
+                <div className="text-3xl">FAC</div>
                 <div>
                   <h3 className="text-lg font-bold text-brand-purple mb-1">{prof.name}</h3>
                   <p className="text-sm text-brand-marigold font-semibold mb-2">{prof.department}</p>

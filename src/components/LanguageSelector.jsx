@@ -1,29 +1,29 @@
 import { useState } from 'react'
 
 const languages = [
-  { code: 'en', flag: '🇬🇧', name: 'English' },
+  { code: 'en', flag: 'EN', name: 'English' },
   // ASEAN Languages
-  { code: 'id', flag: '🇮🇩', name: 'Bahasa Indonesia' },
-  { code: 'ms', flag: '🇲🇾', name: 'Bahasa Melayu' },
-  { code: 'tl', flag: '🇵🇭', name: 'Filipino' },
-  { code: 'th', flag: '🇹🇭', name: 'Thai' },
-  { code: 'vi', flag: '🇻🇳', name: 'Vietnamese' },
-  { code: 'my', flag: '🇲🇲', name: 'Burmese' },
-  { code: 'km', flag: '🇰🇭', name: 'Khmer' },
-  { code: 'lo', flag: '🇱🇦', name: 'Lao' },
+  { code: 'id', flag: 'ID', name: 'Bahasa Indonesia' },
+  { code: 'ms', flag: 'MS', name: 'Bahasa Melayu' },
+  { code: 'tl', flag: 'TL', name: 'Filipino' },
+  { code: 'th', flag: 'TH', name: 'Thai' },
+  { code: 'vi', flag: 'VI', name: 'Vietnamese' },
+  { code: 'my', flag: 'MY', name: 'Burmese' },
+  { code: 'km', flag: 'KM', name: 'Khmer' },
+  { code: 'lo', flag: 'LO', name: 'Lao' },
   // Other Languages
-  { code: 'zh-CN', flag: '🇨🇳', name: '中文 (Chinese)' },
-  { code: 'ta', flag: '🇮🇳', name: 'தமிழ் (Tamil)' },
-  { code: 'hi', flag: '🇮🇳', name: 'हिंदी (Hindi)' },
-  { code: 'kn', flag: '🇮🇳', name: 'ಕನ್ನಡ (Kannada)' },
-  { code: 'ar', flag: '🇸🇦', name: 'العربية (Arabic)' },
-  { code: 'fr', flag: '🇫🇷', name: 'Français' },
-  { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
-  { code: 'ja', flag: '🇯🇵', name: '日本語' },
-  { code: 'ko', flag: '🇰🇷', name: '한국어' },
-  { code: 'es', flag: '🇪🇸', name: 'Español' },
-  { code: 'ru', flag: '🇷🇺', name: 'Русский' },
-  { code: 'pt', flag: '🇵🇹', name: 'Português' }
+  { code: 'zh-CN', flag: 'ZH', name: '中文 (Chinese)' },
+  { code: 'ta', flag: 'TA', name: 'தமிழ் (Tamil)' },
+  { code: 'hi', flag: 'HI', name: 'हिंदी (Hindi)' },
+  { code: 'kn', flag: 'KN', name: 'ಕನ್ನಡ (Kannada)' },
+  { code: 'ar', flag: 'AR', name: 'العربية (Arabic)' },
+  { code: 'fr', flag: 'FR', name: 'Français' },
+  { code: 'de', flag: 'DE', name: 'Deutsch' },
+  { code: 'ja', flag: 'JA', name: '日本語' },
+  { code: 'ko', flag: 'KO', name: '한국어' },
+  { code: 'es', flag: 'ES', name: 'Español' },
+  { code: 'ru', flag: 'RU', name: 'Русский' },
+  { code: 'pt', flag: 'PT', name: 'Português' }
 ]
 
 export default function LanguageSelector() {
@@ -62,7 +62,7 @@ export default function LanguageSelector() {
         <div className="absolute top-full right-0 mt-2 bg-white border border-brand-purpleLight/70 rounded-lg shadow-lg z-50 min-w-64 overflow-hidden">
           {/* Header */}
           <div className="bg-brand-purpleDark px-4 py-3">
-            <p className="text-white text-xs font-bold tracking-wider">🌍 SELECT LANGUAGE</p>
+            <p className="text-white text-xs font-bold tracking-wider">SELECT LANGUAGE</p>
           </div>
 
           {/* Languages Grid */}
@@ -90,7 +90,7 @@ export default function LanguageSelector() {
                 onClick={() => handleLanguageChange(languages[0])}
                 className="w-full px-3 py-2 bg-brand-purpleLight/40 text-brand-purpleDark rounded-lg text-sm font-bold hover:bg-brand-marigold/20 transition-colors"
               >
-                🇬🇧 Reset to English
+                Reset to English
               </button>
             </div>
           )}

@@ -1,4 +1,4 @@
-const menuItems = [
+const NavigationLinks = [
     { label: 'Home', path: '/' },
     { label: 'About Us', path: '/about' },
     { label: 'Collaboration', path: '/collaboration' },
@@ -12,4 +12,4 @@ const menuItems = [
   ]
 
 
-  export default menuItems;
+  export default NavigationLinks;

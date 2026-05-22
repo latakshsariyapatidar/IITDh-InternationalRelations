@@ -7,33 +7,33 @@ export default function Downloads() {
     {
       title: 'International Student Resources',
       items: [
-        { name: 'International Student Guide', desc: 'Complete guide for international students at IITDH', icon: '📘', size: '2.4 MB' },
-        { name: 'Campus Factsheet', desc: 'Quick facts about campus facilities and programs', icon: '📄', size: '1.2 MB' },
-        { name: 'Accommodation Guide', desc: 'Hostel information and room allocation process', icon: '🏠', size: '1.8 MB' },
+        { name: 'International Student Guide', desc: 'Complete guide for international students at IITDH', icon: 'G1', size: '2.4 MB' },
+        { name: 'Campus Factsheet', desc: 'Quick facts about campus facilities and programs', icon: 'G2', size: '1.2 MB' },
+        { name: 'Accommodation Guide', desc: 'Hostel information and room allocation process', icon: 'G3', size: '1.8 MB' },
       ]
     },
     {
       title: 'Academic Documents',
       items: [
-        { name: 'IITDH Presentation', desc: 'Institutional overview and academic programs', icon: '🎓', size: '5.6 MB' },
-        { name: 'Academic Calendar', desc: 'Current semester schedule and important dates', icon: '📅', size: '0.8 MB' },
-        { name: 'Course Catalog', desc: 'Detailed course offerings and descriptions', icon: '📚', size: '3.2 MB' },
+        { name: 'IITDH Presentation', desc: 'Institutional overview and academic programs', icon: 'G4', size: '5.6 MB' },
+        { name: 'Academic Calendar', desc: 'Current semester schedule and important dates', icon: 'G5', size: '0.8 MB' },
+        { name: 'Course Catalog', desc: 'Detailed course offerings and descriptions', icon: 'G6', size: '3.2 MB' },
       ]
     },
     {
       title: 'Partnership Resources',
       items: [
-        { name: 'MoU Template', desc: 'Standard Memorandum of Understanding template', icon: '📋', size: '1.5 MB' },
-        { name: 'Partnership Brochure', desc: 'Benefits and framework for institutional partnerships', icon: '🤝', size: '2.1 MB' },
-        { name: 'Faculty Profiles Directory', desc: 'Searchable directory of IITDH faculty and research', icon: '👨‍🏫', size: '4.3 MB' },
+        { name: 'MoU Template', desc: 'Standard Memorandum of Understanding template', icon: 'G7', size: '1.5 MB' },
+        { name: 'Partnership Brochure', desc: 'Benefits and framework for institutional partnerships', icon: 'G8', size: '2.1 MB' },
+        { name: 'Faculty Profiles Directory', desc: 'Searchable directory of IITDH faculty and research', icon: 'G9', size: '4.3 MB' },
       ]
     },
     {
       title: 'Visa & Immigration',
       items: [
-        { name: 'Visa Checklist', desc: 'Step-by-step checklist for visa application', icon: '✅', size: '0.6 MB' },
-        { name: 'Document Requirements', desc: 'Detailed list of required documents for various visas', icon: '📑', size: '0.9 MB' },
-        { name: 'e-FRRO Guide', desc: 'Guide to online registration for international students', icon: '🌐', size: '1.1 MB' },
+        { name: 'Visa Checklist', desc: 'Step-by-step checklist for visa application', icon: 'G10', size: '0.6 MB' },
+        { name: 'Document Requirements', desc: 'Detailed list of required documents for various visas', icon: 'G11', size: '0.9 MB' },
+        { name: 'e-FRRO Guide', desc: 'Guide to online registration for international students', icon: 'G12', size: '1.1 MB' },
       ]
     }
   ]
@@ -60,7 +60,7 @@ export default function Downloads() {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">{item.size}</span>
                         <button className="text-brand-purple hover:text-brand-marigoldDark font-semibold text-sm flex items-center gap-1">
-                          ⬇️ Download
+                          Download
                         </button>
                       </div>
                     </div>
@@ -80,7 +80,7 @@ export default function Downloads() {
             subtitle="Get all documents in one ZIP file"
           />
           <button className="bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2">
-            ⬇️ Download All Files (ZIP - 18 MB)
+            Download All Files (ZIP - 18 MB)
           </button>
         </div>
       </section>
@@ -94,7 +94,7 @@ export default function Downloads() {
         <div className="grid md:grid-cols-3 gap-8">
           <Card>
             <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4">
-              <span className="text-5xl">▶️</span>
+              <span className="text-5xl">VID</span>
             </div>
             <h3 className="text-lg font-bold text-brand-purpleDark mb-2">Visa Application Guide</h3>
             <p className="text-sm text-gray-700 mb-4">Step-by-step video guide for student visa application</p>
@@ -103,7 +103,7 @@ export default function Downloads() {
 
           <Card>
             <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4">
-              <span className="text-5xl">▶️</span>
+              <span className="text-5xl">VID</span>
             </div>
             <h3 className="text-lg font-bold text-brand-purpleDark mb-2">Campus Orientation</h3>
             <p className="text-sm text-gray-700 mb-4">Virtual tour and orientation for new students</p>
@@ -112,7 +112,7 @@ export default function Downloads() {
 
           <Card>
             <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4">
-              <span className="text-5xl">▶️</span>
+              <span className="text-5xl">VID</span>
             </div>
             <h3 className="text-lg font-bold text-brand-purpleDark mb-2">e-FRRO Registration</h3>
             <p className="text-sm text-gray-700 mb-4">How to complete your e-FRRO registration online</p>

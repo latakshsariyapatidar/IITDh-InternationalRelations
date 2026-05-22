@@ -45,20 +45,20 @@ export default function Visits() {
             <Card key={idx}>
               <div className="grid md:grid-cols-2 gap-4 items-start">
                 <div>
-                  <p className="text-sm font-semibold text-brand-purple mb-1">📅 Dates</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">Dates</p>
                   <p className="font-semibold text-neutral-textDark mb-4">{visit.date}</p>
 
-                  <p className="text-sm font-semibold text-brand-purple mb-1">🏢 Delegation</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">Delegation</p>
                   <p className="font-semibold text-neutral-textDark mb-4">{visit.delegation}</p>
 
-                  <p className="text-sm font-semibold text-brand-purple mb-1">🌍 Country</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">Country</p>
                   <p className="font-semibold text-neutral-textDark">{visit.country}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-brand-purple mb-1">📋 Purpose</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">Purpose</p>
                   <p className="text-neutral-textDark/80 mb-4">{visit.purpose}</p>
 
-                  <p className="text-sm font-semibold text-brand-purple mb-1">👤 Coordinator</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">Coordinator</p>
                   <p className="text-neutral-textDark font-semibold">{visit.contact}</p>
                 </div>
               </div>
