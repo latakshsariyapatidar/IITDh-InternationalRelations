@@ -45,21 +45,21 @@ export default function Visits() {
             <Card key={idx}>
               <div className="grid md:grid-cols-2 gap-4 items-start">
                 <div>
-                  <p className="text-sm font-semibold text-blue-700 mb-1">📅 Dates</p>
-                  <p className="font-semibold text-gray-900 mb-4">{visit.date}</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">📅 Dates</p>
+                  <p className="font-semibold text-neutral-textDark mb-4">{visit.date}</p>
 
-                  <p className="text-sm font-semibold text-blue-700 mb-1">🏢 Delegation</p>
-                  <p className="font-semibold text-gray-900 mb-4">{visit.delegation}</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">🏢 Delegation</p>
+                  <p className="font-semibold text-neutral-textDark mb-4">{visit.delegation}</p>
 
-                  <p className="text-sm font-semibold text-blue-700 mb-1">🌍 Country</p>
-                  <p className="font-semibold text-gray-900">{visit.country}</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">🌍 Country</p>
+                  <p className="font-semibold text-neutral-textDark">{visit.country}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-blue-700 mb-1">📋 Purpose</p>
-                  <p className="text-gray-700 mb-4">{visit.purpose}</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">📋 Purpose</p>
+                  <p className="text-neutral-textDark/80 mb-4">{visit.purpose}</p>
 
-                  <p className="text-sm font-semibold text-blue-700 mb-1">👤 Coordinator</p>
-                  <p className="text-gray-900 font-semibold">{visit.contact}</p>
+                  <p className="text-sm font-semibold text-brand-purple mb-1">👤 Coordinator</p>
+                  <p className="text-neutral-textDark font-semibold">{visit.contact}</p>
                 </div>
               </div>
             </Card>
@@ -68,7 +68,7 @@ export default function Visits() {
       </section>
 
       {/* Gallery */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Visit Memories"
@@ -76,8 +76,8 @@ export default function Visits() {
           />
           <div className="grid md:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="bg-blue-100 rounded-lg aspect-square flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer">
-                <p className="text-gray-500">Visit Photo {item}</p>
+              <div key={item} className="bg-brand-purpleLight rounded-lg aspect-square flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer">
+                <p className="text-neutral-textDark/60">Visit Photo {item}</p>
               </div>
             ))}
           </div>
@@ -92,8 +92,8 @@ export default function Visits() {
         />
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Campus Access</h3>
-            <ul className="space-y-3 text-gray-700 text-sm">
+            <h3 className="text-xl font-bold text-neutral-textDark mb-4">Campus Access</h3>
+            <ul className="space-y-3 text-neutral-textDark/80 text-sm">
               <li><strong>Entry Process:</strong> Gate pass required from IRO</li>
               <li><strong>Parking:</strong> Visitor parking available near main gate</li>
               <li><strong>Reception:</strong> Main reception in Building 1</li>

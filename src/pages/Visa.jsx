@@ -18,15 +18,15 @@ export default function Visa() {
         />
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
-            <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Student Visa (X-Category)</h3>
+            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Student Visa (X-Category)</h3>
             <p className="text-gray-700 mb-4">The most common visa category for international students pursuing full-time degree programs.</p>
             <div className="space-y-3 text-sm text-gray-700">
               <div>
-                <p className="font-semibold text-[#7F5283]">Duration:</p>
+                <p className="font-semibold text-brand-purple">Duration:</p>
                 <p>1 year (extendable annually based on program duration)</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Requirements:</p>
+                <p className="font-semibold text-brand-purple">Requirements:</p>
                 <ul className="list-disc ml-5 space-y-1 mt-1">
                   <li>Admission letter from IITDH</li>
                   <li>Passport (valid for 6+ months)</li>
@@ -36,22 +36,22 @@ export default function Visa() {
                 </ul>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Processing:</p>
+                <p className="font-semibold text-brand-purple">Processing:</p>
                 <p>4-6 weeks from submission</p>
               </div>
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Research Visa (X-Category)</h3>
+            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Research Visa (X-Category)</h3>
             <p className="text-gray-700 mb-4">Designed for research scholars and visiting researchers at Indian institutions.</p>
             <div className="space-y-3 text-sm text-gray-700">
               <div>
-                <p className="font-semibold text-[#7F5283]">Duration:</p>
+                <p className="font-semibold text-brand-purple">Duration:</p>
                 <p>Based on research period, typically 1-4 years</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Requirements:</p>
+                <p className="font-semibold text-brand-purple">Requirements:</p>
                 <ul className="list-disc ml-5 space-y-1 mt-1">
                   <li>Research registration letter</li>
                   <li>Valid passport</li>
@@ -60,45 +60,45 @@ export default function Visa() {
                 </ul>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Extensions:</p>
+                <p className="font-semibold text-brand-purple">Extensions:</p>
                 <p>Renewable based on research progress</p>
               </div>
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Visa on Arrival (VOA)</h3>
+            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Visa on Arrival (VOA)</h3>
             <p className="text-gray-700 mb-4">Short-term visa for conference attendees and academic visitors (limited applicants).</p>
             <div className="space-y-3 text-sm text-gray-700">
               <div>
-                <p className="font-semibold text-[#7F5283]">Duration:</p>
+                <p className="font-semibold text-brand-purple">Duration:</p>
                 <p>Up to 60 days</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Eligible Countries:</p>
+                <p className="font-semibold text-brand-purple">Eligible Countries:</p>
                 <p>Selected countries only</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Application:</p>
+                <p className="font-semibold text-brand-purple">Application:</p>
                 <p>Apply online, approval before arrival</p>
               </div>
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Business Visa (B)</h3>
+            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Business Visa (B)</h3>
             <p className="text-gray-700 mb-4">For faculty attending conferences, seminars, or collaborative meetings.</p>
             <div className="space-y-3 text-sm text-gray-700">
               <div>
-                <p className="font-semibold text-[#7F5283]">Duration:</p>
+                <p className="font-semibold text-brand-purple">Duration:</p>
                 <p>Up to 6 months</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Validity:</p>
+                <p className="font-semibold text-brand-purple">Validity:</p>
                 <p>Multi-entry possible</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283]">Processing:</p>
+                <p className="font-semibold text-brand-purple">Processing:</p>
                 <p>2-4 weeks typically</p>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function Visa() {
       </section>
 
       {/* Visa Extension */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Visa Extension Process"
@@ -116,14 +116,14 @@ export default function Visa() {
           <Card className="max-w-3xl mx-auto">
             <div className="space-y-6">
               <div>
-                <h4 className="text-lg font-bold text-[#3D3C42] mb-2">Timeline for Extension</h4>
+                <h4 className="text-lg font-bold text-brand-purpleDark mb-2">Timeline for Extension</h4>
                 <p className="text-gray-700 mb-3">
                   Students should apply for visa extension 60-90 days before the current visa expires. Processing typically takes 4-6 weeks.
                 </p>
               </div>
 
               <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-lg font-bold text-[#3D3C42] mb-4">Required Documents</h4>
+                <h4 className="text-lg font-bold text-brand-purpleDark mb-4">Required Documents</h4>
                 <ul className="space-y-2 text-gray-700">
                   <li>✓ Valid passport and current visa</li>
                   <li>✓ Extension application form (available from IRO)</li>
@@ -135,7 +135,7 @@ export default function Visa() {
               </div>
 
               <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-lg font-bold text-[#3D3C42] mb-2">Processing Authority</h4>
+                <h4 className="text-lg font-bold text-brand-purpleDark mb-2">Processing Authority</h4>
                 <p className="text-gray-700">
                   Submit all documents to the <strong>International Relations Office</strong> or directly to the nearest Foreigners Regional Registration Office (FRRO/FRO) in your city.
                 </p>
@@ -153,7 +153,7 @@ export default function Visa() {
         />
         <div className="grid md:grid-cols-2 gap-8 items-start">
           <Card>
-            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">What is e-FRRO?</h3>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">What is e-FRRO?</h3>
             <p className="text-gray-700 mb-4">
               e-FRRO (electronic Foreigners Regional Registration Office) is the online platform for registering international visitors and students staying in India for more than 180 days.
             </p>
@@ -165,26 +165,26 @@ export default function Visa() {
           </Card>
 
           <Card>
-            <h3 className="text-xl font-bold text-[#3D3C42] mb-4">Registration Steps</h3>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Registration Steps</h3>
             <div className="space-y-4 text-sm text-gray-700">
               <div>
-                <p className="font-semibold text-[#7F5283] mb-1">Step 1:</p>
-                <p>Visit <a href="https://efrro.nic.in" className="text-[#7F5283] hover:underline" target="_blank" rel="noopener noreferrer">efrro.nic.in</a></p>
+                <p className="font-semibold text-brand-purple mb-1">Step 1:</p>
+                <p>Visit <a href="https://efrro.nic.in" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">efrro.nic.in</a></p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283] mb-1">Step 2:</p>
+                <p className="font-semibold text-brand-purple mb-1">Step 2:</p>
                 <p>Create account and fill registration form</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283] mb-1">Step 3:</p>
+                <p className="font-semibold text-brand-purple mb-1">Step 3:</p>
                 <p>Schedule appointment at nearest FRRO office</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283] mb-1">Step 4:</p>
+                <p className="font-semibold text-brand-purple mb-1">Step 4:</p>
                 <p>Submit documents and complete registration</p>
               </div>
               <div>
-                <p className="font-semibold text-[#7F5283] mb-1">Step 5:</p>
+                <p className="font-semibold text-brand-purple mb-1">Step 5:</p>
                 <p>Receive registration certificate (valid for visa duration)</p>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function Visa() {
       </section>
 
       {/* Important Information */}
-      <section className="bg-[#FEFBF6] py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Important Reminders"
@@ -201,7 +201,7 @@ export default function Visa() {
           />
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
-              <h3 className="text-lg font-bold text-[#3D3C42] mb-4">Visa Compliance</h3>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-4">Visa Compliance</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>⚠️ Never overstay your visa</li>
                 <li>⚠️ Maintain valid passport and registration documents</li>
@@ -211,7 +211,7 @@ export default function Visa() {
               </ul>
             </Card>
             <Card>
-              <h3 className="text-lg font-bold text-[#3D3C42] mb-4">Travel Guidelines</h3>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-4">Travel Guidelines</h3>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Carry passport always while traveling</li>
                 <li>✓ Inform IRO before leaving India</li>
@@ -227,13 +227,13 @@ export default function Visa() {
       {/* Contact for Help */}
       <section className="max-w-3xl mx-auto px-4 py-16">
         <Card className="text-center">
-          <h3 className="text-2xl font-bold text-[#3D3C42] mb-4">Need Help with Visa?</h3>
+          <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Need Help with Visa?</h3>
           <p className="text-gray-700 mb-4">
             Contact the International Relations Office for visa-related queries and assistance.
           </p>
           <div className="space-y-2 text-gray-700">
-            <p><strong>Email:</strong> <a href="mailto:iro@iitdh.ac.in" className="text-[#7F5283] hover:underline">iro@iitdh.ac.in</a></p>
-            <p><strong>Phone:</strong> <a href="tel:+91-8364-241-200" className="text-[#7F5283] hover:underline">+91-8364-241-200</a></p>
+            <p><strong>Email:</strong> <a href="mailto:iro@iitdh.ac.in" className="text-brand-purple hover:underline">iro@iitdh.ac.in</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+91-8364-241-200" className="text-brand-purple hover:underline">+91-8364-241-200</a></p>
             <p><strong>Office Hours:</strong> Mon-Fri 9:00 AM - 5:30 PM, Sat 10:00 AM - 2:00 PM</p>
           </div>
         </Card>

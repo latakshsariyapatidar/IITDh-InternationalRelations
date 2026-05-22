@@ -1,128 +1,94 @@
-import HeroSection from '../components/HeroSection'
-import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
-import CTAButton from '../components/ui/CTAButton'
+import { motion } from "framer-motion"
+import CTAButton from "../components/ui/CTAButton"
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+}
 
 export default function Home() {
   return (
-    <div>
-      <HeroSection
-        title="Welcome to IITDH"
-        subtitle="International Relations Office - Building global bridges"
-      />
-
-      {/* Director's Message */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 gap-8 items-center mb-16">
-          <div>
-            <h2 className="text-2xl font-light text-[#3D3C42] tracking-tight mb-4">Director's Message</h2>
-            <p className="text-[#3D3C42]/80 font-light leading-relaxed mb-4">
-              Welcome to IIT Dharwad, where we embrace diversity and foster global excellence. Our commitment to international collaboration enriches the academic experience for all our students and faculty.
-            </p>
-            <p className="text-[#3D3C42]/80 font-light leading-relaxed">
-              We invite students and researchers from around the world to be part of our vibrant community and contribute to cutting-edge innovation.
-            </p>
-          </div>
-          <div className="bg-[#FEFBF6] border border-[#A6D1E6]/30 shadow-sm rounded-lg h-96 flex items-center justify-center">
-            <p className="text-[#3D3C42]/50">Director's Photo</p>
-          </div>
+    <motion.div 
+      initial="hidden"
+      animate="show"
+      variants={containerVariants}
+      className="pb-24"
+    >
+      <section className="relative min-h-[70vh] flex flex-col justify-center bg-brand-purple text-white py-20 overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="geom" patternUnits="userSpaceOnUse" width="100" height="100">
+                        <path d="M 0 100 L 100 0 M -25 25 L 25 -25 M 75 125 L 125 75" stroke="#fff" strokeWidth="1" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#geom)" />
+            </svg>
+        </div>
+        <div className="container mx-auto max-w-7xl px-6 z-10 text-center">
+            <motion.p variants={itemVariants} className="text-brand-marigold font-semibold tracking-widest uppercase mb-4 text-sm">Globally Connected &bull; Locally Rooted</motion.p>
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold mb-6 leading-tight">International Relations Office</motion.h1>
+            <motion.p variants={itemVariants} className="text-xl text-brand-purpleLight/80 max-w-3xl mx-auto mb-12">The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges.</motion.p>
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-center gap-6">
+                <CTAButton to="/collaboration" label="?? For Inbound Scholars" className="bg-brand-marigold text-brand-purpleDark font-bold hover:bg-brand-marigoldDark" />
+                <CTAButton to="/collaboration" label="?? For Outgoing IITDH Cohort" className="bg-brand-purple text-white border border-brand-purpleHover font-bold hover:bg-brand-purpleHover" />
+            </motion.div>
         </div>
       </section>
 
-      {/* Registrar's Message */}
-      <section className="bg-[#FEFBF6] py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="bg-[#FEFBF6] border border-[#A6D1E6]/30 shadow-sm rounded-lg h-96 flex items-center justify-center order-2 md:order-1">
-              <p className="text-[#3D3C42]/50">Registrar's Photo</p>
-            </div>
-            <div className="order-1 md:order-2">
-              <h2 className="text-2xl font-light text-[#3D3C42] tracking-tight mb-4">Registrar's Message</h2>
-              <p className="text-[#3D3C42]/80 font-light leading-relaxed mb-4">
-                IITDH is committed to providing world-class education with strong emphasis on global partnerships and cultural exchange. Our international initiatives aim to prepare students for a connected world.
-              </p>
-              <p className="text-[#3D3C42]/80 font-light leading-relaxed">
-                Through strategic collaborations and structured exchange programs, we create pathways for mutual learning and growth.
-              </p>
-            </div>
+      {/* Stats Section */}
+      <section className="py-12 bg-brand-purpleDark text-white border-y border-brand-purpleHover">
+          <div className="container mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-brand-purpleHover">
+              <motion.div variants={itemVariants} className="pt-6 md:pt-0">
+                  <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">77</h3>
+                  <p className="text-sm uppercase tracking-wider font-semibold opacity-90">NIRF Engineering Rank</p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="pt-6 md:pt-0">
+                  <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">500+</h3>
+                  <p className="text-sm uppercase tracking-wider font-semibold opacity-90">Acre Permanent Green Campus</p>
+              </motion.div>
+              <motion.div variants={itemVariants} className="pt-6 md:pt-0">
+                  <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">2016</h3>
+                  <p className="text-sm uppercase tracking-wider font-semibold opacity-90">Est. (Mentored by IIT Bombay)</p>
+              </motion.div>
           </div>
-        </div>
       </section>
 
-      {/* About IITDH */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="About IITDH"
-          subtitle="A premier institution of technological excellence"
-        />
-
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <div>
-            <div className="bg-[#A6D1E6]/20 rounded-lg aspect-video flex items-center justify-center mb-4">
-              <p className="text-[#3D3C42]/50">Intro Video Placeholder</p>
-            </div>
-            <p className="text-[#3D3C42]/80 font-light">Watch our campus introduction video to get a glimpse of student life at IITDH.</p>
+      {/* Messages */}
+      <section className="py-24 bg-neutral-canvas">
+          <div className="container mx-auto max-w-7xl px-6">
+              <h2 className="text-3xl font-bold text-center text-neutral-textDark mb-16">Leadership Insights</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <motion.div variants={itemVariants} className="bg-white p-8 rounded-2xl shadow-sm border border-brand-purple/10 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow">
+                      <div className="w-24 h-24 bg-brand-purpleLight rounded-full flex-shrink-0 flex items-center justify-center text-3xl">??</div>
+                      <div>
+                          <h3 className="text-xl font-bold text-brand-purple mb-1">Prof. Venkappayya R. Desai</h3>
+                          <p className="text-sm text-brand-marigoldDark font-semibold mb-4">Director, IIT Dharwad</p>
+                          <p className="text-neutral-textDark/80 text-sm leading-relaxed">"Our vision is to build a vibrant global ecosystem where knowledge knows no borders. The IRO bridges our campus with the world's leading minds."</p>
+                      </div>
+                  </motion.div>
+                  <motion.div variants={itemVariants} className="bg-white p-8 rounded-2xl shadow-sm border border-brand-purple/10 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow">
+                      <div className="w-24 h-24 bg-brand-purpleLight rounded-full flex-shrink-0 flex items-center justify-center text-3xl">??</div>
+                      <div>
+                          <h3 className="text-xl font-bold text-brand-purple mb-1">Shri Sandeep Karmakar</h3>
+                          <p className="text-sm text-brand-marigoldDark font-semibold mb-4">Registrar, IIT Dharwad</p>
+                          <p className="text-neutral-textDark/80 text-sm leading-relaxed">"We are committed to providing seamless administrative support for our international visitors, ensuring a comfortable and enriching stay."</p>
+                      </div>
+                  </motion.div>
+              </div>
           </div>
-          <div>
-            <h3 className="text-xl font-medium tracking-tight text-[#3D3C42] mb-4">Fast Facts</h3>
-            <ul className="space-y-3">
-              <li className="flex gap-3">
-                <span className="text-[#7F5283] font-bold">•</span>
-                <span className="text-[#3D3C42]/80 font-light"><strong>Established:</strong> 2016</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-[#7F5283] font-bold">•</span>
-                <span className="text-[#3D3C42]/80 font-light"><strong>Campus:</strong> 500+ acres in scenic Dharwad, Karnataka</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-[#7F5283] font-bold">•</span>
-                <span className="text-[#3D3C42]/80 font-light"><strong>Programs:</strong> B.Tech, M.Tech, MS, PhD</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-[#7F5283] font-bold">•</span>
-                <span className="text-[#3D3C42]/80 font-light"><strong>International Students:</strong> From 25+ countries</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-[#7F5283] font-bold">•</span>
-                <span className="text-[#3D3C42]/80 font-light"><strong>Global Partnerships:</strong> 50+ MoUs with universities worldwide</span>
-              </li>
-            </ul>
-          </div>
-        </div>
       </section>
-
-      {/* Opportunities & Scholarships */}
-      <section className="bg-[#FEFBF6] py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader
-            title="Opportunities & Scholarships"
-            subtitle="Explore pathways to study and collaborate globally"
-          />
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <div className="text-4xl mb-4">🎓</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">For Students</h3>
-              <p className="text-[#3D3C42]/80 font-light mb-4">Exchange programs, internships, and study tours worldwide</p>
-              <CTAButton to="/collaboration">Learn More</CTAButton>
-            </Card>
-
-            <Card>
-              <div className="text-4xl mb-4">👨‍🏫</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">For Faculty</h3>
-              <p className="text-[#3D3C42]/80 font-light mb-4">SPARC, VAJRA, GIAN programs for research collaboration</p>
-              <CTAButton to="/collaboration">Explore</CTAButton>
-            </Card>
-
-            <Card>
-              <div className="text-4xl mb-4">💰</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Scholarships</h3>
-              <p className="text-[#3D3C42]/80 font-light mb-4">Merit-based, ICCR, and institutional financial aid</p>
-              <CTAButton to="/admission">Apply Now</CTAButton>
-            </Card>
-          </div>
-        </div>
-      </section>
-    </div>
+    </motion.div>
   )
 }
+

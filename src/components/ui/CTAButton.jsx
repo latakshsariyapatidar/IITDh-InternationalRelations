@@ -13,10 +13,10 @@ export default function CTAButton({
   disabled = false
 }) {
   const variants = {
-    primary: 'bg-[#A6D1E6] text-[#FEFBF6] hover:bg-[#A6D1E6] font-bold shadow-lg hover:shadow-xl',
-    secondary: 'bg-[#7F5283] text-white hover:bg-[#3D3C42] font-bold shadow-lg hover:shadow-xl',
-    outline: 'bg-transparent text-[#7F5283] border-2 border-[#7F5283] font-bold hover:bg-[#7F5283] hover:text-white',
-    ghost: 'bg-transparent text-[#7F5283] hover:bg-[#FEFBF6] font-semibold'
+    primary: 'bg-brand-marigold text-brand-purpleDark hover:bg-brand-marigoldDark font-bold shadow-lg hover:shadow-xl',
+    secondary: 'bg-brand-purple text-white hover:bg-brand-purpleHover font-bold shadow-lg hover:shadow-xl',
+    outline: 'bg-transparent text-brand-purple border-2 border-brand-purple font-bold hover:bg-brand-purple hover:text-white',
+    ghost: 'bg-transparent text-brand-purple hover:bg-brand-purpleLight font-semibold'
   }
 
   const sizes = {
@@ -66,3 +66,4 @@ export default function CTAButton({
     </button>
   )
 }
+

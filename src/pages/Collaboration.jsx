@@ -30,14 +30,14 @@ export default function Collaboration() {
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4 text-sm">{prog.desc}</p>
-              <p className="text-sm text-[#A6D1E6] font-semibold">Duration: {prog.duration}</p>
+              <p className="text-sm text-brand-marigold font-semibold">Duration: {prog.duration}</p>
             </Card>
           ))}
         </div>
       </section>
 
       {/* International Faculty */}
-      <section className="bg-[#FEFBF6] py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="International Faculty Programs"
@@ -56,7 +56,7 @@ export default function Collaboration() {
                 <ul className="space-y-2 text-sm text-gray-700">
                   {prog.points.map((point, pidx) => (
                     <li key={pidx} className="flex items-center gap-2">
-                      <span className="text-[#A6D1E6]">✓</span> {point}
+                      <span className="text-brand-marigold">✓</span> {point}
                     </li>
                   ))}
                 </ul>
@@ -84,17 +84,17 @@ export default function Collaboration() {
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4">{prog.desc}</p>
-              <p className="text-sm text-[#7F5283] font-semibold">{prog.info}</p>
+              <p className="text-sm text-brand-purple font-semibold">{prog.info}</p>
             </Card>
           ))}
         </div>
       </section>
 
       {/* Faculty Funding */}
-      <section className="bg-[#7F5283] py-16">
+      <section className="bg-brand-purpleDark py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-[#A6D1E6] text-xs font-bold tracking-widest uppercase mb-3">Funding</p>
+            <p className="text-brand-marigold text-xs font-bold tracking-widest uppercase mb-3">Funding</p>
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">IITDH Faculty: International Funding</h2>
             <p className="text-gray-100 max-w-2xl mx-auto">Government and institutional resources for collaboration</p>
           </div>
@@ -125,7 +125,7 @@ export default function Collaboration() {
           subtitle="Study in India programs and pathways"
           badge="🎓"
         />
-        <div className="bg-[#7F5283]/10 rounded-xl p-8 border border-[#FEFBF6]">
+        <div className="bg-brand-purpleLight/30 rounded-xl p-8 border border-brand-purpleLight/70">
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: '🇮🇳', title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
@@ -134,7 +134,7 @@ export default function Collaboration() {
             ].map((prog, idx) => (
               <div key={idx}>
                 <div className="text-4xl mb-3">{prog.icon}</div>
-                <h3 className="text-xl font-bold text-[#7F5283] mb-3">{prog.title}</h3>
+                <h3 className="text-xl font-bold text-brand-purple mb-3">{prog.title}</h3>
                 <p className="text-gray-700 text-sm mb-4">{prog.desc}</p>
                 <CTAButton label="Learn More" to="/admission" variant="primary" size="sm" />
               </div>

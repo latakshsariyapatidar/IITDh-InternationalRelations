@@ -50,7 +50,7 @@ export default function LanguageSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-[#7F5283]/30 rounded-lg hover:bg-[#FEFBF6] transition-colors text-sm font-medium text-[#7F5283]"
+        className="flex items-center gap-2 px-3 py-1 bg-white border border-brand-purpleLight rounded-lg hover:bg-brand-purpleLight/30 transition-colors text-xs font-medium text-brand-purpleDark"
       >
         <span className="text-base">{current.flag}</span>
         <span className="hidden sm:inline">{current.name}</span>
@@ -59,9 +59,9 @@ export default function LanguageSelector() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 bg-white border border-[#7F5283]/15 rounded-lg shadow-lg z-50 min-w-64 overflow-hidden">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-brand-purpleLight/70 rounded-lg shadow-lg z-50 min-w-64 overflow-hidden">
           {/* Header */}
-          <div className="bg-[#7F5283] px-4 py-3">
+          <div className="bg-brand-purpleDark px-4 py-3">
             <p className="text-white text-xs font-bold tracking-wider">🌍 SELECT LANGUAGE</p>
           </div>
 
@@ -73,8 +73,8 @@ export default function LanguageSelector() {
                 onClick={() => handleLanguageChange(lang)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   current.code === lang.code
-                    ? 'bg-[#7F5283] text-white'
-                    : 'bg-transparent text-gray-700 hover:bg-[#FEFBF6]'
+                    ? 'bg-brand-purple text-white'
+                    : 'bg-transparent text-brand-purpleDark hover:bg-brand-purpleLight/30'
                 }`}
               >
                 <span className="text-base">{lang.flag}</span>
@@ -88,7 +88,7 @@ export default function LanguageSelector() {
             <div className="border-t border-gray-200 p-2">
               <button
                 onClick={() => handleLanguageChange(languages[0])}
-                className="w-full px-3 py-2 bg-[#FEFBF6] text-[#7F5283] rounded-lg text-sm font-bold hover:bg-[#A6D1E6]/20 transition-colors"
+                className="w-full px-3 py-2 bg-brand-purpleLight/40 text-brand-purpleDark rounded-lg text-sm font-bold hover:bg-brand-marigold/20 transition-colors"
               >
                 🇬🇧 Reset to English
               </button>

@@ -26,10 +26,10 @@ export default function Gallery() {
           {galleryItems.map((item, idx) => (
             <div
               key={idx}
-              className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg aspect-square flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer group"
+              className="bg-linear-to-br from-blue-100 to-blue-50 rounded-lg aspect-square flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer group"
             >
               <div className="text-center">
-                <p className="text-gray-600 font-semibold text-sm group-hover:text-[#7F5283] transition">
+                <p className="text-gray-600 font-semibold text-sm group-hover:text-brand-purple transition">
                   {item}
                 </p>
               </div>
@@ -39,29 +39,29 @@ export default function Gallery() {
       </section>
 
       {/* Video Section */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Featured Videos"
             subtitle="Campus tours and student testimonials"
           />
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
               <div className="text-center">
                 <div className="text-5xl mb-2">▶️</div>
-                <p className="text-gray-600 font-semibold text-sm">Campus Tour</p>
+                <p className="text-brand-purpleDark/70 font-semibold text-sm">Campus Tour</p>
               </div>
             </div>
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
               <div className="text-center">
                 <div className="text-5xl mb-2">▶️</div>
-                <p className="text-gray-600 font-semibold text-sm">Student Life</p>
+                <p className="text-brand-purpleDark/70 font-semibold text-sm">Student Life</p>
               </div>
             </div>
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
               <div className="text-center">
                 <div className="text-5xl mb-2">▶️</div>
-                <p className="text-gray-600 font-semibold text-sm">International Community</p>
+                <p className="text-brand-purpleDark/70 font-semibold text-sm">International Community</p>
               </div>
             </div>
           </div>

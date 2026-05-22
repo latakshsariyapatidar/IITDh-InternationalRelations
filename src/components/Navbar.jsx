@@ -1,32 +1,38 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import LanguageSelector from './LanguageSelector'
+import menuItems from '../data/navigationLinks'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
-  const menuItems = [
-    { label: 'Home', path: '/' },
-    { label: 'About Us', path: '/about' },
-    { label: 'Collaboration', path: '/collaboration' },
-    { label: 'Admission', path: '/admission' },
-    { label: 'Partners', path: '/partners' },
-    { label: 'Visa', path: '/visa' },
-    { label: 'Downloads', path: '/downloads' },
-    { label: 'Life @ IITDH', path: '/life' },
-    { label: 'Gallery', path: '/gallery' },
-    { label: 'Contact', path: '/contact' },
-  ]
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined
+    }
+
+    const { body, documentElement } = document
+    const previousBodyOverflow = body.style.overflow
+    const previousHtmlOverflow = documentElement.style.overflow
+
+    body.style.overflow = 'hidden'
+    documentElement.style.overflow = 'hidden'
+
+    return () => {
+      body.style.overflow = previousBodyOverflow
+      documentElement.style.overflow = previousHtmlOverflow
+    }
+  }, [isOpen])
 
   return (
-    <nav className="sticky top-0 z-50 bg-white">
-      {/* Top Bar */}
-      <div className="bg-[#FEFBF6] border-b border-[#7F5283]/10">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div className="flex flex-col sm:flex-row gap-4 text-xs font-medium text-[#7F5283]">
+    <nav className="sticky top-0 z-50 bg-brand-purpleDark text-white">
+      {/* In future uncomment this code if you want to display the contact information and language selector */}
+      {/* <div className="bg-white border-b border-brand-purple/10">
+        <div className="max-w-7xl mx-auto px-4 py-1 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="flex flex-col sm:flex-row gap-4 text-xs font-medium text-brand-purple">
             <div className="flex items-center gap-2">
               <span>✉</span>
-              <a href="mailto:iro@iitdh.ac.in" className="hover:text-[#A6D1E6]">iro@iitdh.ac.in</a>
+              <a href="mailto:iro@iitdh.ac.in" className="hover:text-brand-marigold">iro@iitdh.ac.in</a>
             </div>
             <div className="flex items-center gap-2">
               <span>☎</span>
@@ -35,22 +41,22 @@ export default function Navbar() {
           </div>
           <LanguageSelector />
         </div>
-      </div>
+      </div> */}
 
       {/* Main Navbar */}
-      <div className="border-b border-[#FEFBF6]">
+      <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <img
-                src="/IITDh Logo.svg"
+                src="/IITDh logo white.svg"
                 alt="IIT Dharwad"
                 className="h-12 w-auto"
               />
               <div className="hidden sm:flex flex-col">
-                <span className="text-lg font-bold text-[#7F5283]">IRO</span>
-                <span className="text-xs font-semibold text-[#7F5283]">IITDH</span>
+                <span className="text-lg font-bold text-white">International Relations</span>
+                <span className="text-xs font-semibold text-brand-purpleLight/80">Indian Institute of Technology, Dharwad</span>
               </div>
             </Link>
 
@@ -60,10 +66,10 @@ export default function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-gray-700 hover:text-[#A6D1E6] font-semibold text-sm transition-colors relative group"
+                  className="text-brand-purpleLight/85 hover:text-brand-marigold font-semibold text-sm transition-colors relative group"
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#A6D1E6] group-hover:w-full transition-all"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-marigold group-hover:w-full transition-all"></span>
                 </Link>
               ))}
             </div>
@@ -71,9 +77,9 @@ export default function Navbar() {
             {/* Mobile/Tablet Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-[#FEFBF6] transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <svg className="w-6 h-6 text-[#7F5283]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -85,20 +91,27 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu */}
-          {isOpen && (
-            <div className="lg:hidden pb-4 border-t border-[#FEFBF6]">
+          <div
+            className={`lg:hidden overflow-hidden border-t border-white/10 bg-brand-purple transition-all duration-500 ease-custom-bezier motion-reduce:transition-none ${
+              isOpen
+                ? 'max-h-128 opacity-100 translate-y-0 pb-4'
+                : 'max-h-0 opacity-0 -translate-y-2 pb-0 border-t-transparent'
+            }`}
+            aria-hidden={!isOpen}
+          >
+            <div className="pt-2">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 text-gray-700 hover:bg-[#FEFBF6] hover:text-[#7F5283] font-medium transition-colors border-b border-[#FEFBF6]/50"
+                  className="block px-4 py-3 text-brand-purpleLight/90 hover:bg-white/10 hover:text-brand-marigold font-medium transition-colors border-b border-white/10 last:border-b-0"
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </nav>

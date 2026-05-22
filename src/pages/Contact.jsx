@@ -2,7 +2,6 @@ import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
-import { mockData } from '../data/mockData'
 
 export default function Contact() {
   return (
@@ -28,11 +27,11 @@ export default function Contact() {
             { name: 'Ms. Sneha Patel', role: 'Admissions', email: 'admission@iitdh.ac.in', phone: '+91-8364-241-204' }
           ].map((contact, idx) => (
             <Card key={idx} variant="light" border>
-              <h3 className="text-lg font-bold text-[#7F5283] mb-1">{contact.name}</h3>
-              <p className="text-sm text-[#A6D1E6] font-semibold mb-3">{contact.role}</p>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
+              <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.role}</p>
               <div className="space-y-2 text-sm">
-                <p><span className="font-semibold text-[#7F5283]">📧</span> <a href={`mailto:${contact.email}`} className="text-gray-700 hover:text-[#A6D1E6]">{contact.email}</a></p>
-                <p><span className="font-semibold text-[#7F5283]">☎</span> <a href={`tel:${contact.phone}`} className="text-gray-700 hover:text-[#A6D1E6]">{contact.phone}</a></p>
+                <p><span className="font-semibold text-brand-purple">📧</span> <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.email}</a></p>
+                <p><span className="font-semibold text-brand-purple">☎</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>
               </div>
             </Card>
           ))}
@@ -40,7 +39,7 @@ export default function Contact() {
       </section>
 
       {/* Contact Form */}
-      <section className="bg-[#FEFBF6] py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-2xl mx-auto px-4">
           <SectionHeader
             title="Send us a Message"
@@ -50,29 +49,29 @@ export default function Contact() {
           <form className="space-y-6 bg-white rounded-xl p-8 shadow-lg">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Full Name</label>
-                <input type="text" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Your name" />
+                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Full Name</label>
+                <input type="text" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Your name" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Email</label>
-                <input type="email" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="your@email.com" />
+                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Email</label>
+                <input type="email" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="your@email.com" />
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Phone</label>
-                <input type="tel" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="+1 234 567 8900" />
+                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Phone</label>
+                <input type="tel" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="+1 234 567 8900" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#7F5283] mb-2">Subject</label>
-                <input type="text" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Inquiry subject" />
+                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Subject</label>
+                <input type="text" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Inquiry subject" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#7F5283] mb-2">Message</label>
-              <textarea rows="5" className="w-full px-4 py-2 border-2 border-[#FEFBF6] rounded-lg focus:ring-2 focus:ring-[#7F5283] focus:border-transparent outline-none transition" placeholder="Your message..."></textarea>
+              <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Message</label>
+              <textarea rows="5" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Your message..."></textarea>
             </div>
 
             <CTAButton label="Send Message" variant="primary" size="lg" className="w-full" onClick={() => alert('Message sent! We will contact you soon.')} />
@@ -88,11 +87,11 @@ export default function Contact() {
           badge="📍"
         />
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-[#FEFBF6] rounded-xl aspect-video flex items-center justify-center border-2 border-[#FEFBF6]">
+          <div className="bg-white rounded-xl aspect-video flex items-center justify-center border border-brand-purpleLight/70">
             <p className="text-gray-400 text-center">📍 Map Placeholder</p>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-[#7F5283] mb-6">Office Address</h3>
+            <h3 className="text-2xl font-bold text-brand-purpleDark mb-6">Office Address</h3>
             <div className="space-y-4">
               {[
                 { icon: '🏢', label: 'Building Location', value: 'Building 2, Near Central Library' },
@@ -105,9 +104,9 @@ export default function Contact() {
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">{item.icon}</span>
                     <div>
-                      <p className="font-semibold text-[#7F5283]">{item.label}:</p>
+                      <p className="font-semibold text-brand-purple">{item.label}:</p>
                       {item.label === 'Email' ? (
-                        <a href={`mailto:${item.value}`} className="text-gray-700 hover:text-[#A6D1E6]">{item.value}</a>
+                        <a href={`mailto:${item.value}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{item.value}</a>
                       ) : (
                         <p className="text-gray-700">{item.value}</p>
                       )}
@@ -122,3 +121,4 @@ export default function Contact() {
     </div>
   )
 }
+

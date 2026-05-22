@@ -1,18 +1,18 @@
 // IIT Dharwad Official Brand Colors
 export const colors = {
   primary: {
-    jamun: '#7F5283',           // Jamun Purple - primary color
-    jamunDark: '#3D3C42',       // Jamun Dark - hover states
-    jamunDarkest: '#3D3C42',    // Jamun Darkest - footer background
-    jamunLight: '#FEFBF6'       // Jamun Light - backgrounds, accents
+    jamun: '#89288F',           // IIT Dharwad purple - primary color
+    jamunDark: '#5E1C64',       // Deep plum - hover states
+    jamunDarkest: '#421447',    // Deepest plum - footer background
+    jamunLight: '#E7D1E9'       // Soft lavender - backgrounds, accents
   },
   accent: {
-    marigold: '#A6D1E6',        // Marigold - accent, CTA buttons
-    marigoldDark: '#A6D1E6'     // Marigold Dark - hover states
+    marigold: '#EF9F27',        // Gold/Amber - accent, CTA buttons
+    marigoldDark: '#D58816'     // Gold/Amber - hover states
   },
   neutral: {
     white: '#ffffff',
-    darkText: '#1a0a2e',
+    darkText: '#5E1C64',
     lightText: '#4B5563',
     mutedText: '#9CA3AF',
     gray50: '#fafafa',
@@ -24,22 +24,22 @@ export const colors = {
 // Tailwind class mappings for easy reference
 export const tailwindClasses = {
   // Background colors
-  bgPrimary: 'bg-[#7F5283]',
-  bgPrimaryDark: 'bg-[#3D3C42]',
-  bgPrimaryDarkest: 'bg-[#3D3C42]',
-  bgPrimaryLight: 'bg-[#FEFBF6]',
-  bgAccent: 'bg-[#A6D1E6]',
-  bgAccentDark: 'bg-[#A6D1E6]',
+  bgPrimary: 'bg-[#89288F]',
+  bgPrimaryDark: 'bg-[#5E1C64]',
+  bgPrimaryDarkest: 'bg-[#421447]',
+  bgPrimaryLight: 'bg-[#E7D1E9]',
+  bgAccent: 'bg-[#EF9F27]',
+  bgAccentDark: 'bg-[#D58816]',
 
   // Text colors
-  textPrimary: 'text-[#7F5283]',
-  textAccent: 'text-[#A6D1E6]',
-  textAccentDark: 'text-[#A6D1E6]',
+  textPrimary: 'text-[#89288F]',
+  textAccent: 'text-[#EF9F27]',
+  textAccentDark: 'text-[#D58816]',
 
   // Hover states
-  hoverBgAccent: 'hover:bg-[#A6D1E6]',
-  hoverTextAccent: 'hover:text-[#A6D1E6]',
-  hoverBgPrimary: 'hover:bg-[#3D3C42]'
+  hoverBgAccent: 'hover:bg-[#EF9F27]',
+  hoverTextAccent: 'hover:text-[#EF9F27]',
+  hoverBgPrimary: 'hover:bg-[#5E1C64]'
 }
 
 export default colors

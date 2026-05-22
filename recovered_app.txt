@@ -1,0 +1,448 @@
+// ==========================================
+// ==========================================
+const MOU_PARTNERS_DATA = [
+const DOWNLOADABLE_DOCS = [
+const FAQ_DATA = [
+// ==========================================
+// ==========================================
+const useInView = (options = { once: true, margin: "-50px 0px" }) => {
+  const ref = useRef(null);
+  const isInView = useFramerInView(ref, options);
+const AnimatedSection = ({ children, className = '', delay = 0 }) => {
+  const [ref, isInView] = useInView();
+  const variants = {
+      ref={ref}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      className={className}
+// ==========================================
+// ==========================================
+const UtilityBar = () => {
+  const [time, setTime] = useState({ ist: '', utc: '' });
+  useEffect(() => {
+    const updateClocks = () => {
+        const now = new Date();
+    const timer = setInterval(updateClocks, 1000);
+    return () => clearInterval(timer);
+    <div className="bg-brand-purpleDark text-brand-purpleLight/80 text-xs font-medium border-b border-brand-purple/20">
+      <div className="container mx-auto max-w-7xl px-6 py-2 flex justify-between items-center flex-wrap gap-2">
+        <a href="mailto:iro@iitdh.ac.in" className="hover:text-white transition-all duration-300">iro@iitdh.ac.in</a>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1">???? <select className="bg-transparent border-none outline-none text-brand-purpleLight/80 cursor-pointer"><option>English</option><option>???????????????</option></select></span>
+          <span className="opacity-50 hidden sm:inline">|</span>
+          <span className="hidden sm:inline">{time.ist}</span>
+          <span className="opacity-50 hidden sm:inline">|</span>
+          <span className="hidden sm:inline">{time.utc}</span>
+const Navbar = ({ currentView, setCurrentView }) => {
+  const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    return () => window.removeEventListener('scroll', handleScroll);
+  const VIEWS = [
+    <header className={`sticky top-0 z-50 transition-all duration-300 ease-in-out ${
+      <div className="container mx-auto max-w-7xl px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex justify-between items-center">
+            <div className="text-xl md:text-2xl font-bold text-white flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('home')}>
+                <span className="text-brand-purpleLight/60 font-light">| IIT Dharwad</span>
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden text-white p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+        <nav className="hidden xl:flex items-center gap-1 overflow-x-auto hide-scrollbar">
+          {VIEWS.map(view => {
+            const isActive = currentView === view.id;
+                    key={view.id} 
+                    onClick={() => setCurrentView(view.id)}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 whitespace-nowrap ${isActive ? 'text-brand-marigold' : 'text-white/80 hover:text-white'}`}
+                            layoutId="activeNavIndicator"
+                            className="absolute left-0 bottom-0 h-[2px] w-full bg-brand-marigold"
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="xl:hidden bg-brand-purpleDark overflow-hidden border-t border-brand-purple/20 mt-2"
+            <div className="px-6 py-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {VIEWS.map(view => (
+                    key={view.id} 
+                    onClick={() => { setCurrentView(view.id); setIsMenuOpen(false); }} 
+                    className={`text-left text-sm font-medium transition-colors duration-300 ${currentView === view.id ? 'text-brand-marigold' : 'text-white/80 hover:text-white'}`}
+const QuickHubStrip = ({ setCurrentView }) => (
+    <div className="bg-brand-purple border-b border-brand-purpleHover py-3">
+        <div className="container mx-auto max-w-7xl px-6 flex flex-wrap justify-center gap-4">
+            <button onClick={() => setCurrentView('mobility')} className="text-sm font-semibold text-white/90 bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-colors">???? Inbound Hub</button>
+            <button onClick={() => setCurrentView('mobility')} className="text-sm font-semibold text-white/90 bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-colors">???? Outbound Hub</button>
+            <button onClick={() => setCurrentView('admissions')} className="text-sm font-semibold text-white/90 bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-colors">???? Admission Guidelines</button>
+            <button onClick={() => setCurrentView('visa')} className="text-sm font-semibold text-white/90 bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-colors">???? e-FRRO Visa Guide</button>
+// ==========================================
+// ==========================================
+const HomeView = ({ setCurrentView }) => (
+    <div className="pb-24">
+        <section className="relative min-h-[70vh] flex flex-col justify-center bg-brand-purpleDark text-white py-20 overflow-hidden">
+            <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="geom" patternUnits="userSpaceOnUse" width="100" height="100"><path d="M 0 100 L 100 0 M -25 25 L 25 -25 M 75 125 L 125 75" stroke="#fff" strokeWidth="1" /></pattern></defs><rect width="100%" height="100%" fill="url(#geom)" /></svg>
+            <div className="container mx-auto max-w-7xl px-6 z-10 text-center">
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-brand-marigold font-semibold tracking-widest uppercase mb-4 text-sm">Globally Connected ??? Locally Rooted</motion.p>
+                <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-bold mb-6 leading-tight">International Relations Office</motion.h1>
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl text-brand-purpleLight/80 max-w-3xl mx-auto mb-12">The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges.</motion.p>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col sm:flex-row justify-center gap-6">
+                    <button onClick={() => setCurrentView('mobility')} className="bg-brand-marigold text-brand-purpleDark font-bold py-4 px-10 rounded-xl hover:bg-brand-marigoldDark hover:-translate-y-1 transition-all shadow-lg text-lg">???? For Inbound Scholars</button>
+                    <button onClick={() => setCurrentView('mobility')} className="bg-brand-purple text-white border border-brand-purpleHover font-bold py-4 px-10 rounded-xl hover:bg-brand-purpleHover hover:-translate-y-1 transition-all shadow-lg text-lg">???? For Outgoing IITDH Cohort</button>
+        <section className="py-12 bg-brand-purple text-white border-y border-brand-purpleHover">
+            <div className="container mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-brand-purpleHover">
+                <AnimatedSection className="pt-6 md:pt-0">
+                    <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">77</h3>
+                    <p className="text-sm uppercase tracking-wider font-semibold opacity-90">NIRF Engineering Rank</p>
+                <AnimatedSection delay={0.1} className="pt-6 md:pt-0">
+                    <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">500+</h3>
+                    <p className="text-sm uppercase tracking-wider font-semibold opacity-90">Acre Permanent Green Campus</p>
+                <AnimatedSection delay={0.2} className="pt-6 md:pt-0">
+                    <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">2016</h3>
+                    <p className="text-sm uppercase tracking-wider font-semibold opacity-90">Est. (Mentored by IIT Bombay)</p>
+        <section className="py-24 bg-neutral-canvas">
+            <div className="container mx-auto max-w-7xl px-6">
+                <h2 className="text-3xl font-bold text-center text-neutral-textDark mb-16">Leadership Insights</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <AnimatedSection className="bg-white p-8 rounded-2xl shadow-sm border border-brand-purple/10 flex flex-col sm:flex-row gap-6">
+                        <div className="w-24 h-24 bg-brand-purpleLight rounded-full flex-shrink-0 flex items-center justify-center text-3xl">????</div>
+                            <h3 className="text-xl font-bold text-brand-purple mb-1">Prof. Venkappayya R. Desai</h3>
+                            <p className="text-sm text-brand-marigoldDark font-semibold mb-4">Director, IIT Dharwad</p>
+                            <p className="text-neutral-textDark/80 text-sm leading-relaxed">"Our vision is to build a vibrant global ecosystem where knowledge knows no borders. The IRO bridges our campus with the world's leading minds."</p>
+                    <AnimatedSection delay={0.1} className="bg-white p-8 rounded-2xl shadow-sm border border-brand-purple/10 flex flex-col sm:flex-row gap-6">
+                        <div className="w-24 h-24 bg-brand-purpleLight rounded-full flex-shrink-0 flex items-center justify-center text-3xl">????</div>
+                            <h3 className="text-xl font-bold text-brand-purple mb-1">Shri Sandeep Karmakar</h3>
+                            <p className="text-sm text-brand-marigoldDark font-semibold mb-4">Registrar, IIT Dharwad</p>
+                            <p className="text-neutral-textDark/80 text-sm leading-relaxed">"We are committed to providing seamless administrative support for our international visitors, ensuring a comfortable and enriching stay."</p>
+// ==========================================
+// ==========================================
+const AboutView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">About the IRO</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Guiding IIT Dharwad's global outreach and institutional partnerships.</p>
+            <AnimatedSection className="bg-white rounded-2xl shadow-sm border border-brand-purple/10 p-10 mb-16 text-center max-w-4xl mx-auto">
+                <div className="w-32 h-32 bg-brand-purpleLight rounded-full mx-auto mb-6 flex items-center justify-center text-4xl">????</div>
+                <h2 className="text-2xl font-bold text-brand-purple mb-2">Dean of International Outreach & IRO Chairperson</h2>
+                <p className="text-neutral-textDark/80 leading-relaxed text-lg italic">"The International Relations Office acts as the central node for global engagement. We facilitate cross-cultural academic exchange, support joint research architectures, and ensure our students and faculty are global citizens."</p>
+            <h2 className="text-3xl font-bold text-center text-neutral-textDark mb-10">Department Faculty Advisors</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+                {['Computer Science', 'Electrical Eng.', 'Mechanical Eng.', 'Basic Sciences'].map((dept, i) => (
+                    <AnimatedSection key={i} delay={i * 0.1} className="bg-white p-6 rounded-xl border border-brand-purple/10 shadow-sm text-center">
+                        <div className="w-16 h-16 bg-brand-purpleLight rounded-full mx-auto mb-4 flex items-center justify-center">???????????</div>
+                        <h3 className="font-bold text-neutral-textDark">{dept}</h3>
+                        <p className="text-sm text-brand-purple mt-2 font-medium">Dr. Faculty Member</p>
+            <h2 className="text-3xl font-bold text-center text-neutral-textDark mb-10">IR Student Ambassador Team</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {[1,2,3,4].map((student, i) => (
+                    <AnimatedSection key={i} delay={i * 0.1} className="bg-white p-6 rounded-xl border border-neutral-subtleBorder shadow-sm text-center hover:border-brand-marigold transition-colors">
+                        <div className="w-20 h-20 bg-neutral-canvas rounded-full mx-auto mb-4 flex items-center justify-center text-2xl">???????????</div>
+                        <h3 className="font-bold text-neutral-textDark mb-1">Student Name</h3>
+                        <p className="text-xs text-brand-marigoldDark font-semibold mb-3">IRO Ambassador</p>
+                        <a href="mailto:student@iitdh.ac.in" className="text-sm text-brand-purple hover:underline">Contact</a>
+// ==========================================
+// ==========================================
+const MobilityView = () => {
+    const [activeTab, setActiveTab] = useState('intl_students');
+    const tabs = [
+        <div className="py-24 bg-neutral-canvas min-h-screen">
+            <div className="container mx-auto max-w-7xl px-6">
+                <div className="text-center mb-16">
+                    <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Collaboration & Mobility Hub</h1>
+                    <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Explore pathways for inbound and outbound academic movement.</p>
+                <div className="flex justify-center mb-12">
+                    <div className="inline-flex bg-white p-1.5 rounded-xl shadow-sm border border-brand-purple/10 flex-wrap justify-center gap-1">
+                        {tabs.map(tab => (
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`relative px-6 py-3 rounded-lg text-sm font-semibold transition-colors duration-300 z-10 ${activeTab === tab.id ? 'text-white' : 'text-brand-purple hover:text-brand-purpleDark'}`}
+                                {activeTab === tab.id && (
+                                    <motion.div layoutId="activeTabIndicator" className="absolute inset-0 bg-brand-purple rounded-lg -z-10 shadow-md" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+                <AnimatePresence mode="wait">
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        {activeTab === 'intl_students' && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {['Full-time Coursework', 'Research Internships', 'Study Tours & Immersion'].map((track, i) => (
+                                    <div key={i} className="bg-white p-8 rounded-xl shadow-sm border border-neutral-subtleBorder hover:border-brand-purple transition-colors">
+                                        <h3 className="text-xl font-bold text-brand-purple mb-4">{track}</h3>
+                                        <p className="text-neutral-textDark/70 text-sm leading-relaxed mb-6">Comprehensive academic pathways designed for visiting scholars to integrate with our curriculum and laboratories.</p>
+                                        <button className="text-brand-marigoldDark font-semibold hover:text-brand-marigold flex items-center gap-1">Learn More <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg></button>
+                        {activeTab === 'intl_faculty' && (
+                                <h2 className="text-2xl font-bold text-neutral-textDark mb-8 text-center">International Faculty Funding Tracks</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {['SPARC', 'VAJRA', 'GIAN', 'SERB'].map((scheme, i) => (
+                                        <div key={i} className="bg-white p-6 rounded-xl border border-brand-purple/10 text-center shadow-sm">
+                                            <h3 className="text-2xl font-extrabold text-brand-marigold mb-2">{scheme}</h3>
+                                            <p className="text-xs text-neutral-textDark/60 uppercase tracking-wider font-bold mb-4">Govt. Funding Scheme</p>
+                                            <p className="text-sm text-neutral-textDark/80">Support for collaborative research and visiting professorships.</p>
+                        {activeTab === 'iitdh_scholars' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="bg-white p-8 rounded-xl shadow-sm border border-brand-purple/20">
+                                    <h3 className="text-xl font-bold text-brand-purple mb-4">Semester Exchange</h3>
+                                    <p className="text-neutral-textDark/70 mb-4">Spend a semester at a partner university with full credit transfer capabilities.</p>
+                                    <ul className="list-disc pl-5 text-sm text-neutral-textDark/80 space-y-2">
+                                <div className="bg-white p-8 rounded-xl shadow-sm border border-brand-purple/20">
+                                    <h3 className="text-xl font-bold text-brand-purple mb-4">Joint Research / Conferences</h3>
+                                    <p className="text-neutral-textDark/70 mb-4">Financial and administrative support for presenting research globally.</p>
+                                    <ul className="list-disc pl-5 text-sm text-neutral-textDark/80 space-y-2">
+// ==========================================
+// ==========================================
+const AdmissionsView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">International Admissions</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Streamlined entry pipelines for full-time degree programs.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+                <AnimatedSection className="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-t-brand-marigold">
+                    <h2 className="text-xl font-bold text-neutral-textDark mb-4">Study In India (SII)</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Centralized portal by the Govt of India for applying to premier institutes.</p>
+                    <button className="w-full py-2 bg-brand-purpleLight text-brand-purple font-semibold rounded-lg hover:bg-brand-purple hover:text-white transition-colors">Access SII Portal</button>
+                <AnimatedSection delay={0.1} className="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-t-brand-purple">
+                    <h2 className="text-xl font-bold text-neutral-textDark mb-4">ICCR Fellowships</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Fully funded scholarship programs via Indian embassies abroad.</p>
+                    <button className="w-full py-2 bg-brand-purpleLight text-brand-purple font-semibold rounded-lg hover:bg-brand-purple hover:text-white transition-colors">View Schemes</button>
+                <AnimatedSection delay={0.2} className="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-t-brand-purpleDark">
+                    <h2 className="text-xl font-bold text-neutral-textDark mb-4">Self-Financed</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Direct application to IIT Dharwad programs as a self-sponsored candidate.</p>
+                    <button className="w-full py-2 bg-brand-purpleLight text-brand-purple font-semibold rounded-lg hover:bg-brand-purple hover:text-white transition-colors">Apply Directly</button>
+            <div className="bg-white rounded-2xl p-10 shadow-sm border border-neutral-subtleBorder">
+                <h2 className="text-2xl font-bold text-neutral-textDark mb-8 text-center">Entry Requirements Checklist</h2>
+                <div className="space-y-6 max-w-3xl mx-auto">
+                    ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-4">
+                            <div className="w-6 h-6 rounded-full bg-brand-marigold/20 text-brand-marigoldDark flex items-center justify-center flex-shrink-0 mt-0.5">???</div>
+                            <p className="text-neutral-textDark/80 font-medium">{item}</p>
+// ==========================================
+// ==========================================
+const PartnersView = () => {
+    const [query, setQuery] = useState('');
+    const filteredPartners = useMemo(() => {
+        const lowerQ = query.toLowerCase();
+        return MOU_PARTNERS_DATA.filter(p =>
+    const partnersMarquee = [
+        <div className="py-24 bg-neutral-canvas">
+            <section className="mb-20 py-8 bg-brand-purple border-y border-brand-purpleHover overflow-hidden">
+                <div className="flex w-[200%] md:w-max">
+                    <motion.div className="flex whitespace-nowrap" animate={{ x: ["0%", "-50%"] }} transition={{ ease: "linear", duration: 30, repeat: Infinity }}>
+                        {[...partnersMarquee, ...partnersMarquee].map((partner, idx) => (
+                            <div key={idx} className="flex items-center px-8">
+                                <span className="text-white/90 font-bold text-xl">{partner}</span>
+                                <span className="mx-8 text-brand-marigold/50">???</span>
+            <div className="container mx-auto max-w-7xl px-6">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-neutral-textDark mb-4">MoU Registry Directory</h1>
+                    <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Search our active global agreements and partnerships.</p>
+                <div className="max-w-xl mx-auto mb-10 relative">
+                    <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-textDark/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search institution, country, domain..."
+                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-neutral-subtleBorder rounded-xl focus:ring-2 focus:ring-brand-purple outline-none shadow-sm"
+                <div className="overflow-x-auto bg-white border border-neutral-subtleBorder rounded-xl shadow-sm">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-brand-purpleLight border-b border-neutral-subtleBorder text-brand-purpleDark text-xs uppercase tracking-wider font-bold">
+                                <th className="p-5">Institution</th>
+                                <th className="p-5">Country</th>
+                                <th className="p-5">Domain</th>
+                                <th className="p-5">Year</th>
+                                <th className="p-5 text-center">Status</th>
+                        <tbody className="divide-y divide-neutral-subtleBorder">
+                                {filteredPartners.map(partner => (
+                                        key={partner.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.15 } }}
+                                        className="hover:bg-brand-purpleLight/30"
+                                        <td className="p-5 font-semibold text-neutral-textDark">{partner.institution}</td>
+                                        <td className="p-5 text-neutral-textDark/80">{partner.country}</td>
+                                        <td className="p-5 text-neutral-textDark/80">{partner.domain}</td>
+                                        <td className="p-5 text-neutral-textDark/80">{partner.year}</td>
+                                        <td className="p-5 text-center">
+                                            <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Active</span>
+                    {filteredPartners.length === 0 && (
+                        <div className="p-12 text-center text-neutral-textDark/50 font-medium">No records found.</div>
+// ==========================================
+// ==========================================
+const VisaView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Visa & Immigration Services</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Essential legal protocols for your stay in India.</p>
+            <div className="bg-brand-marigold/10 border-l-4 border-brand-marigold p-6 rounded-r-xl mb-12 shadow-sm">
+                <h3 className="text-lg font-bold text-brand-marigoldDark mb-2 flex items-center gap-2">?????? Mandatory Advisory</h3>
+                <p className="text-neutral-textDark/80 font-medium">All international arrivals must report to the local FRRO via the e-FRRO portal within <span className="font-bold text-red-600">14 days</span> of border entry. The IRO provides full assistance for this process.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <AnimatedSection className="bg-white p-8 rounded-xl border border-brand-purple/20 shadow-sm">
+                    <h3 className="text-xl font-bold text-brand-purple mb-4">S-Visa Frameworks</h3>
+                    <p className="text-sm text-neutral-textDark/70 mb-4">The Student Visa (S-Visa) is required for degree programs. Requires an official admission letter and institutional bonafide certificate.</p>
+                    <a href="#" className="text-brand-purple font-semibold hover:underline">Read Guidelines ???</a>
+                <AnimatedSection delay={0.1} className="bg-white p-8 rounded-xl border border-brand-purple/20 shadow-sm">
+                    <h3 className="text-xl font-bold text-brand-purple mb-4">Visa Extensions</h3>
+                    <p className="text-sm text-neutral-textDark/70 mb-4">If your academic program exceeds your visa duration, the IRO issues Bonafide documents for official extension protocols.</p>
+                    <a href="#" className="text-brand-purple font-semibold hover:underline">Request Bonafide ???</a>
+                <AnimatedSection delay={0.2} className="bg-white p-8 rounded-xl border border-brand-purple/20 shadow-sm">
+                    <h3 className="text-xl font-bold text-brand-purple mb-4">e-FRRO Portal</h3>
+                    <p className="text-sm text-neutral-textDark/70 mb-4">Online registration portal for foreigners. Required for registration, visa extensions, and exit permits.</p>
+                    <a href="#" className="text-brand-purple font-semibold hover:underline">Access Portal ???</a>
+// ==========================================
+// ==========================================
+const DownloadsView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Document Center</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Official administrative frameworks and templates.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {DOWNLOADABLE_DOCS.map((doc, i) => (
+                    <AnimatedSection key={i} delay={i * 0.05} className="bg-white border border-neutral-subtleBorder rounded-xl p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-6">
+                            <span className={`text-xs font-bold px-3 py-1 rounded-md tracking-wider ${
+                                doc.type === 'PDF' ? 'bg-red-100 text-red-700' :
+                                doc.type === 'DOCX' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
+                            <span className="text-xs font-semibold text-neutral-textDark/60 bg-neutral-canvas px-2.5 py-1 rounded-md border border-neutral-subtleBorder">{doc.category}</span>
+                        <h3 className="text-xl font-bold text-neutral-textDark flex-grow leading-snug">{doc.title}</h3>
+                        <button className="w-full mt-6 bg-brand-purpleLight text-brand-purple font-bold py-3 px-6 rounded-lg hover:bg-brand-purple hover:text-white transition-colors flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+// ==========================================
+// ==========================================
+const LifeView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Life @ IIT Dharwad</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Experience our sprawling permanent campus at Chikkamalligawad.</p>
+            <AnimatedSection className="w-full aspect-video bg-neutral-subtleBorder rounded-2xl mb-16 flex items-center justify-center relative overflow-hidden shadow-lg">
+                <div className="absolute inset-0 bg-brand-purpleDark/20"></div>
+                <button className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center text-brand-purple hover:scale-110 transition-transform shadow-xl z-10">
+                    <svg className="w-10 h-10 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <AnimatedSection className="bg-white p-10 rounded-2xl border border-neutral-subtleBorder shadow-sm">
+                    <h2 className="text-2xl font-bold text-brand-purple mb-4">Housing Specifications</h2>
+                    <p className="text-neutral-textDark/80 leading-relaxed mb-6">International students are guaranteed accommodation in our modern, secure campus hostels. Rooms are fully furnished and integrated with high-speed campus Wi-Fi networks.</p>
+                    <ul className="space-y-2 text-sm font-medium text-neutral-textDark/70">
+                <AnimatedSection delay={0.1} className="bg-white p-10 rounded-2xl border border-neutral-subtleBorder shadow-sm">
+                    <h2 className="text-2xl font-bold text-brand-purple mb-4">Diet & Dining Matrices</h2>
+                    <p className="text-neutral-textDark/80 leading-relaxed mb-6">Our dining halls operate on a diverse matrix to cater to international palettes, maintaining high standards of hygiene and nutritional value.</p>
+                    <ul className="space-y-2 text-sm font-medium text-neutral-textDark/70">
+// ==========================================
+// ==========================================
+const ExploreView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Local Discovery Hub</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Dharwad is the gateway to rich cultural heritage and natural beauty.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                ].map((item, i) => (
+                    <AnimatedSection key={i} delay={i * 0.1} className="bg-white border border-brand-purple/10 rounded-xl overflow-hidden shadow-sm group">
+                        <div className="h-40 bg-brand-purpleLight group-hover:bg-brand-purple transition-colors duration-300"></div>
+                        <div className="p-6">
+                            <h3 className="font-bold text-lg text-neutral-textDark mb-2">{item.title}</h3>
+                            <p className="text-sm text-neutral-textDark/70">{item.desc}</p>
+// ==========================================
+// ==========================================
+const GalleryView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <h1 className="text-4xl font-bold text-center text-neutral-textDark mb-16">Events & Gallery</h1>
+            <div className="mb-20">
+                <h2 className="text-2xl font-bold text-brand-purple mb-8 border-b border-neutral-subtleBorder pb-4">Upcoming Event Timeline</h2>
+                <div className="space-y-6 max-w-4xl">
+                    {[1, 2, 3].map(i => (
+                        <AnimatedSection key={i} delay={i * 0.1} className="flex gap-6 bg-white p-6 rounded-xl border border-neutral-subtleBorder shadow-sm">
+                            <div className="flex-shrink-0 text-center bg-brand-purpleLight rounded-lg p-3 w-20">
+                                <div className="text-brand-purple font-bold text-xl">1{i}</div>
+                                <div className="text-xs uppercase font-semibold text-neutral-textDark/60">Nov</div>
+                                <h3 className="text-lg font-bold text-neutral-textDark">International Scholars Symposium {2026 + i}</h3>
+                                <p className="text-sm text-neutral-textDark/70 mt-1">Main Auditorium, Permanent Campus</p>
+                <h2 className="text-2xl font-bold text-brand-purple mb-8 border-b border-neutral-subtleBorder pb-4">Image Gallery</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {[...Array(8)].map((_, i) => (
+                        <AnimatedSection key={i} delay={i * 0.05} className="aspect-square bg-neutral-subtleBorder rounded-lg overflow-hidden relative group cursor-pointer">
+                            <div className="absolute inset-0 bg-brand-purple/0 group-hover:bg-brand-purple/20 transition-colors duration-300 z-10"></div>
+                            <div className="absolute inset-0 flex items-center justify-center text-neutral-textDark/30">Photo {i+1}</div>
+// ==========================================
+// ==========================================
+const ContactView = () => (
+    <div className="py-24 bg-neutral-canvas">
+        <div className="container mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl font-bold text-neutral-textDark mb-4">Contact Office Directory</h1>
+                <p className="text-neutral-textDark/70 max-w-2xl mx-auto text-lg">Routing matrices to connect you with the right administrative channel.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <AnimatedSection className="bg-white p-8 rounded-2xl border border-brand-purple/10 shadow-sm text-center hover:border-brand-purple transition-colors">
+                    <h2 className="text-xl font-bold text-brand-purple mb-2">Chairperson / Central Office</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Institutional MoUs and strategic global partnerships.</p>
+                    <a href="mailto:iro@iitdh.ac.in" className="inline-block bg-brand-purpleLight text-brand-purple font-bold py-2 px-6 rounded-lg hover:bg-brand-purple hover:text-white transition-colors">iro@iitdh.ac.in</a>
+                <AnimatedSection delay={0.1} className="bg-white p-8 rounded-2xl border border-brand-marigold/30 shadow-sm text-center hover:border-brand-marigold transition-colors">
+                    <h2 className="text-xl font-bold text-brand-marigoldDark mb-2">International Admissions</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Applications across SII, ICCR, and embassy channels.</p>
+                    <a href="mailto:pgadmissions@iitdh.ac.in" className="inline-block bg-brand-marigold/10 text-brand-marigoldDark font-bold py-2 px-6 rounded-lg hover:bg-brand-marigold hover:text-white transition-colors">pgadmissions@iitdh.ac.in</a>
+                <AnimatedSection delay={0.2} className="bg-white p-8 rounded-2xl border border-brand-purple/10 shadow-sm text-center hover:border-brand-purple transition-colors">
+                    <h2 className="text-xl font-bold text-brand-purple mb-2">International Collaborations</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Delegation visits and joint research tracks coordination.</p>
+                    <a href="mailto:collab@iitdh.ac.in" className="inline-block bg-brand-purpleLight text-brand-purple font-bold py-2 px-6 rounded-lg hover:bg-brand-purple hover:text-white transition-colors">collab@iitdh.ac.in</a>
+                <AnimatedSection delay={0.3} className="bg-white p-8 rounded-2xl border border-brand-purple/10 shadow-sm text-center hover:border-brand-purple transition-colors">
+                    <h2 className="text-xl font-bold text-brand-purple mb-2">Student Mobility Coordinator</h2>
+                    <p className="text-sm text-neutral-textDark/70 mb-6">Inbound and outbound logistics, visas, and FRRO.</p>
+                    <a href="mailto:mobility@iitdh.ac.in" className="inline-block bg-brand-purpleLight text-brand-purple font-bold py-2 px-6 rounded-lg hover:bg-brand-purple hover:text-white transition-colors">mobility@iitdh.ac.in</a>
+// ==========================================
+// ==========================================
+const Footer = () => {
+    const [openFaq, setOpenFaq] = useState(null);
+        <footer className="bg-brand-purpleDark text-white pt-20 border-t-4 border-brand-marigold">
+            <div className="container mx-auto max-w-7xl px-6">
+                <div className="mb-20">
+                    <h2 className="text-2xl font-bold text-brand-marigold mb-8 text-center">Frequently Asked Questions</h2>
+                    <div className="max-w-4xl mx-auto space-y-4">
+                        {FAQ_DATA.map((faq, index) => (
+                            <div key={index} className="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                                    className="w-full flex justify-between items-center text-left p-5 font-semibold focus:outline-none"
+                                    <span className="pr-4">{faq.q}</span>
+                                    <motion.div animate={{ rotate: openFaq === index ? 180 : 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} className="flex-shrink-0 text-brand-marigold">
+                                    {openFaq === index && (
+                                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
+                                            <div className="px-5 pb-5 text-white/70 text-sm leading-relaxed border-t border-white/10 pt-4 mt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                        <div className="text-xl font-bold text-white mb-4">IRO | IIT Dharwad</div>
+                        <p className="text-sm text-brand-purpleLight/70 mb-6 leading-relaxed">
+                        <h4 className="font-bold text-lg mb-4 text-brand-marigold">Academic Links</h4>
+                        <ul className="space-y-2 text-sm text-brand-purpleLight/70">
+                            <li><a href="#" className="hover:text-white transition-colors">Faculty Research Profiles</a></li>
+                            <li><a href="#" className="hover:text-white transition-colors">Departments & Centers</a></li>
+                            <li><a href="#" className="hover:text-white transition-colors">Academic Calendar</a></li>
+                        <h4 className="font-bold text-lg mb-4 text-brand-marigold">Campus Portals</h4>
+                        <ul className="space-y-2 text-sm text-brand-purpleLight/70">
+                            <li><a href="#" className="hover:text-white transition-colors">Guest House Reservation</a></li>
+                            <li><a href="#" className="hover:text-white transition-colors">Student Council Links</a></li>
+                            <li><a href="#" className="hover:text-white transition-colors">Feedback Channels</a></li>
+                        <h4 className="font-bold text-lg mb-4 text-brand-marigold">Social Connect</h4>
+                        <div className="flex gap-4">
+                            {['LinkedIn', 'Twitter', 'Facebook', 'YouTube'].map(social => (
+                                <a key={social} href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-brand-marigold hover:text-brand-purpleDark transition-all duration-300">
+                                    <span className="sr-only">{social}</span>
+                <div className="border-t border-white/10 py-8 text-center text-sm text-brand-purpleLight/50">
+// ==========================================
+// ==========================================
+  const [currentView, setCurrentView] = useState('home');
+  useEffect(() => {
+  const renderView = () => {
+      case 'home': return <HomeView setCurrentView={setCurrentView} />;
+      default: return <HomeView setCurrentView={setCurrentView} />;
+    <div className="bg-neutral-canvas font-sans text-neutral-textDark min-h-screen flex flex-col">
+      <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+      <QuickHubStrip setCurrentView={setCurrentView} />
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
+            key={currentView}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}

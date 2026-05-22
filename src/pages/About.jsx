@@ -32,17 +32,17 @@ export default function About() {
               <CTAButton label="View Full Bio" variant="secondary" />
             </div>
           </div>
-          <div className="bg-[#FEFBF6] rounded-xl h-80 flex items-center justify-center border-2 border-[#FEFBF6]">
+          <div className="bg-white rounded-xl h-80 flex items-center justify-center border border-brand-purpleLight/70">
             <p className="text-gray-400">👔 Dean's Photo</p>
           </div>
         </div>
       </section>
 
       {/* IR Office Message */}
-      <section className="bg-[#FEFBF6] py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="bg-[#FEFBF6] rounded-xl h-80 flex items-center justify-center order-2 md:order-1 border-2 border-[#7F5283]/20">
+            <div className="bg-neutral-canvas rounded-xl h-80 flex items-center justify-center order-2 md:order-1 border-2 border-brand-purple/20">
               <p className="text-gray-400">👥 Team Photo</p>
             </div>
             <div className="order-1 md:order-2">
@@ -78,9 +78,9 @@ export default function About() {
               <div className="flex items-start gap-3">
                 <div className="text-3xl">👨‍🏫</div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#7F5283] mb-1">{prof.name}</h3>
-                  <p className="text-sm text-[#A6D1E6] font-semibold mb-2">{prof.department}</p>
-                  <a href={`mailto:${prof.email}`} className="text-gray-700 hover:text-[#A6D1E6] text-sm">
+                  <h3 className="text-lg font-bold text-brand-purple mb-1">{prof.name}</h3>
+                  <p className="text-sm text-brand-marigold font-semibold mb-2">{prof.department}</p>
+                  <a href={`mailto:${prof.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold text-sm">
                     {prof.email}
                   </a>
                 </div>
@@ -91,10 +91,10 @@ export default function About() {
       </section>
 
       {/* IR Students Team */}
-      <section className="bg-[#7F5283] py-16">
+      <section className="bg-brand-purpleDark py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-[#A6D1E6] text-xs font-bold tracking-widest uppercase mb-3">Team</p>
+            <p className="text-brand-marigold text-xs font-bold tracking-widest uppercase mb-3">Team</p>
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">IR Students Team</h2>
             <p className="text-gray-100 max-w-2xl mx-auto">Student leaders driving international initiatives</p>
           </div>
@@ -102,12 +102,12 @@ export default function About() {
             {mockData.irTeam.map((member, idx) => (
               <Card key={idx} variant="accent">
                 <div className="text-center">
-                  <div className="bg-[#7F5283] rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center border-2 border-[#A6D1E6]">
+                  <div className="bg-brand-purple rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center border-2 border-brand-marigold">
                     <span className="text-white text-3xl font-bold">{member.name[0]}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-[#2d0a1e] mb-1">{member.name}</h3>
-                  <p className="text-sm text-[#2d0a1e] font-semibold mb-1">{member.role}</p>
-                  <p className="text-xs text-[#2d0a1e]">{member.year} Year</p>
+                  <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
+                  <p className="text-sm text-brand-purpleLight font-semibold mb-1">{member.role}</p>
+                  <p className="text-xs text-brand-purpleLight/80">{member.year} Year</p>
                 </div>
               </Card>
             ))}
@@ -116,7 +116,7 @@ export default function About() {
       </section>
 
       {/* Call to Action */}
-      <section className="bg-[#3D3C42] py-16">
+      <section className="bg-brand-purple py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">Join Our Team</h2>
           <p className="text-gray-200 text-lg mb-8">Help us build international bridges and foster global collaboration</p>
