@@ -113,7 +113,7 @@ export default function Admission() {
             <h2 className="text-4xl font-bold mb-4">Get in Touch</h2>
             <p className="text-neutral-canvas">Questions? Contact our admissions team</p>
           </div>
-          <Card variant="accent">
+          <Card variant="white">
             <h3 className="text-2xl font-bold text-neutral-textDark mb-4 text-center">International Admissions Office</h3>
             <div className="space-y-3 text-center mb-6">
               <p className="text-neutral-textDark"><strong>Contact Person:</strong> Ms. Sneha Patel</p>

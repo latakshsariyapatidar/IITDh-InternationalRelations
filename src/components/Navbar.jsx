@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import LanguageSelector from './LanguageSelector'
+// import LanguageSelector from './LanguageSelector'
 import NavigationLinks from '../data/navigationLinks'
 
 export default function Navbar() {
@@ -41,8 +41,7 @@ export default function Navbar() {
           </div>
           <LanguageSelector />
         </div>
-      </div> */
-      }
+      </div> */}
 
       {/* Main Navbar */}
       <div className="border-b border-white/10">

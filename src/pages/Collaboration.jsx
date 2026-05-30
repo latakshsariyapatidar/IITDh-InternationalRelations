@@ -104,7 +104,7 @@ export default function Collaboration() {
               { title: 'University Partnerships', items: ['Research collaboration funds', 'Faculty exchange grants', 'Joint publications support', 'Dual appointment programs', 'Sabbatical positions'] },
               { title: 'Internal Support', items: ['Travel grants', 'Collaborative research funds', 'Visiting scholar support', 'Conference presentation aid', 'Publication grants'] }
             ].map((section, idx) => (
-              <Card key={idx} variant="accent" title={section.title.split(' ')[1]}>
+              <Card key={idx} variant="default" title={section.title.split(' ')[1]}>
                 <ul className="space-y-2 text-sm">
                   {section.items.map((item, iidx) => (
                     <li key={iidx} className="flex items-center gap-2 text-[#2d0a1e]">
