@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 // import LanguageSelector from './LanguageSelector'
-import NavigationLinks from '../data/navigationLinks'
+import NavigationLinks from '../data/NavigationLinks'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
