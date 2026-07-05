@@ -1,0 +1,220 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// // -- enums ---- 
+
+enum PartnerType {
+  UNIVERSITY
+  ORGANIZATION
+}
+
+enum ProgramLevel {
+UNDERGRADUATE 
+POSTGRADUATE
+PHD
+}
+
+enum ContactType {
+  CHAIRPERSON
+  IRO_OFFICE
+  MOBILITY
+  ADMISSION
+}
+
+enum DownloadCategory {
+  ADMISSION_FORM
+  VISA_GUIDE
+  MOU_DOCUMENT
+  BROCHURE
+  OTHER
+}
+
+enum GalleryCategory {
+  CAMPUS
+  EVENTS
+  STUDENT_LIFE
+  COLLABORATIONS
+  OTHER
+}
+
+enum EventType {
+  VISIT
+  CONFERENCE
+  WORKSHOP
+  EXCHANGE
+  OTHER
+}
+
+// // --- Models --- 
+
+model Admin {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String  @unique @db.VarChar(255)
+  passwordHash String  @db.VarChar(255)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("admins")
+
+}
+
+
+model Announcement {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String    @db.VarChar(300)
+  content     String    @db.Text
+  isPublic    Boolean   @default(true)
+  publishedAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@map("announcements")
+}
+
+model Partner {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String      @db.VarChar(200)
+  country   String      @db.VarChar(100)
+  type      PartnerType
+  focus     String?     @db.VarChar(200)
+  website   String?     @db.VarChar(500)
+  logoUrl   String?     @db.VarChar(500)
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
+
+  @@map("partners")
+}
+
+model Faculty {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @db.VarChar(200)
+  redirectUrl String   @db.VarChar(500)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("faculty")
+}
+
+model IROTeamMember {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(200)
+  role      String   @db.VarChar(100)
+  year      String   @db.VarChar(50)
+  photoUrl  String?  @db.VarChar(500)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("iro_team_members")
+}
+
+model Testimonial {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(200)
+  country   String   @db.VarChar(100)
+  program   String   @db.VarChar(200)
+  text      String   @db.Text
+  photoUrl  String?  @db.VarChar(500)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("testimonials")
+}
+
+model FAQ {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question  String   @db.VarChar(500)
+  answer    String   @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("faqs")
+}
+
+model GalleryImage {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String          @db.VarChar(200)
+  imageUrl  String          @db.VarChar(500)
+  caption   String?         @db.VarChar(300)
+  category  GalleryCategory @default(OTHER)
+  takenAt   DateTime?       @db.Timestamptz(3)
+  isPublic  Boolean         @default(true)
+  createdAt DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime        @updatedAt @db.Timestamptz(3)
+
+  @@map("gallery_images")
+}
+
+
+model Download {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String           @db.VarChar(200)
+  description String?          @db.VarChar(500)
+  fileUrl     String           @db.VarChar(500)
+  fileType    String?          @db.VarChar(50)
+  category    DownloadCategory @default(OTHER)
+  isPublic    Boolean          @default(true)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@map("downloads")
+}
+
+model Program {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String       @db.VarChar(200)
+  level       ProgramLevel
+  redirectUrl String       @db.VarChar(500)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+
+  @@map("programs")
+}
+
+model Event {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String    @db.VarChar(300)
+  description String?   @db.Text
+  startDate   DateTime  @db.Timestamptz(3)
+  endDate     DateTime? @db.Timestamptz(3)
+  location    String?   @db.VarChar(300)
+  imageUrl    String?   @db.VarChar(500)
+  type        EventType @default(OTHER)
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@map("events")
+}
+
+model Contact {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type      ContactType
+  name      String?     @db.VarChar(200)
+  title     String      @db.VarChar(200)
+  email     String      @db.VarChar(255)
+  phone     String?     @db.VarChar(50)
+  address   String?     @db.VarChar(500)
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
+
+  @@map("contacts")
+}
+
