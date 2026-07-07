@@ -63,6 +63,7 @@ model Admin {
   passwordHash String  @db.VarChar(255)
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  refreshTokens RefreshToken[]
 
   @@map("admins")
 
@@ -218,3 +219,14 @@ model Contact {
   @@map("contacts")
 }
 
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash String   @unique @db.VarChar(255)
+  adminId   String   @db.Uuid
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
