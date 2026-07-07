@@ -41,16 +41,18 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quicklinks */}
           <div>
-            <h4 className="text-lg font-bold text-brand-marigold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-bold text-brand-marigold mb-4">Quicklinks</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/admission" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">International Admission</Link></li>
-              <li><Link to="/collaboration" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Collaboration & Mobility</Link></li>
-              <li><Link to="/partners" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Our Partners</Link></li>
-              <li><Link to="/visa" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Visa & Immigration</Link></li>
+              <li><Link to="/admission#faqs" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">FAQs</Link></li>
+              <li><Link to="/contact#campus-map" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Campus Map</Link></li>
+              <li><Link to="/downloads" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">IITDH Faculty Research Profiles</Link></li>
+              <li><Link to="/contact#feedback" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Feedback</Link></li>
+              <li><Link to="/life" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Students Council</Link></li>
+              <li><Link to="/life" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Buy & Cell @ IITDH</Link></li>
+              <li><Link to="/visits#visitor-info" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Guesthouse</Link></li>
               <li><Link to="/gallery" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Gallery</Link></li>
-              <li><Link to="/life" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Life @ IITDH</Link></li>
             </ul>
           </div>
 
@@ -75,7 +77,7 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="h-0.5 bg-gradient-to-r from-transparent via-brand-marigold to-transparent my-8"></div>
+        <div className="h-0.5 bg-linear-to-r from-transparent via-brand-marigold to-transparent my-8"></div>
 
         {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-400 gap-4">

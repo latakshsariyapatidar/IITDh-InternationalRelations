@@ -4,6 +4,42 @@ import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import { mockData } from '../data/mockData'
 
+const countryCodeMap = {
+  Australia: 'au',
+  Canada: 'ca',
+  France: 'fr',
+  Germany: 'de',
+  Japan: 'jp',
+  Singapore: 'sg',
+  Switzerland: 'ch',
+  'United Kingdom': 'gb',
+}
+
+const resolveCountryCode = (country, countryCode) => {
+  if (countryCode) {
+    return countryCode.toLowerCase()
+  }
+
+  return countryCodeMap[country] || ''
+}
+
+function FlagIcon({ country, code }) {
+  if (!code) {
+    return null
+  }
+
+  return (
+    <img
+      src={`https://flagcdn.com/h80/${code}.png`}
+      srcSet={`https://flagcdn.com/h160/${code}.png 2x, https://flagcdn.com/h240/${code}.png 3x`}
+      height="80"
+      alt={`${country} flag`}
+      className="h-4 w-auto"
+      loading="lazy"
+    />
+  )
+}
+
 export default function Partners() {
   const [showMoreUniversities, setShowMoreUniversities] = useState(false)
 
@@ -24,15 +60,22 @@ export default function Partners() {
         <div className="mb-10 w-screen relative left-1/2 right-1/2 -translate-x-1/2 overflow-hidden border-y border-brand-purpleLight bg-white">
           <div className="overflow-hidden px-4 py-4 md:px-8">
             <div className="marquee-track flex w-max items-center gap-8">
-              {marqueeUniversities.map((uni, idx) => (
-                <div key={`${uni.name}-${idx}`} className="flex min-w-70 items-center gap-3 text-brand-purpleDark">
-                  <span className="h-2 w-2 rounded-full bg-brand-marigold" />
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.16em]">{uni.name}</p>
-                    <p className="text-xs text-brand-purpleDark/65">{uni.country}</p>
+              {marqueeUniversities.map((uni, idx) => {
+                const countryCode = resolveCountryCode(uni.country, uni.countryCode)
+
+                return (
+                  <div key={`${uni.name}-${idx}`} className="flex min-w-70 items-center gap-3 text-brand-purpleDark">
+                    <span className="h-2 w-2 rounded-full bg-brand-marigold" />
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.16em]">{uni.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-brand-purpleDark/65">
+                        <FlagIcon country={uni.country} code={countryCode} />
+                        <span>{uni.country}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
@@ -49,15 +92,22 @@ export default function Partners() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {featuredUniversities.map((uni, idx) => (
-              <Card key={idx} variant="default" className="flex min-h-48 flex-col justify-center border-brand-purpleLight text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-purpleLight text-sm font-bold text-brand-purpleDark">
-                  {uni.name.charAt(0)}
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-brand-purpleDark">{uni.name}</h3>
-                <p className="text-sm text-brand-purpleDark/70">{uni.country}</p>
-              </Card>
-            ))}
+            {featuredUniversities.map((uni, idx) => {
+              const countryCode = resolveCountryCode(uni.country, uni.countryCode)
+
+              return (
+                <Card key={idx} variant="default" className="flex min-h-48 flex-col justify-center border-brand-purpleLight text-center">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-purpleLight text-sm font-bold text-brand-purpleDark">
+                    {uni.name.charAt(0)}
+                  </div>
+                  <h3 className="mb-2 text-lg font-semibold text-brand-purpleDark">{uni.name}</h3>
+                  <div className="flex items-center justify-center gap-2 text-sm text-brand-purpleDark/70">
+                    <FlagIcon country={uni.country} code={countryCode} />
+                    <span>{uni.country}</span>
+                  </div>
+                </Card>
+              )
+            })}
           </div>
 
           {hiddenUniversities.length > 0 && (
@@ -78,15 +128,22 @@ export default function Partners() {
                 className={`grid gap-4 overflow-hidden transition-all duration-500 ease-custom-bezier ${showMoreUniversities ? 'mt-6 max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
               >
                 <div className="grid gap-4 md:grid-cols-3">
-                  {hiddenUniversities.map((uni, idx) => (
-                    <Card key={idx} variant="default" className="flex min-h-48 flex-col justify-center border-brand-purpleLight p-4 text-center">
-                      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-purpleLight text-sm font-bold text-brand-purpleDark">
-                        {uni.name.charAt(0)}
-                      </div>
-                      <h3 className="mb-2 text-base font-semibold text-brand-purpleDark">{uni.name}</h3>
-                      <p className="text-sm text-brand-purpleDark/70">{uni.country}</p>
-                    </Card>
-                  ))}
+                  {hiddenUniversities.map((uni, idx) => {
+                    const countryCode = resolveCountryCode(uni.country, uni.countryCode)
+
+                    return (
+                      <Card key={idx} variant="default" className="flex min-h-48 flex-col justify-center border-brand-purpleLight p-4 text-center">
+                        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-purpleLight text-sm font-bold text-brand-purpleDark">
+                          {uni.name.charAt(0)}
+                        </div>
+                        <h3 className="mb-2 text-base font-semibold text-brand-purpleDark">{uni.name}</h3>
+                        <div className="flex items-center justify-center gap-2 text-sm text-brand-purpleDark/70">
+                          <FlagIcon country={uni.country} code={countryCode} />
+                          <span>{uni.country}</span>
+                        </div>
+                      </Card>
+                    )
+                  })}
                 </div>
               </div>
             </div>

@@ -30,12 +30,12 @@ export default function Visits() {
   return (
     <div>
       <HeroSection
-        title="International Visits"
+        title="Visits"
         subtitle="Hosted delegations and collaborative missions"
       />
 
       {/* Upcoming Visits */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
+      <section id="visitor-info" className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="Upcoming Visits"
           subtitle="Delegations visiting IITDH"

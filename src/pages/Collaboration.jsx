@@ -7,7 +7,7 @@ export default function Collaboration() {
   return (
     <div>
       <HeroSection
-        title="International Collaboration & Mobility"
+        title="International Mobility"
         subtitle="Global opportunities for students, faculty, and institutions"
         cta={{ label: 'Explore Programs', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
       />

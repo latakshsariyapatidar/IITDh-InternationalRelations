@@ -13,6 +13,7 @@ import Life from '../pages/Life'
 import Visits from '../pages/Visits'
 import Gallery from '../pages/Gallery'
 import Contact from '../pages/Contact'
+import Search from '../pages/Search'
 
 const COVER_DURATION = 650
 const REVEAL_DURATION = 650
@@ -195,6 +196,7 @@ export default function PageRoutes() {
           <Route path="/visits" element={<Visits />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/search" element={<Search />} />
         </Routes>
       </div>
     </div>

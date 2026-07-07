@@ -28,9 +28,6 @@ export default function About() {
             <p className="text-gray-700 leading-relaxed">
               Through structured programs and strategic partnerships, we enhance the academic experience for all stakeholders.
             </p>
-            <div className="mt-6">
-              <CTAButton label="View Full Bio" variant="secondary" />
-            </div>
           </div>
           <div className="bg-white rounded-xl h-80 flex items-center justify-center border border-brand-purpleLight/70">
             <p className="text-gray-400">Dean's Photo</p>
