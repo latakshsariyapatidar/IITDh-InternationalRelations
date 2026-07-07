@@ -39,7 +39,7 @@ export default function Contact() {
       </section>
 
       {/* Contact Form */}
-      <section className="bg-neutral-canvas py-16">
+      <section id="feedback" className="bg-neutral-canvas py-16">
         <div className="max-w-2xl mx-auto px-4">
           <SectionHeader
             title="Send us a Message"
@@ -80,7 +80,7 @@ export default function Contact() {
       </section>
 
       {/* Location Info */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
+      <section id="campus-map" className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="Visit Us"
           subtitle="International Relations Office Location"

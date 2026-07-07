@@ -20,7 +20,7 @@ export const mockData = {
       phone: '+91-8364-241-214'
     },
     admission: {
-      title: 'International Admission',
+      title: 'International Admissions',
       name: 'Ms. Sneha Patel',
       email: 'international@iitdh.ac.in',
       phone: '+91-8364-241-215'
@@ -44,12 +44,12 @@ export const mockData = {
 
   partnerships: {
     universities: [
-      { name: 'University of Toronto', country: 'Canada' },
-      { name: 'TU Darmstadt', country: 'Germany' },
-      { name: 'Osaka University', country: 'Japan' },
-      { name: 'NTU Singapore', country: 'Singapore' },
-      { name: 'University of Melbourne', country: 'Australia' },
-      { name: 'ETH Zurich', country: 'Switzerland' },
+      { name: 'University of Toronto', country: 'Canada', countryCode: 'ca' },
+      { name: 'TU Darmstadt', country: 'Germany', countryCode: 'de' },
+      { name: 'Osaka University', country: 'Japan', countryCode: 'jp' },
+      { name: 'NTU Singapore', country: 'Singapore', countryCode: 'sg' },
+      { name: 'University of Melbourne', country: 'Australia', countryCode: 'au' },
+      { name: 'ETH Zurich', country: 'Switzerland', countryCode: 'ch' },
     ],
     organizations: [
       { name: 'DAAD', country: 'Germany', focus: 'Student Mobility' },

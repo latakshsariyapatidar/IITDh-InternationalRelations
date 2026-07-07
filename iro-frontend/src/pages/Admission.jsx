@@ -9,7 +9,7 @@ export default function Admission() {
   return (
     <div>
       <HeroSection
-        title="International Admission"
+        title="International Admissions"
         subtitle="Your pathway to world-class education at IITDH"
         cta={{ label: 'Apply Now', onClick: () => window.location.href = 'https://admission.iitdh.ac.in' }}
       />
@@ -39,7 +39,7 @@ export default function Admission() {
       </section>
 
       {/* Programs & Facts */}
-      <section className="bg-neutral-canvas py-16">
+      <section id="faqs" className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
@@ -113,7 +113,7 @@ export default function Admission() {
             <h2 className="text-4xl font-bold mb-4">Get in Touch</h2>
             <p className="text-neutral-canvas">Questions? Contact our admissions team</p>
           </div>
-          <Card variant="accent">
+          <Card variant="white">
             <h3 className="text-2xl font-bold text-neutral-textDark mb-4 text-center">International Admissions Office</h3>
             <div className="space-y-3 text-center mb-6">
               <p className="text-neutral-textDark"><strong>Contact Person:</strong> Ms. Sneha Patel</p>

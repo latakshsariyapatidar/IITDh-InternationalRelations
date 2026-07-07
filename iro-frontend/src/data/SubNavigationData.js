@@ -1,12 +1,11 @@
 const SubNavigationData = [
-  { label: "Incoming Students", to: "/admission" },
-  { label: "Outgoing Students", to: "/collaboration" },
+  { label: "International Admissions", to: "/admission" },
+  { label: "International Mobility", to: "/collaboration" },
   { label: "Our Partners", to: "/partners" },
   { label: "Visa & Immigration", to: "/visa" },
-  { label: "Gallery", to: "/gallery" },
+  { label: "Visits", to: "/visits" },
   { label: "Downloads", to: "/downloads" },
-  { label: "Life @ IITDH", to: "/life" },
-];
+]
 
 
-export default SubNavigationData;
+export default SubNavigationData

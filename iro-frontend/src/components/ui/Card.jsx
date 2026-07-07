@@ -10,7 +10,7 @@ export default function Card({
     default: 'bg-white border border-brand-purpleLight/60',
     light: 'bg-brand-purpleLight/30 border border-brand-purpleLight/70',
     primary: 'bg-brand-purpleDark text-white border border-brand-marigold/20',
-    accent: 'bg-brand-purple text-white border border-brand-purple',
+    accent: 'bg-brand-cream text-white border border-brand-purple',
     outline: 'bg-transparent border border-brand-purpleDark'
   }
 

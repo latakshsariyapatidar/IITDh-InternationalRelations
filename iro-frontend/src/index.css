@@ -20,6 +20,7 @@ body::-webkit-scrollbar,
 
 
 @theme {
+  --color-brand-cream: #f9f4e8;
   --color-brand-purple: #89288f;
   --color-brand-purpleHover: #6d1d72;
   --color-brand-purpleDark: #5e1c64;
@@ -36,6 +37,11 @@ body::-webkit-scrollbar,
 @layer utilities {
   .ease-custom-bezier {
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .marquee-track {
+    animation: partners-marquee 26s linear infinite;
+    will-change: transform;
   }
 }
 
@@ -159,5 +165,14 @@ body::-webkit-scrollbar,
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes partners-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }

@@ -7,235 +7,387 @@ export default function Visa() {
     <div>
       <HeroSection
         title="Visa & Immigration"
-        subtitle="Complete guide for studying in India"
+        subtitle="Information for international students and visitors"
       />
 
-      {/* Visa Types */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
-          title="Student Visa Types"
-          subtitle="Different visa categories for international students"
+          title="Visa & Immigration Information for International Students and Visitors"
+          subtitle="Overview"
         />
-        <div className="grid md:grid-cols-2 gap-8">
-          <Card>
-            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Student Visa (X-Category)</h3>
-            <p className="text-gray-700 mb-4">The most common visa category for international students pursuing full-time degree programs.</p>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div>
-                <p className="font-semibold text-brand-purple">Duration:</p>
-                <p>1 year (extendable annually based on program duration)</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Requirements:</p>
-                <ul className="list-disc ml-5 space-y-1 mt-1">
-                  <li>Admission letter from IITDH</li>
-                  <li>Passport (valid for 6+ months)</li>
-                  <li>Financial documents</li>
-                  <li>Health certificate</li>
-                  <li>Police clearance</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Processing:</p>
-                <p>4-6 weeks from submission</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Research Visa (X-Category)</h3>
-            <p className="text-gray-700 mb-4">Designed for research scholars and visiting researchers at Indian institutions.</p>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div>
-                <p className="font-semibold text-brand-purple">Duration:</p>
-                <p>Based on research period, typically 1-4 years</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Requirements:</p>
-                <ul className="list-disc ml-5 space-y-1 mt-1">
-                  <li>Research registration letter</li>
-                  <li>Valid passport</li>
-                  <li>Sponsorship from IITDH</li>
-                  <li>Health & police clearance</li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Extensions:</p>
-                <p>Renewable based on research progress</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Visa on Arrival (VOA)</h3>
-            <p className="text-gray-700 mb-4">Short-term visa for conference attendees and academic visitors (limited applicants).</p>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div>
-                <p className="font-semibold text-brand-purple">Duration:</p>
-                <p>Up to 60 days</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Eligible Countries:</p>
-                <p>Selected countries only</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Application:</p>
-                <p>Apply online, approval before arrival</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Business Visa (B)</h3>
-            <p className="text-gray-700 mb-4">For faculty attending conferences, seminars, or collaborative meetings.</p>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div>
-                <p className="font-semibold text-brand-purple">Duration:</p>
-                <p>Up to 6 months</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Validity:</p>
-                <p>Multi-entry possible</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple">Processing:</p>
-                <p>2-4 weeks typically</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <Card>
+          <p className="text-gray-700 leading-relaxed">
+            India offers various visa categories for international students, researchers, professionals, visitors, and dependents. Foreign nationals visiting India must ensure that they hold the appropriate visa category corresponding to the purpose of their stay.
+          </p>
+          <p className="text-gray-700 leading-relaxed mt-4">
+            International visitors are advised to review visa eligibility, duration, registration requirements, and extension procedures before traveling to India.
+          </p>
+        </Card>
       </section>
 
-      {/* Visa Extension */}
       <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
-            title="Visa Extension Process"
-            subtitle="How to extend your student visa"
-          />
-          <Card className="max-w-3xl mx-auto">
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-lg font-bold text-brand-purpleDark mb-2">Timeline for Extension</h4>
-                <p className="text-gray-700 mb-3">
-                  Students should apply for visa extension 60-90 days before the current visa expires. Processing typically takes 4-6 weeks.
-                </p>
-              </div>
-
-              <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-lg font-bold text-brand-purpleDark mb-4">Required Documents</h4>
-                <ul className="space-y-2 text-gray-700">
-                  <li>✓ Valid passport and current visa</li>
-                  <li>✓ Extension application form (available from IRO)</li>
-                  <li>✓ Progress certificate from your department</li>
-                  <li>✓ Financial certificate (bank statement or fee receipt)</li>
-                  <li>✓ Medical fitness certificate</li>
-                  <li>✓ No Objection Certificate (NOC) from IRO</li>
-                </ul>
-              </div>
-
-              <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-lg font-bold text-brand-purpleDark mb-2">Processing Authority</h4>
-                <p className="text-gray-700">
-                  Submit all documents to the <strong>International Relations Office</strong> or directly to the nearest Foreigners Regional Registration Office (FRRO/FRO) in your city.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* e-FRRO Information */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="e-FRRO Registration"
-          subtitle="Mandatory registration for international students"
-        />
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">What is e-FRRO?</h3>
-            <p className="text-gray-700 mb-4">
-              e-FRRO (electronic Foreigners Regional Registration Office) is the online platform for registering international visitors and students staying in India for more than 180 days.
-            </p>
-            <div className="space-y-3 text-sm text-gray-700">
-              <p><strong>Mandatory for:</strong> Students on student visas staying beyond 180 days</p>
-              <p><strong>Timeline:</strong> Register within 14 days of arrival</p>
-              <p><strong>Process:</strong> Online with physical verification</p>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Registration Steps</h3>
-            <div className="space-y-4 text-sm text-gray-700">
-              <div>
-                <p className="font-semibold text-brand-purple mb-1">Step 1:</p>
-                <p>Visit <a href="https://efrro.nic.in" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">efrro.nic.in</a></p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple mb-1">Step 2:</p>
-                <p>Create account and fill registration form</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple mb-1">Step 3:</p>
-                <p>Schedule appointment at nearest FRRO office</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple mb-1">Step 4:</p>
-                <p>Submit documents and complete registration</p>
-              </div>
-              <div>
-                <p className="font-semibold text-brand-purple mb-1">Step 5:</p>
-                <p>Receive registration certificate (valid for visa duration)</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      {/* Important Information */}
-      <section className="bg-neutral-canvas py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader
-            title="Important Reminders"
-            subtitle="Don't forget these important points"
+            title="Major Visa Categories"
+            subtitle="Primary categories for visitors to India"
           />
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
-              <h3 className="text-lg font-bold text-brand-purpleDark mb-4">Visa Compliance</h3>
-              <ul className="space-y-2 text-gray-700 text-sm">
-                <li>Never overstay your visa</li>
-                <li>Maintain valid passport and registration documents</li>
-                <li>Report address changes to FRRO within 14 days</li>
-                <li>Keep photocopies of important documents</li>
-                <li>Inform IRO of any visa issues immediately</li>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Education & Research</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Student Visa - for full-time academic study</li>
+                <li>Research Visa - for academic or scientific research</li>
+                <li>Research Intern Visa - for short-term research internships</li>
               </ul>
             </Card>
             <Card>
-              <h3 className="text-lg font-bold text-brand-purpleDark mb-4">Travel Guidelines</h3>
-              <ul className="space-y-2 text-gray-700 text-sm">
-                <li>✓ Carry passport always while traveling</li>
-                <li>✓ Inform IRO before leaving India</li>
-                <li>✓ Keep exit date within visa validity</li>
-                <li>✓ Obtain re-entry permit if leaving mid-stay</li>
-                <li>✓ Update contact info with immigration office</li>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Business & Professional</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Business Visa - meetings, trade, conferences, business activities</li>
+                <li>Employment Visa - employment with an Indian organization</li>
+                <li>Project Visa - working on approved projects</li>
+                <li>Intern Visa - internships in Indian organizations</li>
+                <li>Conference Visa - approved conferences and seminars</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Medical</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Medical Visa - medical treatment in India</li>
+                <li>Medical Attendant Visa - accompanying a medical patient</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Tourist & Short-Term Visits</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Tourist Visa - tourism, sightseeing, visiting friends or relatives</li>
+                <li>Transit Visa - short transit stays while traveling onward</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Cultural, Religious & Specialized</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Entry Visa (X Visa) - dependents, spouses, special categories</li>
+                <li>Missionary Visa - missionary or religious work</li>
+                <li>Mountaineering Visa - trekking in restricted areas</li>
+                <li>Film Visa - filming and documentary purposes</li>
+                <li>Journalist Visa - media and journalism activities</li>
+                <li>Sports Visa - athletes and sports professionals</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">Diplomatic & Official</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Diplomatic Visa</li>
+                <li>Official Visa</li>
+                <li>UN Diplomatic or Official Visa</li>
+              </ul>
+            </Card>
+            <Card className="md:col-span-2">
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-3">OCI Category</h3>
+              <p className="text-sm text-gray-700">OCI (Overseas Citizen of India) - long-term immigration status for eligible persons of Indian origin.</p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Student & Research Visas"
+          subtitle="Common categories for international students and scholars"
+        />
+        <div className="grid md:grid-cols-2 gap-8">
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Student and Research Categories</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>S-1: Higher education, provisional student visa, short-term course, student exchange</li>
+              <li>S-2: School education in India</li>
+              <li>S-3: Yoga, Vedic culture, Indian music and dance, Buddhist studies</li>
+              <li>S-4: Theological studies and missionary students</li>
+              <li>S-5: Research scholar, visiting research faculty, bilateral exchange programs</li>
+              <li>S-6: Internship in India</li>
+            </ul>
+          </Card>
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">E-Student Visa (e-Student)</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>Purpose: Digitized visa category for eligible students registered on the official portal.</li>
+              <li>Includes: Full-time UG, PG, and PhD programs.</li>
+              <li>Dependents can apply for an e-Student-X visa.</li>
+            </ul>
+          </Card>
+          <Card className="md:col-span-2">
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Dependent Visas under Student Visa</h3>
+            <p className="text-sm text-gray-700 mb-3">Dependent visas may be issued for eligible dependents of S-1, S-3, and S-5 categories. For other categories, dependent visas are not granted.</p>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>S-1X: Dependent of student in higher education</li>
+              <li>S-3X: Dependent of student in Yoga, Vedic culture, music, dance, Buddhist studies</li>
+              <li>S-5X: Dependent of research scholar or visiting research faculty</li>
+            </ul>
+          </Card>
+        </div>
+      </section>
+
+      <section className="bg-neutral-canvas py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionHeader
+            title="Conference, Employment, and Business Visas"
+            subtitle="Additional categories and dependent types"
+          />
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Conference Visas</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>C-1: Conferences organized by government authorities</li>
+                <li>C-2: Conferences organized by non-government authorities</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Employment Visas</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>E-1: Employment (except intra-company transferees and NGO employment)</li>
+                <li>E-2: Intra-company transferees</li>
+                <li>E-3: Employment in NGOs</li>
+                <li>E-4: Projects in power and steel sectors</li>
+              </ul>
+              <p className="text-sm text-gray-700 mt-3 font-semibold">Dependent Visas</p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>E-1X: Dependents of E-1 holders</li>
+                <li>E-2X: Dependents of E-2 holders</li>
+                <li>E-3X: Dependents of E-3 holders</li>
+                <li>E-4X: Dependents of E-4 holders</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Business Visas</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>B-1: Establishing ventures, frequent business travel, investors</li>
+                <li>B-2: All other business activities (excluding B-1 and sports persons)</li>
+                <li>B-3: Sports persons and coaches in commercial events</li>
+              </ul>
+              <p className="text-sm text-gray-700 mt-3 font-semibold">Dependent Visas</p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>B-1X: Dependents of B-1 holders</li>
+                <li>B-2X: Dependents of B-2 holders</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Diplomatic Visas</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>D-1: Diplomat assigned in India (diplomatic passport)</li>
+                <li>D-2: Diplomat on visit for official purpose</li>
+                <li>D-3: Diplomat assigned to non-UN international organization</li>
+                <li>UD-1: UN diplomat assigned to India</li>
+                <li>UD-2: UN diplomat on visit to India</li>
+              </ul>
+              <p className="text-sm text-gray-700 mt-3 font-semibold">Dependent Visas</p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>D-1X: Dependent of D-1</li>
+                <li>D-2X: Dependent of D-2</li>
+                <li>D-3X: Dependent of D-3</li>
+                <li>UD-1X: Dependent of UD-1</li>
+                <li>UD-2X: Dependent of UD-2</li>
               </ul>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Contact for Help */}
-      <section className="max-w-3xl mx-auto px-4 py-16">
-        <Card className="text-center">
-          <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">Need Help with Visa?</h3>
-          <p className="text-gray-700 mb-4">
-            Contact the International Relations Office for visa-related queries and assistance.
-          </p>
-          <div className="space-y-2 text-gray-700">
-            <p><strong>Email:</strong> <a href="mailto:iro@iitdh.ac.in" className="text-brand-purple hover:underline">iro@iitdh.ac.in</a></p>
-            <p><strong>Phone:</strong> <a href="tel:+91-8364-241-200" className="text-brand-purple hover:underline">+91-8364-241-200</a></p>
-            <p><strong>Office Hours:</strong> Mon-Fri 9:00 AM - 5:30 PM, Sat 10:00 AM - 2:00 PM</p>
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Entry, e-Visa, Medical, and Official Visas"
+          subtitle="Specialized categories"
+        />
+        <div className="grid md:grid-cols-2 gap-8">
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Entry Visa (X)</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>X-Double Entry: Short-term double-entry visa, valid up to 3 months</li>
+              <li>X-1: Persons of Indian origin and spouses of Indian citizens</li>
+              <li>X-2: Joining approved organizations such as Auroville Foundation</li>
+              <li>X-Misc: Categories specified in visa manual not covered elsewhere</li>
+            </ul>
+          </Card>
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">e-Visa Types</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>e-Tourist Visa: Recreation, sightseeing, short-term courses</li>
+              <li>e-Business Visa: Business meetings and trade fairs</li>
+              <li>e-Medical Visa: Medical treatment in India</li>
+              <li>e-Medical Attendant Visa: Accompanying an e-Medical holder</li>
+              <li>e-Conference Visa: Conferences and workshops</li>
+              <li>e-Ayush Visa: Ayush therapies and wellness programs</li>
+              <li>e-Ayush Attendant Visa: Companion of an e-Ayush visa holder</li>
+              <li>e-Student Visa: Short-term courses or programs in India</li>
+            </ul>
+          </Card>
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Medical Visa</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>MED-1: For patients</li>
+              <li>MED-2: For medical attendants</li>
+            </ul>
+          </Card>
+          <Card>
+            <h3 className="text-lg font-bold text-brand-purpleDark mb-3">Official Visa</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>O-1: Non-diplomatic official assigned to mission in India</li>
+              <li>O-1X: Dependent of O-1 official</li>
+              <li>O-2: Non-diplomatic official on visit for official purpose</li>
+              <li>O-2X: Dependent of O-2 official</li>
+              <li>UO-1: UN non-diplomatic official assigned to India</li>
+              <li>UO-1X: Dependent of UO-1 official</li>
+              <li>UO-2: UN non-diplomatic official on visit to India</li>
+              <li>UO-2X: Dependent of UO-2 official</li>
+            </ul>
+          </Card>
+        </div>
+      </section>
+
+      <section className="bg-neutral-canvas py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionHeader
+            title="Visa Provisions and Policies"
+            subtitle="Common visa durations and document requirements"
+          />
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-left border border-brand-purpleLight">
+              <thead className="bg-white">
+                <tr className="text-brand-purpleDark">
+                  <th className="p-3 border-b border-brand-purpleLight">Type of Visa</th>
+                  <th className="p-3 border-b border-brand-purpleLight">Period</th>
+                  <th className="p-3 border-b border-brand-purpleLight">Entry</th>
+                  <th className="p-3 border-b border-brand-purpleLight">Documents Required</th>
+                  <th className="p-3 border-b border-brand-purpleLight">Extendable</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white">
+                <tr className="text-gray-700">
+                  <td className="p-3 border-b border-brand-purpleLight">Business Visa</td>
+                  <td className="p-3 border-b border-brand-purpleLight">5 years</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Multiple</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Company letter and purpose documents</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Yes</td>
+                </tr>
+                <tr className="text-gray-700">
+                  <td className="p-3 border-b border-brand-purpleLight">Employment Visa</td>
+                  <td className="p-3 border-b border-brand-purpleLight">1 year or contract period</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Multiple</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Appointment document and terms</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Yes</td>
+                </tr>
+                <tr className="text-gray-700">
+                  <td className="p-3 border-b border-brand-purpleLight">Student/Research Visa</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Course period or 5 years</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Multiple</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Admission proof in Indian institution</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Yes</td>
+                </tr>
+                <tr className="text-gray-700">
+                  <td className="p-3 border-b border-brand-purpleLight">Intern Visa</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Internship duration or 1 year</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Single/Double/Multiple</td>
+                  <td className="p-3 border-b border-brand-purpleLight">Sponsoring letter with internship period</td>
+                  <td className="p-3 border-b border-brand-purpleLight">No</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Visa Extension"
+          subtitle="Key points for extensions while in India"
+        />
+        <Card>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li>Extension is possible for certain visa types through the e-FRRO portal.</li>
+            <li>Assistance for extension can be provided by the International Relations Office on request.</li>
+            <li>Visa extension fees are borne by the foreign national.</li>
+            <li>Documents from the institute are provided by the Academic or International Relations office.</li>
+            <li>Visa extension requests should be made 60 days before visa expiry.</li>
+            <li>Applicants are responsible for applying on time and meeting compliance.</li>
+          </ul>
+        </Card>
+      </section>
+
+      <section className="bg-neutral-canvas py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionHeader
+            title="Immigration Procedures"
+            subtitle="FRRO registration and e-FRRO platform"
+          />
+          <Card className="mb-8">
+            <p className="text-gray-700 leading-relaxed">
+              The Foreigners Regional Registration Office (FRRO) monitors and regulates foreign nationals in India. All foreigners intending to stay in India for more than 180 days must register with the FRRO within 14 days of arrival.
+            </p>
+            <p className="text-gray-700 leading-relaxed mt-4">
+              e-FRRO portal: <a href="https://indianfrro.gov.in/eservices/" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">https://indianfrro.gov.in/eservices/</a>
+            </p>
+            <ul className="space-y-2 text-sm text-gray-700 mt-4">
+              <li>Online service delivery without visiting FRRO/FRO office unless called.</li>
+              <li>Faceless, cashless, and paperless services for foreigners.</li>
+              <li>Registered users can apply for registration, visa extension, conversion, exit permit.</li>
+              <li>Registration permits and certificates are sent electronically and by post.</li>
+              <li>FRRO/FRO visits are required only in exceptional cases or exigency.</li>
+            </ul>
+          </Card>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">C Form (Residential Proof)</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Hotels, guest houses, hostels, homestays, and hospitals must report foreign guests.</li>
+                <li>Fill the C Form at hostel or guest house front office within 24 hours of arrival.</li>
+                <li>Collect the soft copy after submission on the immigration portal.</li>
+                <li>C Form is required for dependent visas as well.</li>
+                <li>Those staying off-campus must fill the C Form or request their landlord/hotel to do it.</li>
+                <li>Non-compliance can lead to fines or penalties.</li>
+              </ul>
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-brand-purpleDark">Documents Required</p>
+                <ul className="space-y-2 text-sm text-gray-700 mt-2">
+                  <li>Photograph (less than 50 KB)</li>
+                  <li>Passport copy</li>
+                  <li>Valid visa</li>
+                </ul>
+              </div>
+            </Card>
+            <Card>
+              <h3 className="text-lg font-bold text-brand-purpleDark mb-3">S Form (FSIS)</h3>
+              <p className="text-sm text-gray-700 mb-3">Foreign Students Information System (FSIS) captures information about foreign nationals admitted to Indian institutions.</p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>Filled at the International Relations office within 14 days of arrival.</li>
+                <li>A number is generated upon submission and should be recorded.</li>
+                <li>Soft copy is sent to the foreigner's email for reference.</li>
+                <li>The S Form number is the FSIS number.</li>
+              </ul>
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-brand-purpleDark">Documents Required</p>
+                <ul className="space-y-2 text-sm text-gray-700 mt-2">
+                  <li>Photograph (less than 50 KB)</li>
+                  <li>Passport copy</li>
+                  <li>Bonafide certificate or admission proof</li>
+                </ul>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Official Government Links"
+          subtitle="Useful portals and guidelines"
+        />
+        <Card>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li><a href="https://indianvisaonline.gov.in/" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">Indian Visa Online</a></li>
+            <li><a href="https://indianfrro.gov.in/eservices/" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">e-FRRO Portal</a></li>
+            <li><a href="https://www.mea.gov.in/" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">Ministry of External Affairs - FRRO Guidelines</a></li>
+          </ul>
         </Card>
       </section>
     </div>
