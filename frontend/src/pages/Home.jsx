@@ -128,11 +128,8 @@ export default function Home() {
         <div className="container mx-auto max-w-7xl px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-neutral-textDark mb-3">
-              Director's Message
+              Directors message to the international community
             </h2>
-            <p className="text-neutral-textDark/70 max-w-2xl mx-auto">
-              For the international community at IIT Dharwad
-            </p>
           </div>
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -148,17 +145,17 @@ export default function Home() {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-brand-purple mb-1">
-                  Prof. Venkappayya R. Desai
-                </h3>
                 <p className="text-sm text-brand-marigoldDark font-semibold mb-4">
-                  Director, IIT Dharwad
+                  Director<br/>
+                  Indian Institute of Technology Dharwad
                 </p>
-                <p className="text-neutral-textDark/80 text-sm leading-relaxed">
-                  "We welcome international learners, researchers, and partners
-                  to join IIT Dharwad in building knowledge without borders and
-                  creating lasting global impact."
-                </p>
+                <div className="text-neutral-textDark/80 text-sm leading-relaxed space-y-4">
+                  <p>Dear International Students/Academicians,</p>
+                  <p>It gives me great pleasure to welcome you to IIT Dharwad.</p>
+                  <p>As a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.</p>
+                  <p>Located in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.</p>
+                  <p>We look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community.</p>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -172,10 +169,6 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-neutral-textDark mb-3">
               Opportunities
             </h2>
-            <p className="text-neutral-textDark/70 max-w-2xl mx-auto">
-              Pathways for students and faculty to engage globally with IIT
-              Dharwad.
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.div
@@ -183,28 +176,52 @@ export default function Home() {
               className="bg-neutral-canvas p-8 rounded-2xl border border-brand-purpleLight/60 shadow-sm"
             >
               <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">
-                Students
+                IITDH Students:
               </h3>
-              <ul className="list-disc list-inside space-y-3 text-sm text-neutral-textDark/80">
-                <li>International admissions and degree pathways</li>
-                <li>Semester exchange and short-term mobility</li>
-                <li>Research internships with IITDH faculty</li>
-                <li>Campus life support and cultural integration</li>
-              </ul>
+              <div className="mb-4">
+                <h4 className="text-lg font-bold text-brand-marigoldDark mb-2">SCHOLARSHIPS</h4>
+                <p className="text-sm text-neutral-textDark/80">
+                  <strong>Name of the program:</strong> INSPIRE FELLOWSHIPS<br/>
+                  <strong>Program details:</strong> .
+                </p>
+              </div>
             </motion.div>
             <motion.div
               variants={itemVariants}
               className="bg-neutral-canvas p-8 rounded-2xl border border-brand-purpleLight/60 shadow-sm"
             >
               <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">
-                Faculty
+                IITDH Faculty Programs:
               </h3>
-              <ul className="list-disc list-inside space-y-3 text-sm text-neutral-textDark/80">
-                <li>Joint research and funded collaboration programs</li>
-                <li>Visiting professorships and lecture series</li>
-                <li>Institutional MoUs and strategic partnerships</li>
-                <li>International conferences and knowledge exchange</li>
-              </ul>
+              <h4 className="text-lg font-bold text-brand-marigoldDark mb-2">FUNDING</h4>
+              <div className="space-y-4 text-sm text-neutral-textDark/80">
+                <p><strong>1) Name of the program:</strong> India–Japan Cooperative Science Programme (IJCSP)</p>
+                <p><strong>Program details:</strong> IJCSP is a bilateral initiative that supports collaborative research projects between Indian and Japanese researchers in frontier areas of science and technology.</p>
+                <p>The programme provides an excellent opportunity to strengthen research partnerships with Japanese institutions, facilitate faculty exchanges, promote joint research activities, and enhance international research visibility.</p>
+                <p>Faculty members who already have collaborators in Japan, or those interested in establishing research partnerships with Japanese universities and research institutions, are strongly encouraged to explore this opportunity and submit proposals.</p>
+                <p>Some of the key objectives of the programme include:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Promotion of collaborative research between Indian and Japanese scientists.</li>
+                  <li>Exchange visits of researchers and faculty members.</li>
+                  <li>Development of long-term institutional and research partnerships.</li>
+                  <li>Strengthening international research networks and capacity building.</li>
+                </ul>
+                <p>Interested faculty members are requested to review the programme guidelines and eligibility criteria and consider submitting applications within the stipulated deadline.</p>
+                <p>This programme aligns well with IIT Dharwad’s efforts to expand international research collaborations and enhance engagement with leading institutions in Japan.</p>
+                <hr className="border-brand-purpleLight/50 my-4" />
+                <p>The Department of Science & Technology (fDST), Government of India, and the Japan Society for the Promotion of Science (JSPS) invite proposals for:</p>
+                <p><strong>Who Can Apply?</strong><br/>Eligible Indian researchers and scientists</p>
+                <p><strong>Priority Research Areas</strong><br/>
+                1. Physical Sciences<br/>
+                2. Chemical Sciences<br/>
+                3. Life Sciences & Agriculture<br/>
+                4. Mathematics & Computational Science<br/>
+                5. Astronomy & Earth Sciences<br/>
+                6. Materials Science & Engineering
+                </p>
+                <p className="bg-yellow-200 text-yellow-900 font-bold p-2 rounded inline-block">Last Date for Proposal Submission: September 3, 2026</p>
+                <p>For details and applications: <a href="http://www.onlinedst.gov.in" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">www.onlinedst.gov.in</a></p>
+              </div>
             </motion.div>
           </div>
         </div>
