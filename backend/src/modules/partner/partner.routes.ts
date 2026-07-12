@@ -1,57 +1,35 @@
-import type { Request, Response } from "express";
-import catchAsync from "../../shared/utils/catchAsync.js";
-import { successResponse } from "../../shared/utils/apiResponse.js";
-import * as service from "./partner.service.js";
-import type {
-  CreatePartnerInput,
-  UpdatePartnerInput,
-  ListPartnersQuery,
+import { Router } from "express";
+import validate from "../../shared/middleware/validate.js";
+import authenticate from "../../shared/middleware/authenticate.js";
+import {
+  createPartnerSchema,
+  updatePartnerSchema,
+  partnerIdSchema,
+  listPartnersSchema,
 } from "./partner.schema.js";
+import * as ctrl from "./partner.controller.js";
 
-export const listPartners = catchAsync(async (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json(
-      successResponse(
-        "Partners fetched",
-        await service.getAll(req.query as unknown as ListPartnersQuery),
-      ),
-    );
-});
-export const getPartner = catchAsync(async (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json(
-      successResponse(
-        "Partner fetched",
-        await service.getById(req.params.id as string),
-      ),
-    );
-});
-export const createPartner = catchAsync(async (req: Request, res: Response) => {
-  res
-    .status(201)
-    .json(
-      successResponse(
-        "Partner created",
-        await service.create(req.body as CreatePartnerInput),
-      ),
-    );
-});
-export const updatePartner = catchAsync(async (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json(
-      successResponse(
-        "Partner updated",
-        await service.update(
-          req.params.id as string,
-          req.body as UpdatePartnerInput,
-        ),
-      ),
-    );
-});
-export const deletePartner = catchAsync(async (req: Request, res: Response) => {
-  await service.remove(req.params.id as string);
-  res.status(200).json(successResponse("Partner deleted"));
-});
+const router: Router = Router();
+
+router.get("/", validate({ query: listPartnersSchema }), ctrl.listPartners);
+router.get("/:id", validate({ params: partnerIdSchema }), ctrl.getPartner);
+router.post(
+  "/",
+  authenticate,
+  validate({ body: createPartnerSchema }),
+  ctrl.createPartner,
+);
+router.patch(
+  "/:id",
+  authenticate,
+  validate({ params: partnerIdSchema, body: updatePartnerSchema }),
+  ctrl.updatePartner,
+);
+router.delete(
+  "/:id",
+  authenticate,
+  validate({ params: partnerIdSchema }),
+  ctrl.deletePartner,
+);
+
+export default router;
