@@ -7,9 +7,6 @@ import type {
 
 export async function findAllFaculty(query: ListFacultyQuery) {
   const where = {
-    ...(query.department && {
-      department: { contains: query.department, mode: "insensitive" as const },
-    }),
     ...(query.isActive !== undefined && { isActive: query.isActive }),
   };
 
