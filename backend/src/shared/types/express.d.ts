@@ -5,6 +5,10 @@ declare global {
         adminId: string;
         email: string;
       };
+      student?: {
+        studentId: string;
+        email: string;
+      };
     }
   }
 }

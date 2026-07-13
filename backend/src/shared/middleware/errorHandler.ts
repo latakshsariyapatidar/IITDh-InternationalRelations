@@ -16,6 +16,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
+import multer from "multer";
 import AppError, { type ValidationErrorDetail } from "../utils/appError.js";
 import { env } from "../../config/env.js";
 
@@ -106,6 +107,11 @@ export default function errorHandler(
     appError = handlePrismaError(err);
   } else if (err instanceof Prisma.PrismaClientValidationError) {
     appError = AppError.internal();
+  } else if (err instanceof multer.MulterError) {
+    appError =
+      err.code === "LIMIT_FILE_SIZE"
+        ? AppError.badRequest("File is too large")
+        : AppError.badRequest(`Upload error: ${err.message}`);
   } else {
     appError = AppError.internal();
   }

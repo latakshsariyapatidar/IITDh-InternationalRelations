@@ -1,6 +1,7 @@
 import { Router } from "express";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
+import cacheControl from "../../shared/middleware/cache.js";
 import {
   createPartnerSchema,
   updatePartnerSchema,
@@ -11,8 +12,8 @@ import * as ctrl from "./partner.controller.js";
 
 const router: Router = Router();
 
-router.get("/", validate({ query: listPartnersSchema }), ctrl.listPartners);
-router.get("/:id", validate({ params: partnerIdSchema }), ctrl.getPartner);
+router.get("/", cacheControl(300), validate({ query: listPartnersSchema }), ctrl.listPartners);
+router.get("/:id", cacheControl(300), validate({ params: partnerIdSchema }), ctrl.getPartner);
 router.post(
   "/",
   authenticate,

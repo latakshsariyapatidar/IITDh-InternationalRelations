@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "node:path";
 import errorHandler from "./shared/middleware/errorHandler.js";
 import AppError from "./shared/utils/appError.js";
 
@@ -16,6 +17,14 @@ import downloadRouter from "./modules/download/download.routes.js";
 import programRouter from "./modules/program/program.routes.js";
 import eventRouter from "./modules/event/event.routes.js";
 import contactRouter from "./modules/contact/contact.routes.js";
+import uploadRouter from "./modules/upload/upload.routes.js";
+import applicationRouter from "./modules/application/application.routes.js";
+import siteContentRouter from "./modules/site-content/site-content.routes.js";
+import statsRouter from "./modules/stats/stats.routes.js";
+import pageRouter from "./modules/page/page.routes.js";
+import mouRouter from "./modules/mou/mou.routes.js";
+import studentAuthRouter from "./modules/student-auth/student-auth.routes.js";
+import outboundApplicationRouter from "./modules/outbound-application/outbound-application.routes.js";
 
 const app: Express = express();
 
@@ -31,6 +40,9 @@ app.use(
     exposedHeaders: ["Set-Cookie"],
   }),
 );
+
+// // ------- Static files — publicly uploaded images/documents ------------------------
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // // ------- Health check ------------------------
 app.get("/api", (_req: Request, res: Response) => {
@@ -54,6 +66,14 @@ app.use("/api/v1/downloads", downloadRouter);
 app.use("/api/v1/programs", programRouter);
 app.use("/api/v1/events", eventRouter);
 app.use("/api/v1/contacts", contactRouter);
+app.use("/api/v1/uploads", uploadRouter);
+app.use("/api/v1/applications", applicationRouter);
+app.use("/api/v1/site-content", siteContentRouter);
+app.use("/api/v1/stats", statsRouter);
+app.use("/api/v1/pages", pageRouter);
+app.use("/api/v1/mous", mouRouter);
+app.use("/api/v1/student-auth", studentAuthRouter);
+app.use("/api/v1/outbound-applications", outboundApplicationRouter);
 
 // // ------- 404 handler ------------------------
 app.use((req: Request, _res: Response, next) => {

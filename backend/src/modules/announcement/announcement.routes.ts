@@ -1,6 +1,7 @@
 import { Router } from "express";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
+import cacheControl from "../../shared/middleware/cache.js";
 import {
   createAnnouncementSchema,
   updateAnnouncementSchema,
@@ -14,11 +15,13 @@ const router: Router = Router();
 // Public
 router.get(
   "/",
+  cacheControl(30),
   validate({ query: listAnnouncementsSchema }),
   ctrl.listAnnouncements,
 );
 router.get(
   "/:id",
+  cacheControl(30),
   validate({ params: announcementIdSchema }),
   ctrl.getAnnouncement,
 );

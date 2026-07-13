@@ -316,6 +316,235 @@ async function main() {
   }
   console.log("[SEED] ✓ Programs");
 
+  // ── Site Content ───────────────────────────────────────────────────────────
+  const siteContent = [
+    {
+      key: "site.logoUrl",
+      label: "Site Logo",
+      page: "global",
+      type: "IMAGE" as const,
+      value: "/IITDh logo white.svg",
+    },
+
+    {
+      key: "home.hero.tagline",
+      label: "Homepage Hero Tagline",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Globally Connected • Locally Rooted",
+    },
+    {
+      key: "home.hero.title",
+      label: "Homepage Hero Title",
+      page: "home",
+      type: "TEXT" as const,
+      value: "International Relations Office",
+    },
+    {
+      key: "home.hero.subtitle",
+      label: "Homepage Hero Subtitle",
+      page: "home",
+      type: "RICH_TEXT" as const,
+      value:
+        "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges.",
+    },
+
+    {
+      key: "home.stats.stat1Number",
+      label: "Stat 1 Number",
+      page: "home",
+      type: "NUMBER" as const,
+      value: "77",
+    },
+    {
+      key: "home.stats.stat1Label",
+      label: "Stat 1 Label",
+      page: "home",
+      type: "TEXT" as const,
+      value: "NIRF Engineering Rank",
+    },
+    {
+      key: "home.stats.stat2Number",
+      label: "Stat 2 Number",
+      page: "home",
+      type: "NUMBER" as const,
+      value: "500+",
+    },
+    {
+      key: "home.stats.stat2Label",
+      label: "Stat 2 Label",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Acre Permanent Green Campus",
+    },
+    {
+      key: "home.stats.stat3Number",
+      label: "Stat 3 Number",
+      page: "home",
+      type: "NUMBER" as const,
+      value: "2016",
+    },
+    {
+      key: "home.stats.stat3Label",
+      label: "Stat 3 Label",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Est. (Mentored by IIT Bombay)",
+    },
+
+    {
+      key: "home.leadership.directorName",
+      label: "Director Name",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Prof. Venkappayya R. Desai",
+    },
+    {
+      key: "home.leadership.directorTitle",
+      label: "Director Title",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Director, IIT Dharwad",
+    },
+    // directorQuote demonstrates the RICH_TEXT paragraph contract (Part 31.2):
+    // every paragraph lives in this one string, separated by a blank line
+    // ("\n\n"). The frontend splits on that and renders one <p> per piece, so
+    // a future edit that collapses this to two paragraphs — or expands it to
+    // eight — needs no key changes and no schema changes, just a new value.
+    {
+      key: "home.leadership.directorQuote",
+      label: "Director's Welcome Message (Homepage)",
+      page: "home",
+      type: "RICH_TEXT" as const,
+      value:
+        "Dear International Students/Academicians,\n\n" +
+        "It gives me great pleasure to welcome you to IIT Dharwad.\n\n" +
+        "As a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.\n\n" +
+        "Located in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.\n\n" +
+        "We look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community.",
+    },
+    {
+      key: "home.leadership.registrarName",
+      label: "Registrar Name",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Shri Sandeep Karmakar",
+    },
+    {
+      key: "home.leadership.registrarTitle",
+      label: "Registrar Title",
+      page: "home",
+      type: "TEXT" as const,
+      value: "Registrar, IIT Dharwad",
+    },
+    {
+      key: "home.leadership.registrarQuote",
+      label: "Registrar Quote",
+      page: "home",
+      type: "RICH_TEXT" as const,
+      value:
+        "We are committed to providing seamless administrative support for our international visitors, ensuring a comfortable and enriching stay.",
+    },
+
+    {
+      key: "footer.tagline",
+      label: "Footer Tagline",
+      page: "footer",
+      type: "TEXT" as const,
+      value:
+        "International Relations Office - Your gateway to global opportunities at IIT Dharwad",
+    },
+    {
+      key: "footer.phone",
+      label: "Footer Phone Number",
+      page: "footer",
+      type: "TEXT" as const,
+      value: "+91-836-XXXXXXX",
+    },
+    {
+      key: "footer.copyrightText",
+      label: "Footer Copyright Line",
+      page: "footer",
+      type: "TEXT" as const,
+      value:
+        "© 2026 International Relations Office, IIT Dharwad. All rights reserved.",
+    },
+
+    {
+      key: "admission.facts.mous",
+      label: "Admission Key Fact — MOUs",
+      page: "admission",
+      type: "TEXT" as const,
+      value: "50+",
+    },
+    {
+      key: "admission.facts.countries",
+      label: "Admission Key Fact — Countries",
+      page: "admission",
+      type: "TEXT" as const,
+      value: "25+",
+    },
+    {
+      key: "admission.facts.faculty",
+      label: "Admission Key Fact — Faculty",
+      page: "admission",
+      type: "TEXT" as const,
+      value: "500+",
+    },
+    {
+      key: "admission.facts.students",
+      label: "Admission Key Fact — Students",
+      page: "admission",
+      type: "TEXT" as const,
+      value: "10K+",
+    },
+  ];
+
+  for (const c of siteContent) {
+    await prisma.siteContent.upsert({
+      where: { key: c.key },
+      update: c,
+      create: c,
+    });
+  }
+  console.log("[SEED] ✓ Site Content");
+
+  // ── Student Application (fictional demo data) ────────────────────────────
+  const existingDemoApplication = await prisma.studentApplication.findFirst({
+    where: { email: "demo.applicant@example.com" },
+  });
+
+  if (!existingDemoApplication) {
+    await prisma.studentApplication.create({
+      data: {
+        firstName: "Demo",
+        lastName: "Applicant",
+        dateOfBirth: new Date("2002-03-10"),
+        gender: "OTHER",
+        nationality: "Fictional Country",
+        countryOfResidence: "Fictional Country",
+        passportNumber: "X0000000",
+        passportExpiryDate: new Date("2031-01-01"),
+        email: "demo.applicant@example.com",
+        phone: "+00-000-000-0000",
+        currentAddress: "123 Demo Street, Fictional City",
+        emergencyContactName: "Demo Guardian",
+        emergencyContactPhone: "+00-000-000-0001",
+        programLevel: "POSTGRADUATE",
+        programAppliedFor: "M.Tech Computer Science",
+        intendedIntake: "Fall 2026",
+        highestQualification: "Bachelor's Degree",
+        previousInstitution: "Demo University",
+        previousGradeOrGPA: "9.0/10",
+        englishTestType: "IELTS",
+        englishTestScore: "7.5",
+        requiresVisaSponsorship: true,
+        status: "SUBMITTED",
+      },
+    });
+  }
+  console.log("[SEED] ✓ Demo student application");
+
   console.log("[SEED] Done.");
 }
 

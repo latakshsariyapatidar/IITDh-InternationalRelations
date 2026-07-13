@@ -23,10 +23,17 @@ const validate = (schemas: ValidationSchemas) => {
 
       if (schemas.query) {
         const parsed = schemas.query.parse(req.query) as Request["query"];
-        Object.keys(req.query).forEach(
-          (k) => delete (req.query as Record<string, unknown>)[k],
-        );
-        Object.assign(req.query, parsed);
+        // Express 5 defines `req.query` as a getter that re-parses `req.url`
+        // on every access, so mutating the object it returns (Object.assign)
+        // is silently discarded the next time anything reads `req.query`.
+        // Redefining the property replaces the getter with the parsed,
+        // defaulted value for the rest of this request.
+        Object.defineProperty(req, "query", {
+          value: parsed,
+          writable: true,
+          configurable: true,
+          enumerable: true,
+        });
       }
 
       next();

@@ -6,6 +6,7 @@ import AppError from "../utils/appError.js";
 interface JwtPayload {
   adminId: string;
   email: string;
+  role: "admin";
   iat: number;
   exp: number;
 }
@@ -32,6 +33,7 @@ export default async function authenticate(
 
     try {
       decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+      if (decoded.role !== "admin") throw new Error("Wrong token type");
     } catch {
       throw AppError.unauthorized("Invalid or expired token");
     }

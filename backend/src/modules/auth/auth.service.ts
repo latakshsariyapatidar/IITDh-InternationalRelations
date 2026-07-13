@@ -28,6 +28,7 @@ export async function login(data: LoginInput): Promise<AuthTokens> {
   const accessToken = signAccessToken({
     adminId: admin.id,
     email: admin.email,
+    role: "admin",
   });
   const refreshToken = generateRefreshToken();
   await storeRefreshToken(
@@ -54,6 +55,7 @@ export async function refresh(incomingToken: string): Promise<AuthTokens> {
   const newAccessToken = signAccessToken({
     adminId: stored.admin.id,
     email: stored.admin.email,
+    role: "admin",
   });
   const newRefreshToken = generateRefreshToken();
   await storeRefreshToken(

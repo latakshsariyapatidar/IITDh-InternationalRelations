@@ -6,4 +6,5 @@ export interface AuthTokens {
 export interface TokenPayload {
   adminId: string;
   email: string;
+  role: "admin";
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
+import cacheControl from "../../shared/middleware/cache.js";
 import {
   createDownloadSchema,
   updateDownloadSchema,
@@ -11,8 +12,8 @@ import * as ctrl from "./download.controller.js";
 
 const router: Router = Router();
 
-router.get("/", validate({ query: listDownloadsSchema }), ctrl.listDownloads);
-router.get("/:id", validate({ params: downloadIdSchema }), ctrl.getDownload);
+router.get("/", cacheControl(300), validate({ query: listDownloadsSchema }), ctrl.listDownloads);
+router.get("/:id", cacheControl(300), validate({ params: downloadIdSchema }), ctrl.getDownload);
 router.post(
   "/",
   authenticate,
