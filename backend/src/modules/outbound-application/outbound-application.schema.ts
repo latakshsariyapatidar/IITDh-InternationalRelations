@@ -37,7 +37,6 @@ export const outboundApplicationIdSchema = z.object({ id: z.string().uuid("Inval
 export const outboundDocumentFieldParamSchema = z.object({
   id: z.string().uuid("Invalid ID"),
   field: z.enum([
-    "statementOfPurpose",
     "transcript",
     "recommendationLetter",
   ]),

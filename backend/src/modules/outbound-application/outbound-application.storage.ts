@@ -15,7 +15,6 @@ fs.mkdirSync(OUTBOUND_UPLOAD_ROOT, { recursive: true });
 const ALLOWED_MIMES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
 export const OUTBOUND_DOCUMENT_FIELDS = [
-  "statementOfPurpose",
   "transcript",
   "recommendationLetter",
 ] as const;

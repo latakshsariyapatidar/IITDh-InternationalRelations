@@ -170,9 +170,16 @@ export default function OutboundApplications() {
               </div>
 
               <div className="border-t pt-4">
+                <h4 className="font-semibold mb-3">Motivation / Statement of Purpose</h4>
+                <div className="bg-gray-50 p-4 rounded-md text-sm whitespace-pre-wrap border">
+                  {selectedApp.motivation}
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
                 <h4 className="font-semibold mb-3">Documents</h4>
                 <div className="flex flex-wrap gap-2">
-                  {['statementOfPurpose', 'transcript', 'recommendationLetter'].map(field => (
+                  {['transcript', 'recommendationLetter'].map(field => (
                     <Button 
                       key={field} 
                       variant="secondary" 

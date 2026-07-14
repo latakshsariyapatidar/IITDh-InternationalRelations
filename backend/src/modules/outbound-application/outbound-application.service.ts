@@ -45,7 +45,6 @@ export async function updateStatus(
 }
 
 const FIELD_TO_COLUMN: Record<OutboundDocumentField, string> = {
-  statementOfPurpose: "statementOfPurposePath",
   transcript: "transcriptPath",
   recommendationLetter: "recommendationLetterPath",
 };
