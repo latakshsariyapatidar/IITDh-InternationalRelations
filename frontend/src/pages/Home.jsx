@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CTAButton from "../components/ui/CTAButton";
 import apiClient from "../api/client";
+import { useSiteContent } from "../contexts/SiteContentContext";
 
 export default function Home() {
   const slideshowImages = [
@@ -11,6 +12,14 @@ export default function Home() {
     "/institute/Institute5.jpg",
   ];
   const [activeSlide, setActiveSlide] = useState(0);
+  const { getContent } = useSiteContent();
+
+  const renderRichText = (text, className = "") => {
+    if (!text) return null;
+    return text.split('\n\n').map((paragraph, idx) => (
+      <p key={idx} className={className}>{paragraph}</p>
+    ));
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -37,15 +46,14 @@ export default function Home() {
         <div className="absolute inset-0 z-1 bg-linear-to-b from-brand-purpleLight/20 via-neutral-canvas/80 to-neutral-canvas" />
         <div className="container mx-auto max-w-7xl px-6 z-10 text-center">
           <p className="text-brand-marigold font-semibold tracking-widest uppercase mb-4 text-sm">
-            Globally Connected &bull; Locally Rooted
+            {getContent("home.hero.tagline", "Globally Connected • Locally Rooted")}
           </p>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            International Relations Office
+            {getContent("home.hero.title", "International Relations Office")}
           </h1>
-          <p className="text-xl text-brand-purpleDark/75 max-w-3xl mx-auto mb-12">
-            The core campus framework for global research, collaborative
-            innovation, and cross-border student-faculty exchanges.
-          </p>
+          <div className="text-xl text-brand-purpleDark/75 max-w-3xl mx-auto mb-12 space-y-4">
+            {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
+          </div>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <CTAButton
               to="/collaboration"
@@ -66,26 +74,26 @@ export default function Home() {
         <div className="container mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-brand-white">
           <div className="pt-6 md:pt-0">
             <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              77
+              {getContent("home.stats.stat1Number", "77")}
             </h3>
             <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              NIRF Engineering Rank
+              {getContent("home.stats.stat1Label", "NIRF Engineering Rank")}
             </p>
           </div>
           <div className="pt-6 md:pt-0">
             <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              500+
+              {getContent("home.stats.stat2Number", "500+")}
             </h3>
             <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              Acre Permanent Green Campus
+              {getContent("home.stats.stat2Label", "Acre Permanent Green Campus")}
             </p>
           </div>
           <div className="pt-6 md:pt-0">
             <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              2016
+              {getContent("home.stats.stat3Number", "2016")}
             </h3>
             <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              Est. (Mentored by IIT Bombay)
+              {getContent("home.stats.stat3Label", "Est. (Mentored by IIT Bombay)")}
             </p>
           </div>
         </div>
@@ -113,15 +121,11 @@ export default function Home() {
 
               <div>
                 <p className="text-sm text-brand-marigoldDark font-semibold mb-4">
-                  Director<br/>
-                  Indian Institute of Technology Dharwad
+                  {getContent("home.leadership.directorName", "Prof. Venkappayya R. Desai")}<br/>
+                  {getContent("home.leadership.directorTitle", "Director, IIT Dharwad")}
                 </p>
                 <div className="text-neutral-textDark/80 text-sm leading-relaxed space-y-4">
-                  <p>Dear International Students/Academicians,</p>
-                  <p>It gives me great pleasure to welcome you to IIT Dharwad.</p>
-                  <p>As a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.</p>
-                  <p>Located in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.</p>
-                  <p>We look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community.</p>
+                  {renderRichText(getContent("home.leadership.directorQuote", "Dear International Students/Academicians,\n\nIt gives me great pleasure to welcome you to IIT Dharwad.\n\nAs a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.\n\nLocated in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.\n\nWe look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community."))}
                 </div>
               </div>
             </div>

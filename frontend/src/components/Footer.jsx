@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useSiteContent } from '../contexts/SiteContentContext'
 
 export default function Footer() {
+  const { getContent } = useSiteContent();
+
   return (
     <footer className="bg-brand-purpleDark text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -8,13 +11,13 @@ export default function Footer() {
           {/* Brand Section */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/IITDh logo white.svg" alt="IIT Dharwad" className="h-10 w-auto" />
+              <img src={getContent("site.logoUrl", "/IITDh logo white.svg")} alt="IIT Dharwad" className="h-10 w-auto" />
               <div>
                 <h3 className="text-lg font-bold text-white">IRO IITDH</h3>
               </div>
             </div>
             <p className="text-brand-purpleLight/80 text-sm leading-relaxed mb-6">
-              International Relations Office - Your gateway to global opportunities at IIT Dharwad
+              {getContent("footer.tagline", "International Relations Office - Your gateway to global opportunities at IIT Dharwad")}
             </p>
             {/* Social Media Icons */}
             <div className="flex gap-4">
@@ -70,7 +73,7 @@ export default function Footer() {
                 <span className="text-brand-marigold font-semibold">Email:</span> <a href="mailto:iro@iitdh.ac.in" className="hover:text-brand-marigold transition">iro@iitdh.ac.in</a>
               </div>
               <div className="text-brand-purpleLight/80">
-                <span className="text-brand-marigold font-semibold">Phone:</span> +91-836-XXXXXXX
+                <span className="text-brand-marigold font-semibold">Phone:</span> {getContent("footer.phone", "+91-836-XXXXXXX")}
               </div>
             </div>
           </div>
@@ -81,7 +84,7 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-400 gap-4">
-          <p>&copy; 2026 International Relations Office, IIT Dharwad. All rights reserved.</p>
+          <p>{getContent("footer.copyrightText", "© 2026 International Relations Office, IIT Dharwad. All rights reserved.")}</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-brand-marigold transition">Privacy Policy</a>
             <a href="#" className="hover:text-brand-marigold transition">Accessibility</a>

@@ -6,8 +6,10 @@ import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
 import apiClient from '../api/client'
 import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine } from '@remixicon/react'
+import { useSiteContent } from '../contexts/SiteContentContext'
 
 export default function Admission() {
+  const { getContent } = useSiteContent()
   const [programs, setPrograms] = useState({ undergraduate: [], postgraduate: [], phd: [] })
   const [testimonials, setTestimonials] = useState([])
   const [faqs, setFaqs] = useState([])
@@ -95,10 +97,10 @@ export default function Admission() {
               <h3 className="text-2xl font-bold text-brand-purple mb-6">Key Facts</h3>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { num: '50+', label: 'International MOUs' },
-                  { num: '25+', label: 'Countries Represented' },
-                  { num: '500+', label: 'Faculty Members' },
-                  { num: '10K+', label: 'Total Students' }
+                  { num: getContent("admission.facts.mous", "50+"), label: 'International MOUs' },
+                  { num: getContent("admission.facts.countries", "25+"), label: 'Countries Represented' },
+                  { num: getContent("admission.facts.faculty", "500+"), label: 'Faculty Members' },
+                  { num: getContent("admission.facts.students", "10K+"), label: 'Total Students' }
                 ].map((stat, idx) => (
                   <Card key={idx} variant="light">
                     <div className="text-3xl font-bold text-brand-marigold mb-2">{stat.num}</div>

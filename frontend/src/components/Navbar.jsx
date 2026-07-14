@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 // import LanguageSelector from './LanguageSelector'
 import NavigationLinks from '../data/NavigationLinks'
+import { useSiteContent } from '../contexts/SiteContentContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { getContent } = useSiteContent()
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,7 +52,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img
-                src="/IITDh Logo.svg"
+                src={getContent("site.logoUrl", "/IITDh Logo.svg")}
                 alt="IIT Dharwad"
                 className="h-12 w-auto"
               />

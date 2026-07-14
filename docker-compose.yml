@@ -24,9 +24,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:password@db:5432/iro_db?schema=public
-      - JWT_SECRET=this-is-a-strong-jwt-secret-for-docker
+      - JWT_SECRET=iUGBhVd8n3WPJgtUYxH44Hg9zKWev0OR3mFHN58cS6g
       - CORS_ORIGIN=http://localhost:8080,http://localhost
-      - SEED_ADMIN_PASSWORD=adminpassword
+      - SEED_ADMIN_PASSWORD=!nternational@2025
       - GOOGLE_CLIENT_ID=355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com
     depends_on:
       - db
