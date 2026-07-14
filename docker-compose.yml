@@ -25,7 +25,7 @@ services:
       - JWT_SECRET=this-is-a-strong-jwt-secret-for-docker
       - CORS_ORIGIN=http://localhost:8080,http://localhost
       - SEED_ADMIN_PASSWORD=adminpassword
-      - GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+      - GOOGLE_CLIENT_ID=355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com
     depends_on:
       - db
     volumes:
