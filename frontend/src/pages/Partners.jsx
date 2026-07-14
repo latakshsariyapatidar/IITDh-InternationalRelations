@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
+import { RiGlobalLine } from '@remixicon/react'
 import apiClient from '../api/client'
 
 const countryCodeMap = {
@@ -170,7 +171,7 @@ export default function Partners() {
           <SectionHeader
             title="Partner Organizations"
             subtitle="Collaborating bodies and agencies"
-            badge="NETWORK"
+            badge={<RiGlobalLine size={24} />}
           />
           <div className="grid gap-6 md:grid-cols-3">
             {organizations.map((org, idx) => (

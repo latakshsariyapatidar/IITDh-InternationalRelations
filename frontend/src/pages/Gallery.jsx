@@ -1,5 +1,6 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
+import { RiPlayCircleLine } from '@remixicon/react'
 
 export default function Gallery() {
   const galleryItems = [
@@ -46,21 +47,21 @@ export default function Gallery() {
             subtitle="Campus tours and student testimonials"
           />
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer text-brand-purple hover:text-brand-marigold group">
               <div className="text-center">
-                <div className="text-5xl mb-2">PLAY</div>
+                <div className="flex justify-center mb-2 transition-transform group-hover:scale-110"><RiPlayCircleLine size={64} /></div>
                 <p className="text-brand-purpleDark/70 font-semibold text-sm">Campus Tour</p>
               </div>
             </div>
-            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer text-brand-purple hover:text-brand-marigold group">
               <div className="text-center">
-                <div className="text-5xl mb-2">PLAY</div>
+                <div className="flex justify-center mb-2 transition-transform group-hover:scale-110"><RiPlayCircleLine size={64} /></div>
                 <p className="text-brand-purpleDark/70 font-semibold text-sm">Student Life</p>
               </div>
             </div>
-            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow">
+            <div className="bg-brand-purpleLight/50 rounded-lg aspect-video flex items-center justify-center hover:shadow-lg transition-shadow cursor-pointer text-brand-purple hover:text-brand-marigold group">
               <div className="text-center">
-                <div className="text-5xl mb-2">PLAY</div>
+                <div className="flex justify-center mb-2 transition-transform group-hover:scale-110"><RiPlayCircleLine size={64} /></div>
                 <p className="text-brand-purpleDark/70 font-semibold text-sm">International Community</p>
               </div>
             </div>

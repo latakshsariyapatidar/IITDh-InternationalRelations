@@ -5,6 +5,7 @@ import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
 import apiClient from '../api/client'
+import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine } from '@remixicon/react'
 
 export default function Admission() {
   const [programs, setPrograms] = useState({ undergraduate: [], postgraduate: [], phd: [] })
@@ -48,7 +49,7 @@ export default function Admission() {
         <SectionHeader
           title="Why Study at IITDH?"
           subtitle="Excellence in engineering and technology education"
-          badge="ADMISSION"
+          badge={<RiGraduationCapLine size={24} />}
         />
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
@@ -115,7 +116,7 @@ export default function Admission() {
         <SectionHeader
           title="How to Apply"
           subtitle="Simple and transparent admission process"
-          badge="PROCESS"
+          badge={<RiListCheck2 size={24} />}
         />
         <div className="grid md:grid-cols-4 gap-6">
           {[
@@ -161,7 +162,7 @@ export default function Admission() {
         <SectionHeader
           title="Student Testimonials"
           subtitle="Hear from our international students"
-          badge="TESTIMONIALS"
+          badge={<RiChatQuoteLine size={24} />}
         />
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, idx) => (
@@ -183,7 +184,7 @@ export default function Admission() {
           <SectionHeader
             title="Frequently Asked Questions"
             subtitle="Find answers to common questions"
-            badge="FAQ"
+            badge={<RiQuestionAnswerLine size={24} />}
           />
           <FAQAccordion items={faqs} />
         </div>

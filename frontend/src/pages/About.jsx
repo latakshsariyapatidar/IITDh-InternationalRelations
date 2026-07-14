@@ -1,6 +1,9 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
+import CTAButton from '../components/ui/CTAButton'
+import { useState } from 'react'
+import { RiHandHeartLine } from '@remixicon/react'
 
 export default function About() {
   const irStudents = [
@@ -12,7 +15,7 @@ export default function About() {
         "Oversee the activities of the student body of the IRO",
         "Coordinate between the IR Office and the Heads of all verticals"
       ],
-      imageUrl: "/students/prajwal.jpg"
+      imageUrl: "https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Prajwal_berrrm.png"
     },
     {
       name: "Samartha",
@@ -21,7 +24,8 @@ export default function About() {
       responsibilities: [
         "Manage and create the database of scholarships and international programmes",
         "Coordinate with Kavitha ma'am for MoU signing, renewal and outreach"
-      ]
+      ],
+      imageUrl: "https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Samartha_jljc7f.jpg"
     },
     {
       name: "Nilesh Barandwal",
@@ -31,7 +35,8 @@ export default function About() {
         "Selection and management of buddies",
         "Coordinating with IRO Head and IRO office for inbound activities",
         "Organizing events and supporting international students"
-      ]
+      ],
+      imageUrl: "https://res.cloudinary.com/db69ffwwa/image/upload/v1784037496/Nilesh_lwlczm.png"
     },
     {
       name: "Ishabh Janjuha",
@@ -40,7 +45,8 @@ export default function About() {
       responsibilities: [
         "Selection of various domains of the management team.",
         "Guiding the team for various events/publicity, and design tasks."
-      ]
+      ],
+      imageUrl: "https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Ishabh_ov1cym.png"
     }
   ];
 
@@ -80,8 +86,8 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 bg-white rounded-xl aspect-[3/4] flex flex-col items-center justify-center border-2 border-brand-purpleLight/50 p-4 shadow-sm overflow-hidden">
-                <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-gray-400 font-medium">Chairperson Picture</span>
+                <div className="w-full h-full rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+                  <img src="https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Chairperson_zja8c3.png" alt="Chairperson" className="w-full h-full object-cover object-top" />
                 </div>
                 <h3 className="text-xl font-bold text-brand-purple mb-1 text-center">Chairperson</h3>
                 <p className="text-sm text-brand-marigold font-semibold text-center">International Relations Office</p>
@@ -90,7 +96,7 @@ export default function About() {
               <SectionHeader
                 title="Chairperson's Welcome Note"
                 centered={false}
-                badge="WELCOME"
+                badge={<RiHandHeartLine size={24} />}
               />
               <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
                 <p><strong>Dear Members of the International Community,</strong></p>
