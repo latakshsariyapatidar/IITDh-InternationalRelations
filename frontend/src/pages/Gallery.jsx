@@ -11,7 +11,7 @@ export default function Gallery() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const res = await apiClient.get('/gallery?limit=100');
+        const res = await apiClient.get('/gallery?limit=50');
         setImages(res.data?.data?.images || []);
       } catch (err) {
         console.error('Failed to fetch gallery images', err);

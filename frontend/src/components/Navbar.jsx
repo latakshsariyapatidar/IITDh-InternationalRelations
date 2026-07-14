@@ -63,8 +63,8 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-8">
-              {NavigationLinks.slice(0, 5).map((item) => (
+            <div className="hidden lg:flex items-center gap-6">
+              {NavigationLinks.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}

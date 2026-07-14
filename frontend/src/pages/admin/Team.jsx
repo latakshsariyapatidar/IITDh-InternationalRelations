@@ -5,6 +5,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function Team() {
   const [data, setData] = useState([]);
@@ -16,7 +18,7 @@ export default function Team() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', role: '', year: '', photoUrl: '', isActive: 'true' });
+  const [formData, setFormData] = useState({ name: '', role: '', year: '', photoUrl: '', email: '', responsibilities: '', isActive: 'true' });
 
   const fetchData = async () => {
     setLoading(true);
@@ -37,7 +39,7 @@ export default function Team() {
 
   const openCreate = () => {
     setCurrentId(null);
-    setFormData({ name: '', role: '', year: '', photoUrl: '', isActive: 'true' });
+    setFormData({ name: '', role: '', year: '', photoUrl: '', email: '', responsibilities: '', isActive: 'true' });
     setIsFormOpen(true);
   };
 
@@ -48,6 +50,8 @@ export default function Team() {
       role: item.role,
       year: item.year || '',
       photoUrl: item.photoUrl || '',
+      email: item.email || '',
+      responsibilities: item.responsibilities || '',
       isActive: item.isActive ? 'true' : 'false',
     });
     setIsFormOpen(true);
@@ -82,6 +86,8 @@ export default function Team() {
     try {
       const payload = { ...formData, isActive: formData.isActive === 'true' };
       if (!payload.photoUrl) delete payload.photoUrl;
+      if (!payload.email) delete payload.email;
+      if (!payload.responsibilities || payload.responsibilities === '<p><br></p>') delete payload.responsibilities;
 
       if (currentId) await apiClient.patch(`/team/${currentId}`, payload);
       else await apiClient.post('/team', payload);
@@ -136,6 +142,30 @@ export default function Team() {
           </div>
           
           <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Email (Optional)</Label>
+            <Input 
+              type="email"
+              className="border-gray-300 focus-visible:ring-brand-purple"
+              value={formData.email} 
+              onChange={e=>setFormData({...formData, email: e.target.value})} 
+              placeholder="e.g. jane@iitdh.ac.in" 
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Responsibilities (Optional)</Label>
+            <div className="bg-white">
+              <ReactQuill 
+                theme="snow"
+                value={formData.responsibilities} 
+                onChange={(value) => setFormData({...formData, responsibilities: value})} 
+                placeholder="e.g. Managing international agreements and student mobility..."
+                className="h-32 mb-10"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2 md:col-span-2">
             <Label className="text-gray-700 font-semibold">Profile Photo</Label>
             <div className="flex items-start gap-4">
               <div className="flex-1">
@@ -183,6 +213,7 @@ export default function Team() {
             <TableRow>
               <TableHead className="font-semibold">Name</TableHead>
               <TableHead className="font-semibold">Role</TableHead>
+              <TableHead className="font-semibold">Email</TableHead>
               <TableHead className="font-semibold">Year</TableHead>
               <TableHead className="font-semibold">Active</TableHead>
               <TableHead className="text-right font-semibold">Actions</TableHead>
@@ -211,6 +242,7 @@ export default function Team() {
                       {item.role}
                     </span>
                   </TableCell>
+                  <TableCell className="text-gray-600">{item.email || '-'}</TableCell>
                   <TableCell className="text-gray-600">{item.year || '-'}</TableCell>
                   <TableCell>
                     {item.isActive ? (

@@ -165,8 +165,8 @@ export default function About() {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {team.filter(t => t.isActive).map((member) => (
-                <Card key={member.id} variant="default" className="flex flex-col h-full bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors group">
-                  <div className="text-center flex-grow flex flex-col pt-4">
+                <Card key={member.id} variant="default" className="flex flex-col h-full bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors group overflow-hidden">
+                  <div className="text-center flex-grow flex flex-col pt-4 w-full max-w-full">
                     <div className="bg-white/10 rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center border-2 border-brand-marigold shrink-0 relative overflow-hidden text-gray-200 shadow-lg">
                       {member.photoUrl ? (
                         <img 
@@ -180,7 +180,21 @@ export default function About() {
                       )}
                     </div>
                     <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
-                    <p className="text-sm text-brand-marigold font-bold mb-3">{member.role}</p>
+                    <p className="text-sm text-brand-marigold font-bold mb-1">{member.role}</p>
+
+                    {member.email && (
+                      <a href={`mailto:${member.email}`} className="text-xs text-blue-300 hover:text-white transition-colors mb-3">
+                        {member.email}
+                      </a>
+                    )}
+
+                    {member.responsibilities && member.responsibilities !== '<p><br></p>' && (
+                      <div 
+                        className="text-xs text-gray-300 leading-relaxed px-4 mt-2 mb-4 text-left prose prose-invert prose-sm max-w-none w-full break-words overflow-hidden [&_ol]:pl-4 [&_ul]:pl-4"
+                        dangerouslySetInnerHTML={{ __html: member.responsibilities }}
+                      />
+                    )}
+                    
                     
                     {member.year && (
                       <div className="mt-auto pt-4 flex justify-center">

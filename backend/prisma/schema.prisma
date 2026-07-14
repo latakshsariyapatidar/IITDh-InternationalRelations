@@ -116,6 +116,8 @@ model IROTeamMember {
   role      String   @db.VarChar(100)
   year      String   @db.VarChar(50)
   photoUrl  String?  @db.VarChar(500)
+  email     String?  @db.VarChar(255)
+  responsibilities String? @db.Text
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
