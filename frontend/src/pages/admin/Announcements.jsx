@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
+import AdminFormLayout from '../../components/admin/AdminFormLayout';
 
 export default function Announcements() {
   const [data, setData] = useState([]);
@@ -13,8 +13,9 @@ export default function Announcements() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const [saveLoading, setSaveLoading] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -46,7 +47,7 @@ export default function Announcements() {
   const openCreate = () => {
     setCurrentId(null);
     setFormData({ title: '', content: '', isPublic: 'false', publishedAt: '' });
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const openEdit = (item) => {
@@ -54,11 +55,10 @@ export default function Announcements() {
     setFormData({
       title: item.title,
       content: item.content,
-      // Handle the strict boolean string requirement from the checklist
       isPublic: item.isPublic ? 'true' : 'false',
       publishedAt: item.publishedAt ? item.publishedAt.split('T')[0] : ''
     });
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -73,12 +73,10 @@ export default function Announcements() {
   };
 
   const handleSave = async () => {
+    setSaveLoading(true);
     try {
       const payload = {
         ...formData,
-        // Convert the string "true"/"false" back to boolean for backend if needed,
-        // but checklist says some endpoints want strict string. We'll send standard JSON here
-        // actually since this is a JSON post, not multipart. Wait, only multipart requires literal string.
         isPublic: formData.isPublic === 'true'
       };
       
@@ -91,42 +89,110 @@ export default function Announcements() {
       } else {
         await apiClient.post('/announcements', payload);
       }
-      setIsDialogOpen(false);
+      setIsFormOpen(false);
       fetchAnnouncements();
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Failed to save announcement');
+    } finally {
+      setSaveLoading(false);
     }
   };
+
+  if (isFormOpen) {
+    return (
+      <AdminFormLayout
+        title={currentId ? 'Edit Announcement' : 'New Announcement'}
+        subtitle="Manage the details of this announcement."
+        stepName="Announcement Info"
+        onCancel={() => setIsFormOpen(false)}
+        onSave={handleSave}
+        loading={saveLoading}
+      >
+        <div className="space-y-5 max-w-3xl">
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Title <span className="text-red-500">*</span></Label>
+            <Input 
+              className="border-gray-300 focus-visible:ring-brand-purple"
+              value={formData.title} 
+              onChange={e => setFormData({...formData, title: e.target.value})} 
+              placeholder="Enter title" 
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Content <span className="text-red-500">*</span></Label>
+            <textarea 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" 
+              rows="5"
+              value={formData.content} 
+              onChange={e => setFormData({...formData, content: e.target.value})} 
+              placeholder="Announcement details..."
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-semibold">Visibility</Label>
+              <select 
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple"
+                value={formData.isPublic}
+                onChange={e => setFormData({...formData, isPublic: e.target.value})}
+              >
+                <option value="true">Public (Visible)</option>
+                <option value="false">Private (Hidden)</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-semibold">Publish Date</Label>
+              <Input 
+                type="date"
+                className="border-gray-300 focus-visible:ring-brand-purple"
+                value={formData.publishedAt} 
+                onChange={e => setFormData({...formData, publishedAt: e.target.value})} 
+              />
+            </div>
+          </div>
+        </div>
+      </AdminFormLayout>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Announcements</h2>
-        <Button onClick={openCreate}>Add Announcement</Button>
+        <h2 className="text-2xl font-bold text-gray-900">Announcements Management</h2>
+        <Button onClick={openCreate} className="bg-brand-purple hover:bg-brand-purpleDark">Add Announcement</Button>
       </div>
 
-      <div className="bg-white border rounded-md shadow-sm">
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Public?</TableHead>
-              <TableHead>Published Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="font-semibold">Title</TableHead>
+              <TableHead className="font-semibold">Visibility</TableHead>
+              <TableHead className="font-semibold">Published Date</TableHead>
+              <TableHead className="text-right font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={4} className="text-center py-4">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">Loading announcements...</TableCell></TableRow>
             ) : data.length === 0 ? (
-              <TableRow><TableCell colSpan={4} className="text-center py-4">No announcements found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">No announcements found.</TableCell></TableRow>
             ) : (
               data.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.title}</TableCell>
-                  <TableCell>{item.isPublic ? 'Yes' : 'No'}</TableCell>
-                  <TableCell>{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'N/A'}</TableCell>
+                <TableRow key={item.id} className="hover:bg-gray-50/50">
+                  <TableCell className="font-medium text-gray-900">{item.title}</TableCell>
+                  <TableCell>
+                    {item.isPublic ? (
+                      <span className="text-green-600 bg-green-50 px-2 py-1 rounded-md text-xs font-medium border border-green-200">Public</span>
+                    ) : (
+                      <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-md text-xs font-medium border border-gray-200">Private</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-gray-600">{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'N/A'}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
@@ -141,61 +207,9 @@ export default function Announcements() {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-        <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+        <span className="text-sm text-gray-500 font-medium">Page {page} of {totalPages}</span>
         <Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
       </div>
-
-      {/* Form Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{currentId ? 'Edit Announcement' : 'New Announcement'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Title</Label>
-              <Input 
-                value={formData.title} 
-                onChange={e => setFormData({...formData, title: e.target.value})} 
-                placeholder="Enter title" 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Content</Label>
-              <textarea 
-                className="w-full p-2 border rounded-md" 
-                rows="4"
-                value={formData.content} 
-                onChange={e => setFormData({...formData, content: e.target.value})} 
-                placeholder="Announcement details..."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Is Public</Label>
-              <select 
-                className="w-full p-2 border rounded-md"
-                value={formData.isPublic}
-                onChange={e => setFormData({...formData, isPublic: e.target.value})}
-              >
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>Publish Date</Label>
-              <Input 
-                type="date"
-                value={formData.publishedAt} 
-                onChange={e => setFormData({...formData, publishedAt: e.target.value})} 
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

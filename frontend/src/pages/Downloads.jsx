@@ -1,43 +1,66 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
-import { RiBookReadLine, RiFilePaper2Line, RiHomeOfficeLine, RiSlideshowLine, RiCalendarEventLine, RiBookOpenLine, RiFilePaperLine, RiFileTextLine, RiGroupLine, RiListCheck2, RiFileList3Line, RiGlobalLine, RiPlayCircleLine } from '@remixicon/react'
+import { useState, useEffect } from 'react'
+import apiClient from '../api/client'
+import { RiBookReadLine, RiFilePaper2Line, RiHomeOfficeLine, RiSlideshowLine, RiCalendarEventLine, RiBookOpenLine, RiFilePaperLine, RiFileTextLine, RiGroupLine, RiListCheck2, RiFileList3Line, RiGlobalLine, RiPlayCircleLine, RiDownloadCloud2Line } from '@remixicon/react'
 
 export default function Downloads() {
-  const downloadSections = [
-    {
-      title: 'International Student Resources',
-      items: [
-        { name: 'International Student Guide', desc: 'Complete guide for international students at IITDH', icon: <RiBookReadLine size={36} className="text-brand-purple" />, size: '2.4 MB' },
-        { name: 'Campus Factsheet', desc: 'Quick facts about campus facilities and programs', icon: <RiFilePaper2Line size={36} className="text-brand-purple" />, size: '1.2 MB' },
-        { name: 'Accommodation Guide', desc: 'Hostel information and room allocation process', icon: <RiHomeOfficeLine size={36} className="text-brand-purple" />, size: '1.8 MB' },
-      ]
-    },
-    {
-      title: 'Academic Documents',
-      items: [
-        { name: 'IITDH Presentation', desc: 'Institutional overview and academic programs', icon: <RiSlideshowLine size={36} className="text-brand-purple" />, size: '5.6 MB' },
-        { name: 'Academic Calendar', desc: 'Current semester schedule and important dates', icon: <RiCalendarEventLine size={36} className="text-brand-purple" />, size: '0.8 MB' },
-        { name: 'Course Catalog', desc: 'Detailed course offerings and descriptions', icon: <RiBookOpenLine size={36} className="text-brand-purple" />, size: '3.2 MB' },
-      ]
-    },
-    {
-      title: 'Partnership Resources',
-      items: [
-        { name: 'MoU Template', desc: 'Standard Memorandum of Understanding template', icon: <RiFilePaperLine size={36} className="text-brand-purple" />, size: '1.5 MB' },
-        { name: 'Partnership Brochure', desc: 'Benefits and framework for institutional partnerships', icon: <RiFileTextLine size={36} className="text-brand-purple" />, size: '2.1 MB' },
-        { name: 'Faculty Profiles Directory', desc: 'Searchable directory of IITDH faculty and research', icon: <RiGroupLine size={36} className="text-brand-purple" />, size: '4.3 MB' },
-      ]
-    },
-    {
-      title: 'Visa & Immigration',
-      items: [
-        { name: 'Visa Checklist', desc: 'Step-by-step checklist for visa application', icon: <RiListCheck2 size={36} className="text-brand-purple" />, size: '0.6 MB' },
-        { name: 'Document Requirements', desc: 'Detailed list of required documents for various visas', icon: <RiFileList3Line size={36} className="text-brand-purple" />, size: '0.9 MB' },
-        { name: 'e-FRRO Guide', desc: 'Guide to online registration for international students', icon: <RiGlobalLine size={36} className="text-brand-purple" />, size: '1.1 MB' },
-      ]
-    }
-  ]
+  const [downloads, setDownloads] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDownloads = async () => {
+      try {
+        const res = await apiClient.get('/downloads?limit=100');
+        setDownloads(res.data?.data?.downloads || []);
+      } catch (err) {
+        console.error('Failed to fetch downloads', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDownloads();
+  }, []);
+
+  const getCategoryTitle = (category) => {
+    const titles = {
+      ADMISSION_FORM: 'Admission Forms',
+      VISA_GUIDE: 'Visa & Immigration Guides',
+      MOU_DOCUMENT: 'Partnership & MOU Documents',
+      BROCHURE: 'Brochures & Factsheets',
+      OTHER: 'General Resources'
+    };
+    return titles[category] || 'Resources';
+  };
+
+  const getCategoryIcon = (category) => {
+    const icons = {
+      ADMISSION_FORM: <RiFilePaper2Line size={36} className="text-brand-purple" />,
+      VISA_GUIDE: <RiGlobalLine size={36} className="text-brand-purple" />,
+      MOU_DOCUMENT: <RiFilePaperLine size={36} className="text-brand-purple" />,
+      BROCHURE: <RiBookReadLine size={36} className="text-brand-purple" />,
+      OTHER: <RiFileTextLine size={36} className="text-brand-purple" />
+    };
+    return icons[category] || <RiFileTextLine size={36} className="text-brand-purple" />;
+  };
+
+  const groupedDownloads = downloads.reduce((acc, current) => {
+    if (!acc[current.category]) acc[current.category] = [];
+    acc[current.category].push(current);
+    return acc;
+  }, {});
+
+  const downloadSections = Object.keys(groupedDownloads).map(category => ({
+    title: getCategoryTitle(category),
+    items: groupedDownloads[category].map(item => ({
+      name: item.title,
+      desc: item.description,
+      icon: getCategoryIcon(category),
+      size: item.fileType ? `${item.fileType.toUpperCase()}` : 'FILE',
+      fileUrl: item.fileUrl
+    }))
+  }));
 
   return (
     <div>
@@ -46,45 +69,45 @@ export default function Downloads() {
         subtitle="Essential resources and documents"
       />
 
-      {downloadSections.map((section, sectionIdx) => (
-        <section key={sectionIdx} className={sectionIdx % 2 === 0 ? '' : 'bg-gray-50'}>
-          <div className="max-w-7xl mx-auto px-4 py-16">
-            <h2 className="text-3xl font-bold text-brand-purpleDark mb-12">{section.title}</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {section.items.map((item, idx) => (
-                <Card key={idx} className="hover:border-blue-300 border border-transparent">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 mt-1">{item.icon}</div>
-                    <div className="flex-grow">
-                      <h3 className="text-lg font-bold text-brand-purpleDark mb-2">{item.name}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{item.desc}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">{item.size}</span>
-                        <button className="text-brand-purple hover:text-brand-marigoldDark font-semibold text-sm flex items-center gap-1">
-                          Download
-                        </button>
+      {loading ? (
+        <div className="py-24 text-center">Loading resources...</div>
+      ) : downloadSections.length > 0 ? (
+        downloadSections.map((section, sectionIdx) => (
+          <section key={sectionIdx} className={sectionIdx % 2 === 0 ? '' : 'bg-gray-50'}>
+            <div className="max-w-7xl mx-auto px-4 py-16">
+              <h2 className="text-3xl font-bold text-brand-purpleDark mb-12">{section.title}</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {section.items.map((item, idx) => (
+                  <Card key={idx} className="hover:border-brand-purpleLight/60 border border-transparent flex flex-col h-full">
+                    <div className="flex items-start gap-4 h-full flex-col">
+                      <div className="flex items-start gap-4 w-full">
+                        <div className="flex-shrink-0 mt-1 bg-brand-purpleLight/20 p-3 rounded-lg">{item.icon}</div>
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-bold text-brand-purpleDark mb-2">{item.name}</h3>
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-3">{item.desc}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between w-full mt-auto pt-4 border-t border-gray-100">
+                        <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">{item.size}</span>
+                        <a 
+                          href={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${item.fileUrl}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-brand-purple hover:text-brand-marigoldDark font-semibold text-sm flex items-center gap-1 bg-brand-purpleLight/10 px-3 py-1.5 rounded-md transition-colors"
+                        >
+                          <RiDownloadCloud2Line size={16} /> Download
+                        </a>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      ))}
-
-      {/* Bulk Download */}
-      <section className="bg-neutral-canvas py-16">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <SectionHeader
-            title="Download All Resources"
-            subtitle="Get all documents in one ZIP file"
-          />
-          <button className="bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2">
-            Download All Files (ZIP - 18 MB)
-          </button>
-        </div>
-      </section>
+          </section>
+        ))
+      ) : (
+        <div className="py-24 text-center text-gray-500">No resources available for download currently.</div>
+      )}
 
       {/* Video Library */}
       <section className="max-w-7xl mx-auto px-4 py-16">

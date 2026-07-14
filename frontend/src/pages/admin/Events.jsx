@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
+import AdminFormLayout from '../../components/admin/AdminFormLayout';
 
 export default function Events() {
   const [data, setData] = useState([]);
@@ -13,9 +13,10 @@ export default function Events() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 20;
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', description: '', startDate: '', endDate: '', location: '', imageUrl: '', type: 'UPCOMING', isPublic: 'true' });
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [formData, setFormData] = useState({ title: '', description: '', startDate: '', endDate: '', location: '', imageUrl: '', type: 'OTHER', isPublic: 'true' });
 
   const fetchData = async () => {
     setLoading(true);
@@ -31,8 +32,8 @@ export default function Events() {
 
   const openCreate = () => {
     setCurrentId(null);
-    setFormData({ title: '', description: '', startDate: '', endDate: '', location: '', imageUrl: '', type: 'UPCOMING', isPublic: 'true' });
-    setIsDialogOpen(true);
+    setFormData({ title: '', description: '', startDate: '', endDate: '', location: '', imageUrl: '', type: 'OTHER', isPublic: 'true' });
+    setIsFormOpen(true);
   };
 
   const openEdit = (item) => {
@@ -42,9 +43,9 @@ export default function Events() {
       startDate: item.startDate ? item.startDate.split('T')[0] : '', 
       endDate: item.endDate ? item.endDate.split('T')[0] : '', 
       location: item.location || '', imageUrl: item.imageUrl || '', 
-      type: item.type || 'UPCOMING', isPublic: item.isPublic ? 'true' : 'false',
+      type: item.type || 'OTHER', isPublic: item.isPublic ? 'true' : 'false',
     });
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -66,6 +67,7 @@ export default function Events() {
   };
 
   const handleSave = async () => {
+    setSaveLoading(true);
     try {
       const payload = { ...formData, isPublic: formData.isPublic === 'true' };
       if (!payload.location) delete payload.location;
@@ -76,49 +78,133 @@ export default function Events() {
 
       if (currentId) await apiClient.patch(`/events/${currentId}`, payload);
       else await apiClient.post('/events', payload);
-      setIsDialogOpen(false); fetchData();
-    } catch (err) { alert(err.response?.data?.message || 'Save failed'); }
+      setIsFormOpen(false); 
+      fetchData();
+    } catch (err) { 
+      alert(err.response?.data?.message || 'Save failed'); 
+    } finally {
+      setSaveLoading(false);
+    }
   };
+
+  if (isFormOpen) {
+    return (
+      <AdminFormLayout
+        title={currentId ? 'Edit Event Details' : 'Create New Event'}
+        subtitle="Provide all the necessary details for this event below."
+        stepName="Event Info"
+        onCancel={() => setIsFormOpen(false)}
+        onSave={handleSave}
+        loading={saveLoading}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Event Title <span className="text-red-500">*</span></Label>
+            <Input className="border-gray-300 focus-visible:ring-brand-purple" value={formData.title} onChange={e=>setFormData({...formData, title: e.target.value})} placeholder="Enter event title" />
+          </div>
+          
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Description</Label>
+            <textarea className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" rows="3" value={formData.description} onChange={e=>setFormData({...formData, description: e.target.value})} placeholder="Enter event details..." />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Start Date <span className="text-red-500">*</span></Label>
+            <Input type="date" className="border-gray-300 focus-visible:ring-brand-purple" value={formData.startDate} onChange={e=>setFormData({...formData, startDate: e.target.value})} />
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">End Date</Label>
+            <Input type="date" className="border-gray-300 focus-visible:ring-brand-purple" value={formData.endDate} onChange={e=>setFormData({...formData, endDate: e.target.value})} />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Location</Label>
+            <Input className="border-gray-300 focus-visible:ring-brand-purple" value={formData.location} onChange={e=>setFormData({...formData, location: e.target.value})} placeholder="E.g. Main Auditorium" />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Event Type</Label>
+            <select className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple" value={formData.type} onChange={e=>setFormData({...formData, type: e.target.value})}>
+              <option value="VISIT">VISIT</option>
+              <option value="CONFERENCE">CONFERENCE</option>
+              <option value="WORKSHOP">WORKSHOP</option>
+              <option value="EXCHANGE">EXCHANGE</option>
+              <option value="OTHER">OTHER</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Visibility</Label>
+            <select className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple" value={formData.isPublic} onChange={e=>setFormData({...formData, isPublic: e.target.value})}>
+              <option value="true">Public (Visible on Website)</option>
+              <option value="false">Private (Hidden)</option>
+            </select>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Event Banner/Image</Label>
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <Input type="file" accept="image/*" className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer" onChange={e => handleImageUpload(e.target.files[0])} />
+              </div>
+              {formData.imageUrl && (
+                <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+                  <img src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${formData.imageUrl}`} className="w-full h-full object-cover" alt="Event preview"/>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </AdminFormLayout>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between"><h2 className="text-2xl font-bold">Events</h2><Button onClick={openCreate}>Add Event</Button></div>
-      <div className="bg-white border rounded-md shadow-sm">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Events Management</h2>
+        <Button onClick={openCreate} className="bg-brand-purple hover:bg-brand-purpleDark">Add New Event</Button>
+      </div>
+
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
         <Table>
-          <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Type</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+          <TableHeader className="bg-gray-50">
+            <TableRow>
+              <TableHead className="font-semibold">Title</TableHead>
+              <TableHead className="font-semibold">Type</TableHead>
+              <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="text-right font-semibold">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {loading ? <TableRow><TableCell colSpan={4} className="text-center py-4">Loading...</TableCell></TableRow> : data.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.title}</TableCell><TableCell>{item.type}</TableCell><TableCell>{new Date(item.startDate).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right space-x-2"><Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button><Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button></TableCell>
+            {loading ? <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">Loading events...</TableCell></TableRow> : data.map(item => (
+                <TableRow key={item.id} className="hover:bg-gray-50/50">
+                  <TableCell className="font-medium text-gray-900">{item.title}</TableCell>
+                  <TableCell>
+                    <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-purpleLight/20 text-brand-purple">
+                      {item.type}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-gray-600">{new Date(item.startDate).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
+                  </TableCell>
                 </TableRow>
             ))}
+            {!loading && data.length === 0 && (
+              <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">No events found.</TableCell></TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between"><Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</Button><Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button></div>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{currentId ? 'Edit Event' : 'New Event'}</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
-            <div className="space-y-2"><Label>Title</Label><Input value={formData.title} onChange={e=>setFormData({...formData, title: e.target.value})} /></div>
-            <div className="space-y-2"><Label>Description</Label><textarea className="w-full p-2 border rounded-md" rows="3" value={formData.description} onChange={e=>setFormData({...formData, description: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Start Date</Label><Input type="date" value={formData.startDate} onChange={e=>setFormData({...formData, startDate: e.target.value})} /></div>
-              <div className="space-y-2"><Label>End Date</Label><Input type="date" value={formData.endDate} onChange={e=>setFormData({...formData, endDate: e.target.value})} /></div>
-            </div>
-            <div className="space-y-2"><Label>Location</Label><Input value={formData.location} onChange={e=>setFormData({...formData, location: e.target.value})} /></div>
-            <div className="space-y-2"><Label>Type</Label>
-              <select className="w-full p-2 border rounded-md" value={formData.type} onChange={e=>setFormData({...formData, type: e.target.value})}>
-                <option value="UPCOMING">UPCOMING</option><option value="PAST">PAST</option>
-              </select>
-            </div>
-            <div className="space-y-2"><Label>Image</Label><Input type="file" accept="image/*" onChange={e => handleImageUpload(e.target.files[0])} />{formData.imageUrl && <img src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${formData.imageUrl}`} className="w-16 mt-2" alt=""/>}</div>
-            <div className="space-y-2"><Label>Public</Label><select className="w-full p-2 border rounded-md" value={formData.isPublic} onChange={e=>setFormData({...formData, isPublic: e.target.value})}><option value="true">Yes</option><option value="false">No</option></select></div>
-          </div>
-          <DialogFooter><Button onClick={handleSave}>Save</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+      <div className="flex items-center justify-between">
+        <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
+        <span className="text-sm text-gray-500 font-medium">Page {page} of {totalPages}</span>
+        <Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
+      </div>
     </div>
   );
 }

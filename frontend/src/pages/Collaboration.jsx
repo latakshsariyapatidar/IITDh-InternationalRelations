@@ -2,9 +2,28 @@ import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
-import { RiExchangeBoxLine, RiMicroscopeLine, RiBriefcaseLine, RiMacbookLine, RiEarthLine, RiGraduationCapLine, RiUserStarLine, RiAwardLine, RiSunLine, RiUserSmileLine, RiBuilding4Line, RiWallet3Line, RiBankLine, RiGroupLine } from '@remixicon/react'
+import { useState, useEffect } from 'react'
+import apiClient from '../api/client'
+import { RiExchangeBoxLine, RiMicroscopeLine, RiBriefcaseLine, RiMacbookLine, RiEarthLine, RiGraduationCapLine, RiUserStarLine, RiAwardLine, RiSunLine, RiUserSmileLine, RiBuilding4Line, RiWallet3Line, RiBankLine, RiGroupLine, RiLinksLine, RiMapPinLine, RiCalendarLine } from '@remixicon/react'
 
 export default function Collaboration() {
+  const [mous, setMous] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMous = async () => {
+      try {
+        const res = await apiClient.get('/mous?isPublic=true&limit=100');
+        setMous(res.data?.data?.mous || []);
+      } catch (err) {
+        console.error('Failed to fetch MOUs', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMous();
+  }, []);
+
   return (
     <div>
       <HeroSection
@@ -118,6 +137,58 @@ export default function Collaboration() {
           </div>
         </div>
       </section>
+
+      {/* Active MOUs Section */}
+      {mous.length > 0 && (
+        <section className="bg-neutral-canvas py-16 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <SectionHeader
+              title="Memorandums of Understanding (MOUs)"
+              subtitle="Our active academic and research partnerships worldwide"
+              badge={<RiLinksLine size={24} />}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mous.map((mou) => (
+                <div key={mou.id} className="bg-white rounded-xl border border-brand-purpleLight/40 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-xl font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors flex-1 pr-4">
+                      {mou.universityName}
+                    </h3>
+                    <div className="w-10 h-10 rounded-full bg-brand-purpleLight/20 flex items-center justify-center shrink-0 text-brand-purple">
+                      <RiEarthLine size={20} />
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm text-neutral-textDark/80 mb-6 flex-1">
+                    <p className="flex items-center gap-2">
+                      <RiMapPinLine size={16} className="text-brand-marigold" />
+                      {mou.country}
+                    </p>
+                    {mou.signedDate && (
+                      <p className="flex items-center gap-2">
+                        <RiCalendarLine size={16} className="text-brand-marigold" />
+                        Signed: {new Date(mou.signedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                    {mou.validUntil && (
+                      <p className="flex items-center gap-2">
+                        <RiCalendarLine size={16} className="text-brand-marigold" />
+                        Valid Until: {new Date(mou.validUntil).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
+                  {mou.documentUrl && (
+                    <a href={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${mou.documentUrl}`} target="_blank" rel="noreferrer" className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">
+                      View Document
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* International Admissions */}
       <section className="max-w-7xl mx-auto px-4 py-16">

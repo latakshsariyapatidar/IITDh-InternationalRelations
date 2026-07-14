@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
+import AdminFormLayout from '../../components/admin/AdminFormLayout';
 
 export default function FAQs() {
   const [data, setData] = useState([]);
@@ -12,8 +12,10 @@ export default function FAQs() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 50;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const [saveLoading, setSaveLoading] = useState(false);
   
   const [formData, setFormData] = useState({ question: '', answer: '', order: '0', isActive: 'true' });
 
@@ -37,7 +39,7 @@ export default function FAQs() {
   const openCreate = () => {
     setCurrentId(null);
     setFormData({ question: '', answer: '', order: '0', isActive: 'true' });
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const openEdit = (item) => {
@@ -48,7 +50,7 @@ export default function FAQs() {
       order: String(item.order),
       isActive: item.isActive ? 'true' : 'false',
     });
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -63,41 +65,113 @@ export default function FAQs() {
   };
 
   const handleSave = async () => {
+    setSaveLoading(true);
     try {
       const payload = { ...formData, order: parseInt(formData.order) || 0, isActive: formData.isActive === 'true' };
       if (currentId) await apiClient.patch(`/faqs/${currentId}`, payload);
       else await apiClient.post('/faqs', payload);
-      setIsDialogOpen(false);
+      setIsFormOpen(false);
       fetchData();
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Failed to save FAQ');
+    } finally {
+      setSaveLoading(false);
     }
   };
+
+  if (isFormOpen) {
+    return (
+      <AdminFormLayout
+        title={currentId ? 'Edit FAQ Details' : 'Add New FAQ'}
+        subtitle="Manage the details of this Frequently Asked Question."
+        stepName="FAQ Info"
+        onCancel={() => setIsFormOpen(false)}
+        onSave={handleSave}
+        loading={saveLoading}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Display Order <span className="text-red-500">*</span></Label>
+            <Input 
+              type="number" 
+              className="border-gray-300 focus-visible:ring-brand-purple"
+              value={formData.order} 
+              onChange={e => setFormData({...formData, order: e.target.value})} 
+            />
+            <p className="text-xs text-gray-500">Lower numbers appear first.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Status</Label>
+            <select 
+              className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple"
+              value={formData.isActive} 
+              onChange={e => setFormData({...formData, isActive: e.target.value})}
+            >
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Question <span className="text-red-500">*</span></Label>
+            <Input 
+              className="border-gray-300 focus-visible:ring-brand-purple"
+              value={formData.question} 
+              onChange={e => setFormData({...formData, question: e.target.value})} 
+              placeholder="e.g. How do I apply for an exchange program?" 
+            />
+          </div>
+          
+          <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Answer <span className="text-red-500">*</span></Label>
+            <textarea 
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" 
+              rows="5" 
+              value={formData.answer} 
+              onChange={e => setFormData({...formData, answer: e.target.value})} 
+              placeholder="Provide a detailed answer here..."
+            />
+          </div>
+        </div>
+      </AdminFormLayout>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">FAQs</h2>
-        <Button onClick={openCreate}>Add FAQ</Button>
+        <h2 className="text-2xl font-bold text-gray-900">FAQs Management</h2>
+        <Button onClick={openCreate} className="bg-brand-purple hover:bg-brand-purpleDark">Add FAQ</Button>
       </div>
 
-      <div className="bg-white border rounded-md shadow-sm">
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead>Order</TableHead>
-              <TableHead>Question</TableHead>
-              <TableHead>Active?</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="font-semibold w-24">Order</TableHead>
+              <TableHead className="font-semibold">Question</TableHead>
+              <TableHead className="font-semibold">Active</TableHead>
+              <TableHead className="text-right font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? <TableRow><TableCell colSpan={4} className="text-center py-4">Loading...</TableCell></TableRow> : data.length === 0 ? <TableRow><TableCell colSpan={4} className="text-center py-4">No FAQs found.</TableCell></TableRow> : data.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.order}</TableCell>
-                  <TableCell className="font-medium max-w-md truncate">{item.question}</TableCell>
-                  <TableCell>{item.isActive ? 'Yes' : 'No'}</TableCell>
+            {loading ? <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">Loading FAQs...</TableCell></TableRow> : data.length === 0 ? <TableRow><TableCell colSpan={4} className="text-center py-8 text-gray-500">No FAQs found.</TableCell></TableRow> : data.map(item => (
+                <TableRow key={item.id} className="hover:bg-gray-50/50">
+                  <TableCell>
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-700 font-semibold text-sm">
+                      {item.order}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-medium text-gray-900 max-w-md truncate">{item.question}</TableCell>
+                  <TableCell>
+                    {item.isActive ? (
+                      <span className="text-green-600 bg-green-50 px-2 py-1 rounded-md text-xs font-medium border border-green-200">Yes</span>
+                    ) : (
+                      <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-md text-xs font-medium border border-gray-200">No</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
@@ -110,27 +184,9 @@ export default function FAQs() {
 
       <div className="flex items-center justify-between">
         <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-        <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+        <span className="text-sm text-gray-500 font-medium">Page {page} of {totalPages}</span>
         <Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader><DialogTitle>{currentId ? 'Edit FAQ' : 'New FAQ'}</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>Order</Label><Input type="number" value={formData.order} onChange={e => setFormData({...formData, order: e.target.value})} /></div>
-            <div className="space-y-2"><Label>Question</Label><Input value={formData.question} onChange={e => setFormData({...formData, question: e.target.value})} placeholder="What is the process?" /></div>
-            <div className="space-y-2"><Label>Answer</Label><textarea className="w-full p-2 border rounded-md" rows="4" value={formData.answer} onChange={e => setFormData({...formData, answer: e.target.value})} /></div>
-            <div className="space-y-2">
-              <Label>Is Active</Label>
-              <select className="w-full p-2 border rounded-md" value={formData.isActive} onChange={e => setFormData({...formData, isActive: e.target.value})}>
-                <option value="true">Yes</option><option value="false">No</option>
-              </select>
-            </div>
-          </div>
-          <DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button><Button onClick={handleSave}>Save</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
