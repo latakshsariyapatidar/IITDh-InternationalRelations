@@ -25,7 +25,7 @@ export default function Downloads() {
       setData(res.data?.data?.downloads || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
-    } catch (err) { alert('Failed to load downloads'); } finally { setLoading(false); }
+    } catch (err) { alert('Failed to load downloads: ' + (err.response?.data?.message || err.message)); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, [page]);
@@ -60,7 +60,7 @@ export default function Downloads() {
         try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.fileUrl)}`); } catch(e){}
       }
       setFormData(prev => ({ ...prev, fileUrl: newUrl }));
-    } catch (err) { alert('Upload failed'); }
+    } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
   };
 
   const handleSave = async () => {

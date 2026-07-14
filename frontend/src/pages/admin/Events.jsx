@@ -25,7 +25,7 @@ export default function Events() {
       setData(res.data?.data?.events || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
-    } catch (err) { alert('Failed to load events'); } finally { setLoading(false); }
+    } catch (err) { alert('Failed to load events: ' + (err.response?.data?.message || err.message)); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, [page]);
@@ -63,7 +63,7 @@ export default function Events() {
         try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.imageUrl)}`); } catch(e){}
       }
       setFormData(prev => ({ ...prev, imageUrl: newUrl }));
-    } catch (err) { alert('Upload failed'); }
+    } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
   };
 
   const handleSave = async () => {

@@ -25,7 +25,7 @@ export default function Testimonials() {
       setData(res.data?.data?.testimonials || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
-    } catch (err) { alert('Failed to load testimonials'); } finally { setLoading(false); }
+    } catch (err) { alert('Failed to load testimonials: ' + (err.response?.data?.message || err.message)); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, [page]);
@@ -60,15 +60,13 @@ export default function Testimonials() {
         try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.photoUrl)}`); } catch(e){}
       }
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
-    } catch (err) { alert('Upload failed'); }
+    } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
   };
 
   const handleSave = async () => {
     setSaveLoading(true);
     try {
       const payload = { ...formData, isActive: formData.isActive === 'true' };
-      if (!payload.country) delete payload.country;
-      if (!payload.program) delete payload.program;
       if (!payload.photoUrl) delete payload.photoUrl;
 
       if (currentId) await apiClient.patch(`/testimonials/${currentId}`, payload);
@@ -99,7 +97,7 @@ export default function Testimonials() {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-gray-700 font-semibold">Country (Optional)</Label>
+            <Label className="text-gray-700 font-semibold">Country <span className="text-red-500">*</span></Label>
             <Input 
               className="border-gray-300 focus-visible:ring-brand-purple"
               value={formData.country} 
@@ -109,7 +107,7 @@ export default function Testimonials() {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-gray-700 font-semibold">Program (Optional)</Label>
+            <Label className="text-gray-700 font-semibold">Program <span className="text-red-500">*</span></Label>
             <Input 
               className="border-gray-300 focus-visible:ring-brand-purple"
               value={formData.program} 

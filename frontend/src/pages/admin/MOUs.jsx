@@ -31,7 +31,7 @@ export default function MOUs() {
         const pRes = await apiClient.get('/partners?limit=100');
         setPartners(pRes.data?.data?.partners || []);
       }
-    } catch (err) { alert('Failed to load MOUs'); } finally { setLoading(false); }
+    } catch (err) { alert('Failed to load MOUs: ' + (err.response?.data?.message || err.message)); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, [page]);
@@ -69,7 +69,7 @@ export default function MOUs() {
         try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.documentPath)}`); } catch(e){}
       }
       setFormData(prev => ({ ...prev, documentPath: newUrl }));
-    } catch (err) { alert('Upload failed'); }
+    } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
   };
 
   const handleSave = async () => {

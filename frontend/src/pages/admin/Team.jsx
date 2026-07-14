@@ -74,14 +74,13 @@ export default function Team() {
         try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.photoUrl)}`); } catch(e){}
       }
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
-    } catch (err) { alert('Image upload failed'); }
+    } catch (err) { alert('Image upload failed: ' + (err.response?.data?.message || err.message)); }
   };
 
   const handleSave = async () => {
     setSaveLoading(true);
     try {
       const payload = { ...formData, isActive: formData.isActive === 'true' };
-      if (!payload.year) delete payload.year;
       if (!payload.photoUrl) delete payload.photoUrl;
 
       if (currentId) await apiClient.patch(`/team/${currentId}`, payload);
@@ -127,7 +126,7 @@ export default function Team() {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-gray-700 font-semibold">Year (Optional)</Label>
+            <Label className="text-gray-700 font-semibold">Year <span className="text-red-500">*</span></Label>
             <Input 
               className="border-gray-300 focus-visible:ring-brand-purple"
               value={formData.year} 
