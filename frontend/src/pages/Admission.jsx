@@ -1,11 +1,40 @@
+import { useState, useEffect } from 'react'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
-import { mockData } from '../data/mockData'
+import apiClient from '../api/client'
 
 export default function Admission() {
+  const [programs, setPrograms] = useState({ undergraduate: [], postgraduate: [], phd: [] })
+  const [testimonials, setTestimonials] = useState([])
+  const [faqs, setFaqs] = useState([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [progRes, testRes, faqRes] = await Promise.all([
+          apiClient.get('/programs?limit=100'),
+          apiClient.get('/testimonials?limit=10'),
+          apiClient.get('/faqs?limit=20')
+        ])
+        
+        const allProg = progRes.data?.data?.programs || []
+        setPrograms({
+          undergraduate: allProg.filter(p => p.level === 'UNDERGRADUATE').map(p => p.name),
+          postgraduate: allProg.filter(p => p.level === 'POSTGRADUATE').map(p => p.name),
+          phd: allProg.filter(p => p.level === 'PHD').map(p => p.name),
+        })
+        
+        setTestimonials(testRes.data?.data?.testimonials || [])
+        setFaqs(faqRes.data?.data?.faqs || [])
+      } catch (err) {
+        console.error("Failed to load admission data", err)
+      }
+    }
+    fetchData()
+  }, [])
   return (
     <div>
       <HeroSection
@@ -46,9 +75,9 @@ export default function Admission() {
               <h3 className="text-2xl font-bold text-brand-purple mb-6">Programs Offered</h3>
               <div className="space-y-4">
                 {[
-                  { label: 'Undergraduate', programs: mockData.programs.undergraduate },
-                  { label: 'Postgraduate', programs: mockData.programs.postgraduate },
-                  { label: 'Doctoral', programs: mockData.programs.phd }
+                  { label: 'Undergraduate', programs: programs.undergraduate },
+                  { label: 'Postgraduate', programs: programs.postgraduate },
+                  { label: 'Doctoral', programs: programs.phd }
                 ].map((section, sidx) => (
                   <div key={sidx}>
                     <p className="font-bold text-brand-purple mb-2">{section.label}</p>
@@ -135,7 +164,7 @@ export default function Admission() {
           badge="TESTIMONIALS"
         />
         <div className="grid md:grid-cols-3 gap-8">
-          {mockData.testimonials.map((testimonial, idx) => (
+          {testimonials.map((testimonial, idx) => (
             <Card key={idx} variant="light" border>
               <p className="text-gray-700 italic mb-4">"{testimonial.text}"</p>
               <div className="border-t border-brand-purpleLight/70 pt-4">
@@ -156,7 +185,7 @@ export default function Admission() {
             subtitle="Find answers to common questions"
             badge="FAQ"
           />
-          <FAQAccordion items={mockData.faqs} />
+          <FAQAccordion items={faqs} />
         </div>
       </section>
     </div>

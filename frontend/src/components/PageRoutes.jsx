@@ -14,9 +14,38 @@ import Visits from '../pages/Visits'
 import Gallery from '../pages/Gallery'
 import Contact from '../pages/Contact'
 import Search from '../pages/Search'
+import Apply from '../pages/Apply'
 
-const COVER_DURATION = 650
-const REVEAL_DURATION = 650
+import Login from '../pages/admin/Login'
+import AdminLayout from '../pages/admin/AdminLayout'
+import ProtectedRoute from './ProtectedRoute'
+import StudentProtectedRoute from './StudentProtectedRoute'
+import SiteContent from '../pages/admin/SiteContent'
+import Announcements from '../pages/admin/Announcements'
+import Dashboard from '../pages/admin/Dashboard'
+import Applications from '../pages/admin/Applications'
+import OutboundApplications from '../pages/admin/OutboundApplications'
+
+// Admin Resources
+import Faculty from '../pages/admin/Faculty'
+import Programs from '../pages/admin/Programs'
+import FAQs from '../pages/admin/FAQs'
+import Contacts from '../pages/admin/Contacts'
+import Team from '../pages/admin/Team'
+import Testimonials from '../pages/admin/Testimonials'
+import GalleryCRUD from '../pages/admin/GalleryCRUD'
+import AdminDownloads from '../pages/admin/Downloads'
+import AdminPartners from '../pages/admin/Partners'
+import MOUs from '../pages/admin/MOUs'
+import Events from '../pages/admin/Events'
+
+// Student Routes
+import Landing from '../pages/students/Landing'
+import OutboundApply from '../pages/students/OutboundApply'
+import OutboundTrack from '../pages/students/OutboundTrack'
+
+const COVER_DURATION = 325
+const REVEAL_DURATION = 325
 
 function delay(ms) {
   return new Promise((resolve) => {
@@ -48,6 +77,11 @@ function shouldIgnoreLink(event, anchor) {
 
   const href = anchor.getAttribute('href')
   if (!href || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return true
+  }
+
+  // Disable transitions for admin routes
+  if (href.includes('/admin')) {
     return true
   }
 
@@ -168,7 +202,7 @@ export default function PageRoutes() {
         <div className={curtainClassName} key={curtainKey} aria-hidden="true">
           <div className="barba-curtain-content">
             <img
-              src="/IITDh logo white.svg"
+              src="/IITDh Logo.svg"
               alt="IIT Dharwad"
               className="barba-curtain-logo"
             />
@@ -197,6 +231,56 @@ export default function PageRoutes() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/apply" element={<Apply />} />
+
+          {/* Student Routes */}
+          <Route path="/students" element={<Landing />} />
+          <Route 
+            path="/students/apply" 
+            element={
+              <StudentProtectedRoute>
+                <OutboundApply />
+              </StudentProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/students/track" 
+            element={
+              <StudentProtectedRoute>
+                <OutboundTrack />
+              </StudentProtectedRoute>
+            } 
+          />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<Login />} />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="applications" element={<Applications />} />
+            <Route path="outbound-applications" element={<OutboundApplications />} />
+            <Route path="site-content" element={<SiteContent />} />
+            
+            {/* Resources */}
+            <Route path="announcements" element={<Announcements />} />
+            <Route path="contacts" element={<Contacts />} />
+            <Route path="downloads" element={<AdminDownloads />} />
+            <Route path="events" element={<Events />} />
+            <Route path="faculty" element={<Faculty />} />
+            <Route path="faqs" element={<FAQs />} />
+            <Route path="gallery" element={<GalleryCRUD />} />
+            <Route path="mous" element={<MOUs />} />
+            <Route path="partners" element={<AdminPartners />} />
+            <Route path="programs" element={<Programs />} />
+            <Route path="team" element={<Team />} />
+            <Route path="testimonials" element={<Testimonials />} />
+          </Route>
         </Routes>
       </div>
     </div>

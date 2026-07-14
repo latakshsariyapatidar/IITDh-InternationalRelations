@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
-import { mockData } from '../data/mockData'
+import apiClient from '../api/client'
 
 const countryCodeMap = {
   Australia: 'au',
@@ -42,8 +42,22 @@ function FlagIcon({ country, code }) {
 
 export default function Partners() {
   const [showMoreUniversities, setShowMoreUniversities] = useState(false)
+  const [universities, setUniversities] = useState([])
+  const [organizations, setOrganizations] = useState([])
 
-  const universities = mockData.partnerships.universities
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const res = await apiClient.get('/partners?limit=100')
+        const all = res.data?.data?.partners || []
+        setUniversities(all.filter(p => p.type === 'UNIVERSITY' && p.isActive))
+        setOrganizations(all.filter(p => p.type === 'ORGANIZATION' && p.isActive))
+      } catch (err) {
+        console.error("Failed to load partners", err)
+      }
+    }
+    fetchPartners()
+  }, [])
   const featuredUniversities = universities.slice(0, 3)
   const hiddenUniversities = universities.slice(3)
   const marqueeUniversities = [...universities, ...universities]
@@ -159,7 +173,7 @@ export default function Partners() {
             badge="NETWORK"
           />
           <div className="grid gap-6 md:grid-cols-3">
-            {mockData.partnerships.organizations.map((org, idx) => (
+            {organizations.map((org, idx) => (
               <Card key={idx} variant="default" className="border-brand-purpleLight">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-brand-purpleDark">{org.name}</h3>
