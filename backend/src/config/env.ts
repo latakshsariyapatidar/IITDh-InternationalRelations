@@ -5,6 +5,7 @@ interface EnvironmentVariables {
   PORT: number;
   DATABASE_URL: string;
   JWT_SECRET: string;
+  GOOGLE_CLIENT_ID: string;
 }
 
 function getReqString(key: string): string {
@@ -54,6 +55,7 @@ export const env: Readonly<EnvironmentVariables> = Object.freeze({
   PORT: getReqNum("PORT"),
   DATABASE_URL: getReqString("DATABASE_URL"),
   JWT_SECRET: getReqString("JWT_SECRET"),
+  GOOGLE_CLIENT_ID: getReqString("GOOGLE_CLIENT_ID"),
 });
 
 console.log(

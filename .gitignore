@@ -1,29 +1,57 @@
-# Environment variables
+# Environment — never commit secrets
 .env
 .env.*
 !.env.example
 
+# Node (matches node_modules/ under both backend/ and frontend/)
+node_modules/
+.npm
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Vite
+.vite/
+*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing / coverage
+coverage/
+
+# Backend — Prisma generated client (regenerated via `npm run db:generate`)
+backend/generated/
+
+# Backend — uploaded files are runtime data, not source code.
+# Back these up separately — losing this folder loses every
+# admin-uploaded image and every applicant's submitted documents.
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/private-uploads/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# OS
+.DS_Store
+Thumbs.db
 
-# Editor directories and files
+# Editors
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.bak
+*~

@@ -19,9 +19,9 @@ enum PartnerType {
 }
 
 enum ProgramLevel {
-UNDERGRADUATE 
-POSTGRADUATE
-PHD
+  UNDERGRADUATE
+  POSTGRADUATE
+  PHD
 }
 
 enum ContactType {
@@ -58,16 +58,17 @@ enum EventType {
 // // --- Models --- 
 
 model Admin {
-  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email        String  @unique @db.VarChar(255)
-  passwordHash String  @db.VarChar(255)
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  id                           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                        String                @unique @db.VarChar(255)
+  passwordHash                 String                @db.VarChar(255)
+  createdAt                    DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt                    DateTime              @updatedAt @db.Timestamptz(3)
+  refreshTokens                RefreshToken[]
+  reviewedApplications         StudentApplication[]
+  reviewedOutboundApplications OutboundApplication[]
 
   @@map("admins")
-
 }
-
 
 model Announcement {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -82,16 +83,18 @@ model Announcement {
 }
 
 model Partner {
-  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String      @db.VarChar(200)
-  country   String      @db.VarChar(100)
-  type      PartnerType
-  focus     String?     @db.VarChar(200)
-  website   String?     @db.VarChar(500)
-  logoUrl   String?     @db.VarChar(500)
-  isActive  Boolean     @default(true)
-  createdAt DateTime    @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
+  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String                @db.VarChar(200)
+  country              String                @db.VarChar(100)
+  type                 PartnerType
+  focus                String?               @db.VarChar(200)
+  website              String?               @db.VarChar(500)
+  logoUrl              String?               @db.VarChar(500)
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime              @updatedAt @db.Timestamptz(3)
+  mous                 Mou[]
+  outboundApplications OutboundApplication[]
 
   @@map("partners")
 }
@@ -160,7 +163,6 @@ model GalleryImage {
   @@map("gallery_images")
 }
 
-
 model Download {
   id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String           @db.VarChar(200)
@@ -218,3 +220,234 @@ model Contact {
   @@map("contacts")
 }
 
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash String   @unique @db.VarChar(255)
+  adminId   String   @db.Uuid
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// // --- Student Application (Part 30) ---
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum EnglishTestType {
+  IELTS
+  TOEFL
+  PTE
+  DUOLINGO
+  NATIVE_SPEAKER
+  OTHER
+  NOT_APPLICABLE
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  DOCUMENTS_REQUESTED
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+  WITHDRAWN
+}
+
+model StudentApplication {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Personal details
+  firstName                String   @db.VarChar(100)
+  lastName                 String   @db.VarChar(100)
+  dateOfBirth              DateTime @db.Timestamptz(3)
+  gender                   Gender
+  nationality              String   @db.VarChar(100)
+  countryOfResidence       String   @db.VarChar(100)
+  passportNumber           String   @db.VarChar(50)
+  passportExpiryDate       DateTime @db.Timestamptz(3)
+  email                    String   @db.VarChar(255)
+  phone                    String   @db.VarChar(50)
+  currentAddress           String   @db.Text
+  emergencyContactName     String   @db.VarChar(200)
+  emergencyContactPhone    String   @db.VarChar(50)
+  emergencyContactRelation String?  @db.VarChar(100)
+
+  // Academic details
+  programLevel         ProgramLevel
+  programAppliedFor    String          @db.VarChar(200)
+  intendedIntake       String          @db.VarChar(50)
+  highestQualification String          @db.VarChar(200)
+  previousInstitution  String          @db.VarChar(300)
+  previousGradeOrGPA   String          @db.VarChar(100)
+  englishTestType      EnglishTestType @default(NOT_APPLICABLE)
+  englishTestScore     String?         @db.VarChar(50)
+
+  // Visa / immigration
+  visaCategory            String? @db.VarChar(100)
+  requiresVisaSponsorship Boolean @default(true)
+
+  // Uploaded documents — private storage, server-relative paths only
+  passportCopyPath         String? @db.VarChar(500)
+  photoPath                String? @db.VarChar(500)
+  academicTranscriptsPath  String? @db.VarChar(500)
+  englishTestScoreCardPath String? @db.VarChar(500)
+  statementOfPurposePath   String? @db.VarChar(500)
+  financialProofPath       String? @db.VarChar(500)
+  recommendationLetterPath String? @db.VarChar(500)
+
+  // Review / triage
+  status            ApplicationStatus @default(SUBMITTED)
+  reviewNotes       String?           @db.Text
+  reviewedByAdminId String?           @db.Uuid
+  reviewedByAdmin   Admin?            @relation(fields: [reviewedByAdminId], references: [id], onDelete: SetNull)
+
+  submittedAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([nationality])
+  @@map("student_applications")
+}
+
+// // --- Site Content (Part 31) ---
+
+enum SiteContentType {
+  TEXT
+  RICH_TEXT
+  IMAGE
+  NUMBER
+}
+
+model SiteContent {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String          @unique @db.VarChar(150)
+  label     String          @db.VarChar(200)
+  page      String          @db.VarChar(100)
+  type      SiteContentType
+  value     String          @db.Text
+  createdAt DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime        @updatedAt @db.Timestamptz(3)
+
+  @@index([page])
+  @@map("site_content")
+}
+
+// // --- MOU Tracking (Part 39) ---
+
+enum MouStatus {
+  ACTIVE
+  EXPIRED
+  RENEWED
+  TERMINATED
+}
+
+model Mou {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  partnerId String  @db.Uuid
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  title        String    @db.VarChar(300)
+  signedDate   DateTime  @db.Timestamptz(3)
+  expiryDate   DateTime? @db.Timestamptz(3)
+  status       MouStatus @default(ACTIVE)
+  scope        String?   @db.Text
+  documentPath String?   @db.VarChar(500)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([partnerId])
+  @@map("mous")
+}
+
+// // --- Student OAuth (Part 37) ---
+
+model Student {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(200)
+  googleSub String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  refreshTokens        StudentRefreshToken[]
+  outboundApplications OutboundApplication[]
+
+  @@map("students")
+}
+
+model StudentRefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash String   @unique @db.VarChar(255)
+  studentId String   @db.Uuid
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("student_refresh_tokens")
+}
+
+// // --- Outbound Exchange Applications (Part 38) ---
+
+enum OutboundProgramType {
+  SEMESTER_EXCHANGE
+  RESEARCH_INTERNSHIP
+  SUMMER_PROGRAM
+  DUAL_DEGREE
+  OTHER
+}
+
+enum OutboundApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  NOMINATED
+  ACCEPTED_BY_PARTNER
+  REJECTED
+  WITHDRAWN
+}
+
+model OutboundApplication {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  studentId String  @db.Uuid
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  partnerId String  @db.Uuid
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+
+  rollNumber  String @db.VarChar(50)
+  branch      String @db.VarChar(200)
+  currentYear String @db.VarChar(50)
+  cgpa        String @db.VarChar(20)
+
+  programType      OutboundProgramType
+  intendedSemester String              @db.VarChar(50)
+  motivation       String              @db.Text
+
+  statementOfPurposePath   String? @db.VarChar(500)
+  transcriptPath           String? @db.VarChar(500)
+  recommendationLetterPath String? @db.VarChar(500)
+
+  status            OutboundApplicationStatus @default(SUBMITTED)
+  reviewNotes       String?                   @db.Text
+  reviewedByAdminId String?                   @db.Uuid
+  reviewedByAdmin   Admin?                    @relation(fields: [reviewedByAdminId], references: [id], onDelete: SetNull)
+
+  submittedAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([studentId])
+  @@map("outbound_applications")
+}
