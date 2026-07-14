@@ -5,7 +5,7 @@ export const createTestimonialSchema = z.object({
   country: z.string().trim().min(1).max(100),
   program: z.string().trim().min(1).max(200),
   text: z.string().trim().min(1),
-  photoUrl: z.string().url().max(500).optional(),
+  photoUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500).optional(),
   isActive: z.boolean().default(true),
 });
 

@@ -6,6 +6,7 @@ export async function findAllMous(query: ListMousQuery) {
   const where: Prisma.MouWhereInput = {
     ...(query.partnerId && { partnerId: query.partnerId }),
     ...(query.status && { status: query.status }),
+    ...(query.isPublic !== undefined && { isPublic: query.isPublic }),
     ...(query.expiringWithinDays !== undefined && {
       expiryDate: {
         gte: new Date(),

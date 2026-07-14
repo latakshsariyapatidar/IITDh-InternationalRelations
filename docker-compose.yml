@@ -15,7 +15,6 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    image: ghcr.io/latakshsariyapatidar/iitdh-internationalrelations-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -36,7 +35,6 @@ services:
       - ./backend/private-uploads:/app/private-uploads
 
   frontend:
-    image: ghcr.io/latakshsariyapatidar/iitdh-internationalrelations-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

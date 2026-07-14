@@ -361,6 +361,7 @@ model Mou {
   status       MouStatus @default(ACTIVE)
   scope        String?   @db.Text
   documentPath String?   @db.VarChar(500)
+  isPublic     Boolean   @default(true)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)

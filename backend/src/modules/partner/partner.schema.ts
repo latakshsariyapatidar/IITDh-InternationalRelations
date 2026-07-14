@@ -6,7 +6,7 @@ export const createPartnerSchema = z.object({
   type: z.enum(["UNIVERSITY", "ORGANIZATION"]),
   focus: z.string().trim().max(200).optional(),
   website: z.string().url("Must be a valid URL").max(500).optional(),
-  logoUrl: z.string().url("Must be a valid URL").max(500).optional(),
+  logoUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500).optional(),
   isActive: z.boolean().default(true),
 });
 

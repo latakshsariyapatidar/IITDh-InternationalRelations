@@ -11,7 +11,7 @@ const DownloadCategory = z.enum([
 export const createDownloadSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().max(500).optional(),
-  fileUrl: z.string().url("Must be a valid URL").max(500),
+  fileUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500),
   fileType: z.string().trim().max(50).optional(),
   category: DownloadCategory.default("OTHER"),
   isPublic: z.boolean().default(true),
