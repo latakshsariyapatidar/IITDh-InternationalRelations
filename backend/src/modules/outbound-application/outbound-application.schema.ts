@@ -34,6 +34,14 @@ export const updateOutboundApplicationStatusSchema = z.object({
 
 export const outboundApplicationIdSchema = z.object({ id: z.string().uuid("Invalid ID") });
 
+export const outboundDocumentFieldParamSchema = z.object({
+  id: z.string().uuid("Invalid ID"),
+  field: z.enum([
+    "transcript",
+    "recommendationLetter",
+  ]),
+});
+
 export const listOutboundApplicationsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(20),

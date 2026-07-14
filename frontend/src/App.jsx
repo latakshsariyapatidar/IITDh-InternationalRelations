@@ -1,14 +1,20 @@
+import { useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
-import SmoothScrollWrapper from "./components/SmoothScrollWrapper";
 import PageRoutes from "./components/PageRoutes";
-import 'locomotive-scroll/dist/locomotive-scroll.css';
 
 export default function App() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+  const isApply = location.pathname.startsWith('/apply');
+  const isStudent = location.pathname.startsWith('/students');
+
+  if (isAdmin || isApply || isStudent) {
+    return <PageRoutes />;
+  }
+
   return (
     <Layout>
-      <SmoothScrollWrapper>
-        <PageRoutes />
-      </SmoothScrollWrapper>
+      <PageRoutes />
     </Layout>
   );
 }

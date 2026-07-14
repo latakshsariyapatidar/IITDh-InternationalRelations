@@ -50,7 +50,7 @@ export default function Footer() {
               <li><Link to="/downloads" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">IITDH Faculty Research Profiles</Link></li>
               <li><Link to="/contact#feedback" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Feedback</Link></li>
               <li><Link to="/life" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Students Council</Link></li>
-              <li><Link to="/life" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Buy & Cell @ IITDH</Link></li>
+              <li><Link to="/students" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">IITDh Student Portal</Link></li>
               <li><Link to="/visits#visitor-info" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Guesthouse</Link></li>
               <li><Link to="/gallery" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Gallery</Link></li>
             </ul>

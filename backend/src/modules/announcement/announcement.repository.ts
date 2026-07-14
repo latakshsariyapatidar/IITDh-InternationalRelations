@@ -18,6 +18,7 @@ export async function findAllAnnouncements(query: ListAnnouncementsQuery) {
       select: {
         id: true,
         title: true,
+        content: true,
         isPublic: true,
         publishedAt: true,
         createdAt: true,

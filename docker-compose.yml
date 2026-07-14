@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    container_name: iro_postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: iro_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: iro_backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:password@db:5432/iro_db?schema=public
+      - JWT_SECRET=this-is-a-strong-jwt-secret-for-docker
+      - CORS_ORIGIN=http://localhost:8080,http://localhost
+      - SEED_ADMIN_PASSWORD=adminpassword
+      - GOOGLE_CLIENT_ID=355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/private-uploads:/app/private-uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: iro_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
