@@ -8,8 +8,10 @@ import {
   updateOutboundApplicationStatusSchema,
   outboundApplicationIdSchema,
   listOutboundApplicationsSchema,
+  outboundDocumentFieldParamSchema,
 } from "./outbound-application.schema.js";
 import * as ctrl from "./outbound-application.controller.js";
+
 
 const router: Router = Router();
 
@@ -32,6 +34,12 @@ router.patch(
   authenticate,
   validate({ params: outboundApplicationIdSchema, body: updateOutboundApplicationStatusSchema }),
   ctrl.updateOutboundApplicationStatus,
+);
+router.get(
+  "/:id/documents/:field",
+  authenticate,
+  validate({ params: outboundDocumentFieldParamSchema }),
+  ctrl.downloadOutboundApplicationDocument,
 );
 
 export default router;

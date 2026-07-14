@@ -43,3 +43,23 @@ export async function updateStatus(
   await getById(id);
   return repo.updateOutboundApplicationStatus(id, data, reviewedByAdminId);
 }
+
+const FIELD_TO_COLUMN: Record<OutboundDocumentField, string> = {
+  statementOfPurpose: "statementOfPurposePath",
+  transcript: "transcriptPath",
+  recommendationLetter: "recommendationLetterPath",
+};
+
+export async function getDocumentAbsolutePath(
+  id: string,
+  field: OutboundDocumentField,
+): Promise<string> {
+  const application = await getById(id);
+  const column = FIELD_TO_COLUMN[field] as keyof typeof application;
+  const relativePath = application[column] as string | null;
+
+  if (!relativePath)
+    throw AppError.notFound("This document was not submitted with the application");
+
+  return path.join(OUTBOUND_UPLOAD_ROOT, relativePath);
+}

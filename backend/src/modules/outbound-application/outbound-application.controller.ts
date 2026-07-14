@@ -42,3 +42,9 @@ export const updateOutboundApplicationStatus = catchAsync(async (req: Request, r
   );
   res.status(200).json(successResponse("Application updated", item));
 });
+
+export const downloadOutboundApplicationDocument = catchAsync(async (req: Request, res: Response) => {
+  const field = req.params.field as OutboundDocumentField;
+  const absolutePath = await service.getDocumentAbsolutePath(req.params.id as string, field);
+  res.sendFile(absolutePath);
+});
