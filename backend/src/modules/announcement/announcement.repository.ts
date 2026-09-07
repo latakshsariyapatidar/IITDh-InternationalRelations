@@ -1,13 +1,24 @@
 import { prisma } from "../../config/prisma.js";
+import type { Prisma } from "@prisma/client";
+import { visibilityWindowWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateAnnouncementInput,
   UpdateAnnouncementInput,
   ListAnnouncementsQuery,
 } from "./announcement.schema.js";
 
-export async function findAllAnnouncements(query: ListAnnouncementsQuery) {
+export async function findAllAnnouncements(
+  query: ListAnnouncementsQuery,
+  { liveOnly }: { liveOnly: boolean },
+) {
   const { page, limit, isPublic } = query;
-  const where = isPublic !== undefined ? { isPublic } : {};
+
+  const where: Prisma.AnnouncementWhereInput = {
+    ...(isPublic !== undefined && { isPublic }),
+    // Public callers see only announcements between their publish date and
+    // their visibility date.
+    ...(liveOnly && { isPublic: true, ...visibilityWindowWhere() }),
+  };
 
   const [announcements, total] = await Promise.all([
     prisma.announcement.findMany({
@@ -21,6 +32,7 @@ export async function findAllAnnouncements(query: ListAnnouncementsQuery) {
         content: true,
         isPublic: true,
         publishedAt: true,
+        visibleUntil: true,
         createdAt: true,
       },
     }),

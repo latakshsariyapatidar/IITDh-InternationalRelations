@@ -1,7 +1,10 @@
 import express, { type Express, type Request, type Response } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 import path from "node:path";
+import { env } from "./config/env.js";
 import errorHandler from "./shared/middleware/errorHandler.js";
 import AppError from "./shared/utils/appError.js";
 
@@ -25,19 +28,58 @@ import pageRouter from "./modules/page/page.routes.js";
 import mouRouter from "./modules/mou/mou.routes.js";
 import studentAuthRouter from "./modules/student-auth/student-auth.routes.js";
 import outboundApplicationRouter from "./modules/outbound-application/outbound-application.routes.js";
+import inboundExchangeRouter from "./modules/inbound-exchange/inbound-exchange.routes.js";
+import opportunityRouter from "./modules/opportunity/opportunity.routes.js";
+import visitorRouter from "./modules/visitor/visitor.routes.js";
+import notificationRouter from "./modules/notification/notification.routes.js";
+import reportRouter from "./modules/report/report.routes.js";
+import facultyPortalRouter from "./modules/faculty-portal/faculty-portal.routes.js";
 
 const app: Express = express();
 
+// // ------- Proxy awareness ------------------------
+// Rate limiting keys on the client IP. Behind a reverse proxy every request
+// arrives from the proxy's address, so without this one visitor's five
+// submissions would exhaust the hourly budget for everyone.
+app.set("trust proxy", env.TRUST_PROXY);
+
 // // ------- Middleware ------------------------
-app.use(express.json());
+app.use(
+  helmet({
+    // Uploaded images are embedded by the frontend, which is served from a
+    // different origin; helmet's default `same-origin` policy would block them.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+// An explicit ceiling rather than the framework default, so raising it is a
+// deliberate change. No endpoint accepts a JSON body near this size.
+app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+    origin: env.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     exposedHeaders: ["Set-Cookie"],
+  }),
+);
+
+// A backstop against scripted traffic, set well above what the admin panel
+// needs. Endpoints with a real abuse case — sign-in, the public forms — carry
+// their own much tighter limiters.
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      status: "fail",
+      message: "Too many requests. Please slow down and try again shortly.",
+    },
   }),
 );
 
@@ -67,13 +109,26 @@ app.use("/api/v1/programs", programRouter);
 app.use("/api/v1/events", eventRouter);
 app.use("/api/v1/contacts", contactRouter);
 app.use("/api/v1/uploads", uploadRouter);
+// Inbound degree admission. Also mounted at /api/v1/inbound-admissions, the
+// clearer name now that inbound exchange is a separate register; the original
+// path stays so the existing frontend keeps working.
 app.use("/api/v1/applications", applicationRouter);
+app.use("/api/v1/inbound-admissions", applicationRouter);
+app.use("/api/v1/inbound-exchange", inboundExchangeRouter);
 app.use("/api/v1/site-content", siteContentRouter);
 app.use("/api/v1/stats", statsRouter);
 app.use("/api/v1/pages", pageRouter);
 app.use("/api/v1/mous", mouRouter);
+// One Google sign-in serves students and faculty; /campus-auth is the name
+// that reflects that, with /student-auth kept for the existing frontend.
 app.use("/api/v1/student-auth", studentAuthRouter);
+app.use("/api/v1/campus-auth", studentAuthRouter);
 app.use("/api/v1/outbound-applications", outboundApplicationRouter);
+app.use("/api/v1/opportunities", opportunityRouter);
+app.use("/api/v1/faculty-portal", facultyPortalRouter);
+app.use("/api/v1/visitors", visitorRouter);
+app.use("/api/v1/notifications", notificationRouter);
+app.use("/api/v1/reports", reportRouter);
 
 // // ------- 404 handler ------------------------
 app.use((req: Request, _res: Response, next) => {

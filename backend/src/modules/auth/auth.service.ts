@@ -12,18 +12,26 @@ import {
   hashToken,
 } from "./auth.token.js";
 import AppError from "../../shared/utils/appError.js";
+import { REFRESH_TOKEN_TTL_MS } from "../../shared/utils/refreshCookie.js";
 import type { LoginInput } from "./auth.schema.js";
 import type { AuthTokens } from "./auth.types.js";
 
-const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Compared against when the email is unknown, so both branches spend the same
+// ~100ms in bcrypt. Returning early for an unknown address would make the
+// response time itself reveal which addresses have accounts.
+const ABSENT_ADMIN_HASH = bcrypt.hashSync("no-account-with-this-address", 12);
 
 export async function login(data: LoginInput): Promise<AuthTokens> {
   const admin = await findAdminByEmail(data.email);
 
-  if (!admin) throw AppError.unauthorized("Invalid email or password");
+  const isValid = await bcrypt.compare(
+    data.password,
+    admin?.passwordHash ?? ABSENT_ADMIN_HASH,
+  );
 
-  const isValid = await bcrypt.compare(data.password, admin.passwordHash);
-  if (!isValid) throw AppError.unauthorized("Invalid email or password");
+  // One message for both failures: which of the two it was is not the
+  // caller's business.
+  if (!admin || !isValid) throw AppError.unauthorized("Invalid email or password");
 
   const accessToken = signAccessToken({
     adminId: admin.id,

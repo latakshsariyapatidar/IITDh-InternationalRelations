@@ -25,6 +25,10 @@ export const createOutboundApplicationSchema = z.object({
   programType: OutboundProgramTypeEnum,
   intendedSemester: z.string().trim().min(1).max(50),
   motivation: z.string().trim().min(1),
+  // Statement of purpose, written inline. The alternative is uploading a PDF
+  // under the `statementOfPurpose` file field; the service requires one or the
+  // other, since multer parses files before zod ever sees the request.
+  statementOfPurposeText: z.string().trim().min(1).optional(),
 });
 
 export const updateOutboundApplicationStatusSchema = z.object({
@@ -36,10 +40,7 @@ export const outboundApplicationIdSchema = z.object({ id: z.string().uuid("Inval
 
 export const outboundDocumentFieldParamSchema = z.object({
   id: z.string().uuid("Invalid ID"),
-  field: z.enum([
-    "transcript",
-    "recommendationLetter",
-  ]),
+  field: z.enum(["statementOfPurpose", "transcript", "recommendationLetter"]),
 });
 
 export const listOutboundApplicationsSchema = z.object({

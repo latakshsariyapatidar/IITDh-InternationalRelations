@@ -5,6 +5,8 @@ export const createAnnouncementSchema = z.object({
   content: z.string().trim().min(1, "Content is required"),
   isPublic: z.boolean().default(true),
   publishedAt: z.coerce.date().optional(),
+  // Once this passes, the announcement drops off the public site on its own.
+  visibleUntil: z.coerce.date().optional(),
 });
 
 export const updateAnnouncementSchema = z.object({
@@ -12,6 +14,7 @@ export const updateAnnouncementSchema = z.object({
   content: z.string().trim().min(1).optional(),
   isPublic: z.boolean().optional(),
   publishedAt: z.coerce.date().optional().nullable(),
+  visibleUntil: z.coerce.date().optional().nullable(),
 });
 
 export const announcementIdSchema = z.object({
@@ -22,6 +25,12 @@ export const listAnnouncementsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(10),
   isPublic: z.preprocess(
+    (v) => (v === "true" ? true : v === "false" ? false : v),
+    z.boolean().optional(),
+  ),
+  // Admin-only: keep showing announcements whose visibility date has passed.
+  // Ignored for anonymous callers, who only ever see what is currently live.
+  includeExpired: z.preprocess(
     (v) => (v === "true" ? true : v === "false" ? false : v),
     z.boolean().optional(),
   ),

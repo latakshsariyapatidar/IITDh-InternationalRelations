@@ -1,17 +1,12 @@
-import type { Request, Response, CookieOptions } from "express";
+import type { Request, Response } from "express";
 import { login, refresh, logout, logoutAll } from "./auth.service.js";
 import catchAsync from "../../shared/utils/catchAsync.js";
-import { env } from "../../config/env.js";
 import { successResponse } from "../../shared/utils/apiResponse.js";
 import AppError from "../../shared/utils/appError.js";
-
-const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true,
-  secure: env.NODE_ENV === "production",
-  sameSite: "lax",
-  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  path: "/",
-};
+import {
+  REFRESH_COOKIE_OPTIONS as COOKIE_OPTIONS,
+  CLEAR_REFRESH_COOKIE_OPTIONS,
+} from "../../shared/utils/refreshCookie.js";
 
 export const loginController = catchAsync(
   async (req: Request, res: Response) => {
@@ -46,7 +41,7 @@ export const logoutController = catchAsync(
   async (req: Request, res: Response) => {
     const incoming = req.cookies.refreshToken as string | undefined;
     if (incoming) await logout(incoming);
-    res.clearCookie("refreshToken", { path: "/" });
+    res.clearCookie("refreshToken", CLEAR_REFRESH_COOKIE_OPTIONS);
     res.status(200).json(successResponse("Logged out successfully"));
   },
 );
@@ -54,7 +49,7 @@ export const logoutController = catchAsync(
 export const logoutAllController = catchAsync(
   async (req: Request, res: Response) => {
     await logoutAll(req.user!.adminId);
-    res.clearCookie("refreshToken", { path: "/" });
+    res.clearCookie("refreshToken", CLEAR_REFRESH_COOKIE_OPTIONS);
     res.status(200).json(successResponse("Logged out from all devices"));
   },
 );

@@ -3,6 +3,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import type { Request } from "express";
 import AppError from "../../shared/utils/appError.js";
+import { extensionForMime } from "../../shared/utils/mimeExtension.js";
 import {
   UPLOAD_ROOT,
   IMAGE_FOLDERS,
@@ -34,8 +35,9 @@ function makeStorage(allowedFolders: readonly string[]) {
       cb(null, path.join(UPLOAD_ROOT, folder));
     },
     filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, `${crypto.randomUUID()}${ext}`);
+      // Extension from the validated MIME type, never from `originalname` —
+      // see shared/utils/mimeExtension.ts.
+      cb(null, `${crypto.randomUUID()}${extensionForMime(file.mimetype)}`);
     },
   });
 }

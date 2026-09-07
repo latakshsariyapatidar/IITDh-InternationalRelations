@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import catchAsync from "../../shared/utils/catchAsync.js";
 import { successResponse } from "../../shared/utils/apiResponse.js";
+import { sendPrivateDocument } from "../../shared/utils/sendPrivateDocument.js";
 import * as service from "./outbound-application.service.js";
 import type {
   CreateOutboundApplicationInput,
@@ -43,8 +44,9 @@ export const updateOutboundApplicationStatus = catchAsync(async (req: Request, r
   res.status(200).json(successResponse("Application updated", item));
 });
 
-export const downloadOutboundApplicationDocument = catchAsync(async (req: Request, res: Response) => {
+// Admin, or a signed link clicked out of an exported spreadsheet.
+export const downloadOutboundDocument = catchAsync(async (req: Request, res: Response) => {
   const field = req.params.field as OutboundDocumentField;
   const absolutePath = await service.getDocumentAbsolutePath(req.params.id as string, field);
-  res.sendFile(absolutePath);
+  sendPrivateDocument(res, absolutePath, `${req.params.id}-${field}`);
 });

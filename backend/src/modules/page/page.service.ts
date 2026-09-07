@@ -16,7 +16,7 @@ async function getHomePage() {
 async function getAboutPage() {
   const [siteContent, partners] = await Promise.all([
     getAllSiteContent({ page: "about" }),
-    getAllPartners({ page: 1, limit: 12, isActive: true }),
+    getAllPartners({ page: 1, limit: 12, isActive: true, sortBy: "type" }),
   ]);
 
   return { siteContent, partners: partners.partners };
