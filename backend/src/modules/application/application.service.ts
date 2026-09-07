@@ -1,12 +1,31 @@
-import path from "node:path";
-import fs from "node:fs/promises";
 import * as repo from "./application.repository.js";
 import AppError from "../../shared/utils/appError.js";
-import { PRIVATE_UPLOAD_ROOT, type DocumentField } from "./application.storage.js";
+import {
+  collectDocumentPaths,
+  removeSubmissionFolder,
+} from "../../shared/utils/privateStorage.js";
+import { buildWorkbook } from "../../shared/utils/xlsx.js";
+import {
+  ADMISSION_EXPORT_VARIANT,
+  buildInboundSheet,
+  type InboundExportRecord,
+} from "../inbound-shared/inbound-export.js";
+import {
+  anyDocumentPath,
+  resolveDocumentAbsolutePath,
+} from "../inbound-shared/inbound-documents.js";
+import { notifyNewInboundApplication } from "../notification/notification.events.js";
+import {
+  DOCUMENT_FIELDS,
+  PRIVATE_UPLOAD_ROOT,
+  type DocumentField,
+} from "./application.storage.js";
 import type {
   CreateApplicationInput,
   UpdateApplicationStatusInput,
+  UpdateApplicationRecordInput,
   ListApplicationsQuery,
+  ExportApplicationsQuery,
 } from "./application.schema.js";
 
 export const getAll = (query: ListApplicationsQuery) => repo.findAllApplications(query);
@@ -21,16 +40,18 @@ export async function create(
   data: CreateApplicationInput,
   files: Partial<Record<DocumentField, Express.Multer.File[]>>,
 ) {
-  const documentPaths: Record<string, string> = {};
+  const documentPaths = collectDocumentPaths(PRIVATE_UPLOAD_ROOT, files);
+  const application = await repo.createApplication({ ...data, documentPaths });
 
-  for (const [field, fileArray] of Object.entries(files)) {
-    const file = fileArray?.[0];
-    if (file) {
-      documentPaths[field] = path.relative(PRIVATE_UPLOAD_ROOT, file.path);
-    }
-  }
+  // Best-effort: a failing reminder must never fail the applicant's submission.
+  notifyNewInboundApplication({
+    id: application.id,
+    name: `${application.firstName} ${application.lastName}`,
+    nationality: application.nationality,
+    programAppliedFor: application.programAppliedFor,
+  });
 
-  return repo.createApplication({ ...data, documentPaths });
+  return application;
 }
 
 export async function updateStatus(
@@ -42,40 +63,42 @@ export async function updateStatus(
   return repo.updateApplicationStatus(id, data, reviewedByAdminId);
 }
 
+export async function updateRecord(id: string, data: UpdateApplicationRecordInput) {
+  await getById(id);
+  return repo.updateApplicationRecord(id, data);
+}
+
 export async function remove(id: string) {
   const application = await getById(id);
   await repo.deleteApplication(id);
-
-  const anyPath = application.passportCopyPath ?? application.photoPath;
-  if (anyPath) {
-    const submissionFolder = path.join(
-      PRIVATE_UPLOAD_ROOT,
-      anyPath.split(path.sep)[0]!,
-    );
-    await fs.rm(submissionFolder, { recursive: true, force: true }).catch(() => {});
-  }
+  await removeSubmissionFolder(
+    PRIVATE_UPLOAD_ROOT,
+    anyDocumentPath(application, DOCUMENT_FIELDS),
+  );
 }
 
-const FIELD_TO_COLUMN: Record<DocumentField, string> = {
-  passportCopy: "passportCopyPath",
-  photo: "photoPath",
-  academicTranscripts: "academicTranscriptsPath",
-  englishTestScoreCard: "englishTestScoreCardPath",
-  statementOfPurpose: "statementOfPurposePath",
-  financialProof: "financialProofPath",
-  recommendationLetter: "recommendationLetterPath",
+/** "Program" for the register: the degree applied for, plus a specified level. */
+const programLabel = (record: InboundExportRecord): string => {
+  const applied = String(record.programAppliedFor ?? "");
+  const other = record.programLevel === "OTHER" ? record.programLevelOther : null;
+  return other ? `${applied} (${String(other)})` : applied;
 };
+
+export async function buildExportWorkbook(query: ExportApplicationsQuery) {
+  const applications = await repo.findApplicationsForExport(query);
+  return buildWorkbook([
+    buildInboundSheet(
+      ADMISSION_EXPORT_VARIANT,
+      applications as unknown as InboundExportRecord[],
+      programLabel,
+    ),
+  ]);
+}
 
 export async function getDocumentAbsolutePath(
   id: string,
   field: DocumentField,
 ): Promise<string> {
   const application = await getById(id);
-  const column = FIELD_TO_COLUMN[field] as keyof typeof application;
-  const relativePath = application[column] as string | null;
-
-  if (!relativePath)
-    throw AppError.notFound("This document was not submitted with the application");
-
-  return path.join(PRIVATE_UPLOAD_ROOT, relativePath);
+  return resolveDocumentAbsolutePath(PRIVATE_UPLOAD_ROOT, application, field);
 }

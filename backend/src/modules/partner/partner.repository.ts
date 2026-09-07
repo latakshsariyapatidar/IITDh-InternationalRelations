@@ -1,20 +1,31 @@
 import { prisma } from "../../config/prisma.js";
+import type { Prisma } from "@prisma/client";
 import type {
   CreatePartnerInput,
   UpdatePartnerInput,
   ListPartnersQuery,
 } from "./partner.schema.js";
 
+const ORDER_BY: Record<
+  ListPartnersQuery["sortBy"],
+  Prisma.PartnerOrderByWithRelationInput[]
+> = {
+  country: [{ country: "asc" }, { name: "asc" }],
+  name: [{ name: "asc" }],
+  type: [{ type: "asc" }, { name: "asc" }],
+};
+
 export async function findAllPartners(query: ListPartnersQuery) {
-  const where = {
+  const where: Prisma.PartnerWhereInput = {
     ...(query.type && { type: query.type }),
+    ...(query.country && { country: { contains: query.country, mode: "insensitive" } }),
     ...(query.isActive !== undefined && { isActive: query.isActive }),
   };
 
   const [partners, total] = await Promise.all([
     prisma.partner.findMany({
       where,
-      orderBy: [{ type: "asc" }, { name: "asc" }],
+      orderBy: ORDER_BY[query.sortBy],
       skip: (query.page - 1) * query.limit,
       take: query.limit,
     }),

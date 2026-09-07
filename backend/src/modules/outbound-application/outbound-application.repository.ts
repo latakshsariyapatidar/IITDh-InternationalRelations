@@ -14,6 +14,10 @@ const LIST_SELECT = {
   intendedSemester: true,
   status: true,
   submittedAt: true,
+  // Which supporting documents exist, so the admin list can link to them.
+  statementOfPurposePath: true,
+  transcriptPath: true,
+  recommendationLetterPath: true,
   student: { select: { name: true, email: true } },
   partner: { select: { name: true, country: true } },
 } satisfies Prisma.OutboundApplicationSelect;

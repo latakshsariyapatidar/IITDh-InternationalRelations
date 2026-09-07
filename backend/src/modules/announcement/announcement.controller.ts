@@ -12,6 +12,7 @@ export const listAnnouncements = catchAsync(
   async (req: Request, res: Response) => {
     const result = await service.getAll(
       req.query as unknown as ListAnnouncementsQuery,
+      Boolean(req.user),
     );
     res.status(200).json(successResponse("Announcements fetched", result));
   },
@@ -19,7 +20,7 @@ export const listAnnouncements = catchAsync(
 
 export const getAnnouncement = catchAsync(
   async (req: Request, res: Response) => {
-    const item = await service.getById(req.params.id as string);
+    const item = await service.getById(req.params.id as string, Boolean(req.user));
     res.status(200).json(successResponse("Announcement fetched", item));
   },
 );

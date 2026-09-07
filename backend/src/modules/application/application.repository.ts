@@ -3,7 +3,9 @@ import type { Prisma } from "@prisma/client";
 import type {
   CreateApplicationInput,
   UpdateApplicationStatusInput,
+  UpdateApplicationRecordInput,
   ListApplicationsQuery,
+  ExportApplicationsQuery,
 } from "./application.schema.js";
 
 const LIST_SELECT = {
@@ -13,14 +15,22 @@ const LIST_SELECT = {
   nationality: true,
   email: true,
   programLevel: true,
+  programLevelOther: true,
   programAppliedFor: true,
   intendedIntake: true,
   status: true,
   submittedAt: true,
+  // Office record columns the admin list shows at a glance.
+  rollNumber: true,
+  facultyAdvisor: true,
+  visaExpiryDate: true,
+  exitDate: true,
 } satisfies Prisma.StudentApplicationSelect;
 
-export async function findAllApplications(query: ListApplicationsQuery) {
-  const where: Prisma.StudentApplicationWhereInput = {
+function buildWhere(
+  query: ListApplicationsQuery | ExportApplicationsQuery,
+): Prisma.StudentApplicationWhereInput {
+  return {
     ...(query.status && { status: query.status }),
     ...(query.nationality && {
       nationality: { contains: query.nationality, mode: "insensitive" },
@@ -34,6 +44,10 @@ export async function findAllApplications(query: ListApplicationsQuery) {
       ],
     }),
   };
+}
+
+export async function findAllApplications(query: ListApplicationsQuery) {
+  const where = buildWhere(query);
 
   const [applications, total] = await Promise.all([
     prisma.studentApplication.findMany({
@@ -48,6 +62,13 @@ export async function findAllApplications(query: ListApplicationsQuery) {
 
   return { applications, total, page: query.page, limit: query.limit };
 }
+
+/** Full rows for the spreadsheet export — every column the register needs. */
+export const findApplicationsForExport = (query: ExportApplicationsQuery) =>
+  prisma.studentApplication.findMany({
+    where: buildWhere(query),
+    orderBy: { submittedAt: "asc" },
+  });
 
 export const findApplicationById = (id: string) =>
   prisma.studentApplication.findUnique({ where: { id } });
@@ -79,6 +100,9 @@ export const updateApplicationStatus = (
     where: { id },
     data: { ...data, reviewedByAdminId },
   });
+
+export const updateApplicationRecord = (id: string, data: UpdateApplicationRecordInput) =>
+  prisma.studentApplication.update({ where: { id }, data });
 
 export const deleteApplication = (id: string) =>
   prisma.studentApplication.delete({ where: { id } });
