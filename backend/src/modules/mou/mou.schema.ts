@@ -2,6 +2,9 @@ import { z } from "zod";
 
 const MouStatusEnum = z.enum(["ACTIVE", "EXPIRED", "RENEWED", "TERMINATED"]);
 
+// `documentPath` is deliberately absent: it is set only by uploading a file
+// through POST /:id/document, so a request body can never point the record at
+// an arbitrary path on disk.
 export const createMouSchema = z.object({
   partnerId: z.string().uuid("Invalid partner"),
   title: z.string().trim().min(1).max(300),
@@ -9,7 +12,6 @@ export const createMouSchema = z.object({
   expiryDate: z.coerce.date().optional(),
   status: MouStatusEnum.default("ACTIVE"),
   scope: z.string().trim().optional(),
-  documentPath: z.string().trim().max(500).optional(),
 });
 
 export const updateMouSchema = createMouSchema.partial();
