@@ -3,8 +3,20 @@ import { prisma } from "../../config/prisma.js";
 export async function upsertStudent(data: { email: string; name: string; googleSub: string }) {
   return prisma.student.upsert({
     where: { googleSub: data.googleSub },
-    update: { email: data.email, name: data.name },
-    create: data,
+    update: { email: data.email, name: data.name, lastLoginAt: new Date() },
+    create: { ...data, lastLoginAt: new Date() },
+  });
+}
+
+/**
+ * The faculty directory doubles as the portal allowlist: a verified
+ * @iitdh.ac.in sign-in whose address is listed here signs in as faculty.
+ * Everyone else — including every student — signs in as a student.
+ */
+export async function findPortalFacultyByEmail(email: string) {
+  return prisma.faculty.findFirst({
+    where: { email, isActive: true, isPortalEnabled: true },
+    select: { id: true, name: true },
   });
 }
 
