@@ -36,7 +36,6 @@ router.patch(
   validate({ params: outboundApplicationIdSchema, body: updateOutboundApplicationStatusSchema }),
   ctrl.updateOutboundApplicationStatus,
 );
-
 // Supporting documents — an admin bearer token, or a signed export link.
 router.get(
   "/:id/documents/:field",

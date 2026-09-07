@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 // import LanguageSelector from './LanguageSelector'
 import NavigationLinks from '../data/NavigationLinks'
+import { useSiteContent } from '../contexts/SiteContentContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { getContent } = useSiteContent()
 
   useEffect(() => {
     if (!isOpen) {
@@ -25,7 +27,7 @@ export default function Navbar() {
   }, [isOpen])
 
   return (
-    <nav className="sticky top-0 z-50 bg-brand-purpleDark text-white">
+    <nav className="relative z-50 bg-brand-purpleDark text-white">
       {/* In future uncomment this code if you want to display the contact information and language selector */}
       {/* <div className="bg-white border-b border-brand-purple/10">
         <div className="max-w-7xl mx-auto px-4 py-1 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -50,7 +52,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img
-                src="/IITDh logo white.svg"
+                src={getContent("site.logoUrl", "/IITDh Logo.svg")}
                 alt="IIT Dharwad"
                 className="h-12 w-auto"
               />
@@ -61,8 +63,8 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-8">
-              {NavigationLinks.slice(0, 5).map((item) => (
+            <div className="hidden lg:flex items-center gap-6">
+              {NavigationLinks.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}

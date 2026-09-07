@@ -2,8 +2,28 @@ import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
+import { useState, useEffect } from 'react'
+import apiClient from '../api/client'
+import { RiExchangeBoxLine, RiMicroscopeLine, RiBriefcaseLine, RiMacbookLine, RiEarthLine, RiGraduationCapLine, RiUserStarLine, RiAwardLine, RiSunLine, RiUserSmileLine, RiBuilding4Line, RiWallet3Line, RiBankLine, RiGroupLine, RiLinksLine, RiMapPinLine, RiCalendarLine } from '@remixicon/react'
 
 export default function Collaboration() {
+  const [mous, setMous] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMous = async () => {
+      try {
+        const res = await apiClient.get('/mous?isPublic=true&limit=100');
+        setMous(res.data?.data?.mous || []);
+      } catch (err) {
+        console.error('Failed to fetch MOUs', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMous();
+  }, []);
+
   return (
     <div>
       <HeroSection
@@ -17,16 +37,16 @@ export default function Collaboration() {
         <SectionHeader
           title="International Students Programs"
           subtitle="Exchange and learning opportunities"
-          badge="EXCHANGE"
+          badge={<RiExchangeBoxLine size={24} />}
         />
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { icon: '01', title: 'Coursework Exchange', desc: 'Spend a semester taking courses at IITDH while completing degree requirements from your home institution.', duration: '1 semester' },
-            { icon: '02', title: 'Research Exchange', desc: 'Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.', duration: 'Flexible' },
-            { icon: '03', title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
-            { icon: '04', title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
-            { icon: '05', title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
-            { icon: '06', title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
+            { icon: <RiExchangeBoxLine size={28} className="text-brand-purple" />, title: 'Coursework Exchange', desc: 'Spend a semester taking courses at IITDH while completing degree requirements from your home institution.', duration: '1 semester' },
+            { icon: <RiMicroscopeLine size={28} className="text-brand-purple" />, title: 'Research Exchange', desc: 'Collaborate with IITDH faculty on cutting-edge research projects in various engineering disciplines.', duration: 'Flexible' },
+            { icon: <RiBriefcaseLine size={28} className="text-brand-purple" />, title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
+            { icon: <RiMacbookLine size={28} className="text-brand-purple" />, title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
+            { icon: <RiEarthLine size={28} className="text-brand-purple" />, title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
+            { icon: <RiGraduationCapLine size={28} className="text-brand-purple" />, title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4 text-sm">{prog.desc}</p>
@@ -42,7 +62,7 @@ export default function Collaboration() {
           <SectionHeader
             title="International Faculty Programs"
             subtitle="Funding and collaboration schemes for faculty"
-            badge="FACULTY"
+            badge={<RiGroupLine size={24} />}
           />
           <div className="grid md:grid-cols-2 gap-8">
             {[
@@ -71,16 +91,16 @@ export default function Collaboration() {
         <SectionHeader
           title="IITDH Students: Opportunities Abroad"
           subtitle="Exchange and learning programs for our students"
-          badge="GLOBAL"
+          badge={<RiEarthLine size={24} />}
         />
         <div className="grid md:grid-cols-2 gap-8">
           {[
-            { icon: '01', title: 'Undergraduate Exchange', desc: 'Study abroad during 3rd or 4th year at partner universities worldwide.', info: 'Eligibility: CGPA ≥ 7.0' },
-            { icon: '02', title: 'Dual Degree Programs', desc: 'Earn dual degrees from IITDH and international partner institutions.', info: 'Duration: 4-5 years' },
-            { icon: '03', title: 'Postgraduate Exchange', desc: 'Research internships and thesis work at leading universities globally.', info: 'For M.Tech and PhD students' },
-            { icon: '04', title: 'Summer Internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
-            { icon: '05', title: 'Immersion Programs', desc: 'Short-term cultural and technical learning programs in partner countries.', info: 'Duration: 2-4 weeks' },
-            { icon: '06', title: 'PhD Programs', desc: 'Pursue PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' }
+            { icon: <RiUserStarLine size={28} className="text-brand-purple" />, title: 'Undergraduate Exchange', desc: 'Study abroad during 3rd or 4th year at partner universities worldwide.', info: 'Eligibility: CGPA ≥ 7.0' },
+            { icon: <RiAwardLine size={28} className="text-brand-purple" />, title: 'Dual Degree Programs', desc: 'Earn dual degrees from IITDH and international partner institutions.', info: 'Duration: 4-5 years' },
+            { icon: <RiMicroscopeLine size={28} className="text-brand-purple" />, title: 'Postgraduate Exchange', desc: 'Research internships and thesis work at leading universities globally.', info: 'For M.Tech and PhD students' },
+            { icon: <RiSunLine size={28} className="text-brand-purple" />, title: 'Summer Internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
+            { icon: <RiUserSmileLine size={28} className="text-brand-purple" />, title: 'Immersion Programs', desc: 'Short-term cultural and technical learning programs in partner countries.', info: 'Duration: 2-4 weeks' },
+            { icon: <RiGraduationCapLine size={28} className="text-brand-purple" />, title: 'PhD Programs', desc: 'Pursue PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' }
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4">{prog.desc}</p>
@@ -118,22 +138,74 @@ export default function Collaboration() {
         </div>
       </section>
 
+      {/* Active MOUs Section */}
+      {mous.length > 0 && (
+        <section className="bg-neutral-canvas py-16 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <SectionHeader
+              title="Memorandums of Understanding (MOUs)"
+              subtitle="Our active academic and research partnerships worldwide"
+              badge={<RiLinksLine size={24} />}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mous.map((mou) => (
+                <div key={mou.id} className="bg-white rounded-xl border border-brand-purpleLight/40 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-xl font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors flex-1 pr-4">
+                      {mou.universityName}
+                    </h3>
+                    <div className="w-10 h-10 rounded-full bg-brand-purpleLight/20 flex items-center justify-center shrink-0 text-brand-purple">
+                      <RiEarthLine size={20} />
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm text-neutral-textDark/80 mb-6 flex-1">
+                    <p className="flex items-center gap-2">
+                      <RiMapPinLine size={16} className="text-brand-marigold" />
+                      {mou.country}
+                    </p>
+                    {mou.signedDate && (
+                      <p className="flex items-center gap-2">
+                        <RiCalendarLine size={16} className="text-brand-marigold" />
+                        Signed: {new Date(mou.signedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                    {mou.validUntil && (
+                      <p className="flex items-center gap-2">
+                        <RiCalendarLine size={16} className="text-brand-marigold" />
+                        Valid Until: {new Date(mou.validUntil).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
+                  {mou.documentUrl && (
+                    <a href={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${mou.documentUrl}`} target="_blank" rel="noreferrer" className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">
+                      View Document
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* International Admissions */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="International Admissions"
           subtitle="Study in India programs and pathways"
-          badge="SCHOLARSHIPS"
+          badge={<RiAwardLine size={24} />}
         />
         <div className="bg-brand-purpleLight/30 rounded-xl p-8 border border-brand-purpleLight/70">
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: 'IN', title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
-              { icon: 'SF', title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
-              { icon: 'IC', title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
+              { icon: <RiBuilding4Line size={48} className="text-brand-purple" />, title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
+              { icon: <RiWallet3Line size={48} className="text-brand-purple" />, title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
+              { icon: <RiBankLine size={48} className="text-brand-purple" />, title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
             ].map((prog, idx) => (
               <div key={idx}>
-                <div className="text-4xl mb-3">{prog.icon}</div>
+                <div className="mb-4">{prog.icon}</div>
                 <h3 className="text-xl font-bold text-brand-purple mb-3">{prog.title}</h3>
                 <p className="text-gray-700 text-sm mb-4">{prog.desc}</p>
                 <CTAButton label="Learn More" to="/admission" variant="primary" size="sm" />

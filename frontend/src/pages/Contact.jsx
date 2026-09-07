@@ -2,6 +2,7 @@ import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
+import { RiBuilding2Line, RiMapPinLine, RiTimeLine, RiPhoneLine, RiMailLine, RiContactsBook2Line, RiMailSendLine, RiMapPin2Line } from '@remixicon/react'
 
 export default function Contact() {
   return (
@@ -9,7 +10,7 @@ export default function Contact() {
       <HeroSection
         title="Contact Us"
         subtitle="Get in touch with the International Relations Office"
-        cta={{ label: 'Send Message', onClick: () => document.querySelector('form').scrollIntoView({ behavior: 'smooth' }) }}
+        cta={{ label: 'Email Us', onClick: () => window.location.href = 'mailto:iro@iitdh.ac.in' }}
       />
 
       {/* Contact Cards */}
@@ -17,7 +18,7 @@ export default function Contact() {
         <SectionHeader
           title="International Relations Contacts"
           subtitle="Reach out to the right person for your needs"
-          badge="CONTACT"
+          badge={<RiContactsBook2Line size={24} />}
         />
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {[
@@ -38,44 +39,18 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Contact Form */}
+      {/* Contact Email */}
       <section id="feedback" className="bg-neutral-canvas py-16">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4 text-center">
           <SectionHeader
             title="Send us a Message"
-            subtitle="We'll get back to you within 24 hours"
-            badge="FORM"
+            subtitle="Reach out to us via email for any inquiries"
+            badge={<RiMailSendLine size={24} />}
           />
-          <form className="space-y-6 bg-white rounded-xl p-8 shadow-lg">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Full Name</label>
-                <input type="text" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Your name" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Email</label>
-                <input type="email" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="your@email.com" />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Phone</label>
-                <input type="tel" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="+1 234 567 8900" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Subject</label>
-                <input type="text" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Inquiry subject" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-brand-purpleDark mb-2">Message</label>
-              <textarea rows="5" className="w-full px-4 py-2 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition" placeholder="Your message..."></textarea>
-            </div>
-
-            <CTAButton label="Send Message" variant="primary" size="lg" className="w-full" onClick={() => alert('Message sent! We will contact you soon.')} />
-          </form>
+          <div className="bg-white rounded-xl p-8 shadow-lg inline-block w-full">
+            <p className="text-lg text-gray-700 mb-4">You can email us directly at:</p>
+            <a href="mailto:iro@iitdh.ac.in" className="text-2xl font-bold text-brand-purple hover:text-brand-marigold transition-colors">iro@iitdh.ac.in</a>
+          </div>
         </div>
       </section>
 
@@ -84,25 +59,39 @@ export default function Contact() {
         <SectionHeader
           title="Visit Us"
           subtitle="International Relations Office Location"
-          badge="LOCATION"
+          badge={<RiMapPin2Line size={24} />}
         />
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl aspect-video flex items-center justify-center border border-brand-purpleLight/70">
-            <p className="text-gray-400 text-center">Map Placeholder</p>
+          <div className="bg-white rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-brand-purpleLight/70 shadow-lg relative group">
+            <iframe 
+              src="https://maps.google.com/maps?q=IIT%20Dharwad&t=&z=14&ie=UTF8&iwloc=&output=embed" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen="" 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              title="IIT Dharwad Location"
+            ></iframe>
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+              <a href="https://maps.app.goo.gl/o8Nfwf6Dbwsqdb4C9" target="_blank" rel="noopener noreferrer" className="bg-white text-brand-purple px-6 py-2 rounded-full font-semibold shadow-lg hover:bg-brand-marigold hover:text-white transition-colors pointer-events-auto">
+                Open in Google Maps
+              </a>
+            </div>
           </div>
           <div>
             <h3 className="text-2xl font-bold text-brand-purpleDark mb-6">Office Address</h3>
             <div className="space-y-4">
               {[
-                { icon: 'BLD', label: 'Building Location', value: 'Building 2, Near Central Library' },
-                { icon: 'ADDR', label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
-                { icon: 'HRS', label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
-                { icon: 'TEL', label: 'Phone', value: '+91-8364-241-200' },
-                { icon: 'MAIL', label: 'Email', value: 'iro@iitdh.ac.in' }
+                { icon: <RiBuilding2Line className="text-brand-purple" size={24} />, label: 'Building Location', value: 'Building 2, Near Central Library' },
+                { icon: <RiMapPinLine className="text-brand-purple" size={24} />, label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
+                { icon: <RiTimeLine className="text-brand-purple" size={24} />, label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
+                { icon: <RiPhoneLine className="text-brand-purple" size={24} />, label: 'Phone', value: '+91-8364-241-200' },
+                { icon: <RiMailLine className="text-brand-purple" size={24} />, label: 'Email', value: 'iro@iitdh.ac.in' }
               ].map((item, idx) => (
                 <Card key={idx} variant="light">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">{item.icon}</span>
+                    <span className="mt-0.5">{item.icon}</span>
                     <div>
                       <p className="font-semibold text-brand-purple">{item.label}:</p>
                       {item.label === 'Email' ? (

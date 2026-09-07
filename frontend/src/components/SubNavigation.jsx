@@ -4,8 +4,7 @@ import SubNavigationData from '../data/SubNavigationData'
 export default function SubNavigation() {
   return (
     <nav 
-      className="sticky z-40 bg-brand-purpleDark/90 backdrop-blur-md border-b border-brand-marigold/15 shadow-lg" 
-      style={{ top: 'var(--nav-height, 64px)' }}
+      className="relative z-40 bg-brand-purpleDark/90 backdrop-blur-md border-b border-brand-marigold/15" 
     >
       <div className="max-w-7xl flex justify-center mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex overflow-x-auto gap-0 scrollbar-hide">

@@ -12,6 +12,7 @@ export const createMouSchema = z.object({
   expiryDate: z.coerce.date().optional(),
   status: MouStatusEnum.default("ACTIVE"),
   scope: z.string().trim().optional(),
+  isPublic: z.boolean().default(true),
 });
 
 export const updateMouSchema = createMouSchema.partial();
@@ -23,6 +24,10 @@ export const listMousSchema = z.object({
   partnerId: z.string().uuid().optional(),
   status: MouStatusEnum.optional(),
   expiringWithinDays: z.coerce.number().int().positive().optional(),
+  isPublic: z.preprocess(
+    (v) => (v === "true" ? true : v === "false" ? false : v),
+    z.boolean().optional(),
+  ),
 });
 
 export type CreateMouInput = z.infer<typeof createMouSchema>;

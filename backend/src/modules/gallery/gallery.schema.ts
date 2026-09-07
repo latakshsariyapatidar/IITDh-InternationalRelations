@@ -10,7 +10,7 @@ const GalleryCategory = z.enum([
 
 export const createGalleryImageSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  imageUrl: z.string().url("Must be a valid URL").max(500),
+  imageUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500),
   caption: z.string().trim().max(300).optional(),
   category: GalleryCategory.default("OTHER"),
   takenAt: z.coerce.date().optional(),

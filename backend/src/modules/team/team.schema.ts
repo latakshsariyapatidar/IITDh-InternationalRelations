@@ -4,7 +4,9 @@ export const createTeamMemberSchema = z.object({
   name: z.string().trim().min(1).max(200),
   role: z.string().trim().min(1).max(100),
   year: z.string().trim().min(1).max(50),
-  photoUrl: z.string().url().max(500).optional(),
+  photoUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500).optional(),
+  email: z.string().email("Invalid email format").max(255).optional().or(z.literal("")),
+  responsibilities: z.string().max(2000).optional(),
   isActive: z.boolean().default(true),
 });
 

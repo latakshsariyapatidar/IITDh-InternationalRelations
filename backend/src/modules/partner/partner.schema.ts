@@ -9,7 +9,14 @@ export const createPartnerSchema = z.object({
   type: z.enum(["UNIVERSITY", "ORGANIZATION"]),
   focus: z.string().trim().max(200).optional(),
   website: z.string().url("Must be a valid URL").max(500).optional(),
-  logoUrl: z.string().url("Must be a valid URL").max(500).optional(),
+  // Accepts an absolute URL or a site-relative path: logos uploaded through
+  // POST /uploads/image/partners come back as "/uploads/partners/<file>",
+  // which z.string().url() would reject.
+  logoUrl: z
+    .string()
+    .regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path")
+    .max(500)
+    .optional(),
   // The IITDh faculty member who champions this partnership.
   championName: z.string().trim().max(200).optional(),
   championEmail: z.string().trim().email("Must be a valid email").max(255).optional(),

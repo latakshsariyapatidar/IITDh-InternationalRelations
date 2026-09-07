@@ -16,7 +16,7 @@ export const createEventSchema = z.object({
   }),
   endDate: z.coerce.date().optional(),
   location: z.string().trim().max(300).optional(),
-  imageUrl: z.string().url().max(500).optional(),
+  imageUrl: z.string().regex(/^(https?:\/\/|\/)/, "Must be a valid URL or path").max(500).optional(),
   type: EventType.default("OTHER"),
   isPublic: z.boolean().default(true),
 });

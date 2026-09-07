@@ -29,6 +29,7 @@ export async function findAllAnnouncements(
       select: {
         id: true,
         title: true,
+        content: true,
         isPublic: true,
         publishedAt: true,
         visibleUntil: true,
