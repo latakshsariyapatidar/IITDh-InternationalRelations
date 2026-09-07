@@ -22,6 +22,9 @@ enum ProgramLevel {
   UNDERGRADUATE
   POSTGRADUATE
   PHD
+  // Inbound applicants only — the course catalogue (`Program`) keeps its zod
+  // enum at the three real levels so OTHER can never be assigned there.
+  OTHER
 }
 
 enum ContactType {
@@ -58,54 +61,81 @@ enum EventType {
 // // --- Models --- 
 
 model Admin {
-  id                           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email                        String                @unique @db.VarChar(255)
-  passwordHash                 String                @db.VarChar(255)
-  createdAt                    DateTime              @default(now()) @db.Timestamptz(3)
-  updatedAt                    DateTime              @updatedAt @db.Timestamptz(3)
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                        String                        @unique @db.VarChar(255)
+  passwordHash                 String                        @db.VarChar(255)
+  createdAt                    DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt                    DateTime                      @updatedAt @db.Timestamptz(3)
   refreshTokens                RefreshToken[]
   reviewedApplications         StudentApplication[]
   reviewedOutboundApplications OutboundApplication[]
+  reviewedExchangeApplications InboundExchangeApplication[]
 
   @@map("admins")
 }
 
 model Announcement {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String    @db.VarChar(300)
-  content     String    @db.Text
-  isPublic    Boolean   @default(true)
-  publishedAt DateTime? @db.Timestamptz(3)
-  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title    String  @db.VarChar(300)
+  content  String  @db.Text
+  isPublic Boolean @default(true)
 
+  // An announcement is live between these two: nothing shows before
+  // `publishedAt`, and it drops off the public site once `visibleUntil` passes.
+  // Null on either side means "no bound on that end".
+  publishedAt  DateTime? @db.Timestamptz(3)
+  visibleUntil DateTime? @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([visibleUntil])
   @@map("announcements")
 }
 
 model Partner {
-  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                 String                @db.VarChar(200)
-  country              String                @db.VarChar(100)
-  type                 PartnerType
-  focus                String?               @db.VarChar(200)
-  website              String?               @db.VarChar(500)
-  logoUrl              String?               @db.VarChar(500)
+  id      String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String      @db.VarChar(200)
+  country String      @db.VarChar(100)
+  type    PartnerType
+  focus   String?     @db.VarChar(200)
+  website String?     @db.VarChar(500)
+  logoUrl String?     @db.VarChar(500)
+
+  // ISO 3166-1 alpha-2, derived from `country` — the partners table groups by
+  // country and renders a flag from this.
+  countryCode String? @db.VarChar(2)
+
+  // The IITDh faculty member who champions this partnership; shown in the
+  // partners table alongside the institution.
+  championName        String? @db.VarChar(200)
+  championEmail       String? @db.VarChar(255)
+  championDesignation String? @db.VarChar(200)
+
   isActive             Boolean               @default(true)
   createdAt            DateTime              @default(now()) @db.Timestamptz(3)
   updatedAt            DateTime              @updatedAt @db.Timestamptz(3)
   mous                 Mou[]
   outboundApplications OutboundApplication[]
 
+  @@index([country])
   @@map("partners")
 }
 
 model Faculty {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String   @db.VarChar(200)
-  redirectUrl String   @db.VarChar(500)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String @db.VarChar(200)
+  redirectUrl String @db.VarChar(500)
+
+  // This directory doubles as the faculty-portal allowlist (Part 13): a Google
+  // sign-in whose verified @iitdh.ac.in address matches an active row here gets
+  // a faculty token instead of a student one.
+  email            String? @unique @db.VarChar(255)
+  isPortalEnabled  Boolean @default(true)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   @@map("faculty")
 }
@@ -282,6 +312,8 @@ model StudentApplication {
 
   // Academic details
   programLevel         ProgramLevel
+  // Set only when programLevel is OTHER — the "others (please specify)" box.
+  programLevelOther    String?         @db.VarChar(200)
   programAppliedFor    String          @db.VarChar(200)
   intendedIntake       String          @db.VarChar(50)
   highestQualification String          @db.VarChar(200)
@@ -303,6 +335,27 @@ model StudentApplication {
   financialProofPath       String? @db.VarChar(500)
   recommendationLetterPath String? @db.VarChar(500)
 
+  // Office record — maintained by the IRO after the student applies, never by
+  // the applicant. These are the columns of the "SII-International admission"
+  // register, and they drive the visa/passport expiry reminders.
+  rollNumber           String?   @db.VarChar(50)
+  instituteEmail       String?   @db.VarChar(255)
+  sponsoringAgency     String?   @db.VarChar(300)
+  yearOfJoining        String?   @db.VarChar(20)
+  dateOfJoining        DateTime? @db.Timestamptz(3)
+  exitDate             DateTime? @db.Timestamptz(3)
+  facultyAdvisor       String?   @db.VarChar(200)
+  citizenshipNo        String?   @db.VarChar(100)
+  passportIssueDate    DateTime? @db.Timestamptz(3)
+  passportPlaceOfIssue String?   @db.VarChar(200)
+  visaDetails          String?   @db.VarChar(200)
+  visaIssueDate        DateTime? @db.Timestamptz(3)
+  visaExpiryDate       DateTime? @db.Timestamptz(3)
+  visaPlaceOfIssue     String?   @db.VarChar(200)
+  sForm                String?   @db.VarChar(100)
+  cForm                String?   @db.VarChar(100)
+  officeRemarks        String?   @db.Text
+
   // Review / triage
   status            ApplicationStatus @default(SUBMITTED)
   reviewNotes       String?           @db.Text
@@ -314,7 +367,105 @@ model StudentApplication {
 
   @@index([status])
   @@index([nationality])
+  @@index([visaExpiryDate])
+  @@index([exitDate])
   @@map("student_applications")
+}
+
+// // --- Inbound Semester Exchange / Internship ---
+//
+// A separate register from StudentApplication: the office maintains degree
+// admissions and exchange/internship visitors as two different registers (the
+// two sheets of the international students database), with different intake
+// forms. Shared bits — the office record block, document handling, the export
+// columns — live in src/modules/inbound-shared/.
+
+enum ExchangeType {
+  SEMESTER_EXCHANGE
+  RESEARCH_INTERNSHIP
+  SUMMER_PROGRAM
+  OTHER
+}
+
+model InboundExchangeApplication {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Personal details
+  firstName                String   @db.VarChar(100)
+  lastName                 String   @db.VarChar(100)
+  dateOfBirth              DateTime @db.Timestamptz(3)
+  gender                   Gender
+  nationality              String   @db.VarChar(100)
+  countryOfResidence       String   @db.VarChar(100)
+  passportNumber           String   @db.VarChar(50)
+  passportExpiryDate       DateTime @db.Timestamptz(3)
+  email                    String   @db.VarChar(255)
+  phone                    String   @db.VarChar(50)
+  currentAddress           String   @db.Text
+  emergencyContactName     String   @db.VarChar(200)
+  emergencyContactPhone    String   @db.VarChar(50)
+  emergencyContactRelation String?  @db.VarChar(100)
+
+  // Exchange details — where they are coming from and what they will do here
+  homeUniversity        String       @db.VarChar(300)
+  homeUniversityCountry String       @db.VarChar(100)
+  homeProgramOfStudy    String       @db.VarChar(200)
+  exchangeType          ExchangeType
+  exchangeTypeOther     String?      @db.VarChar(200)
+  programLevel          ProgramLevel
+  programLevelOther     String?      @db.VarChar(200)
+  proposedDepartment    String?      @db.VarChar(200)
+  proposedFacultyHost   String?      @db.VarChar(200)
+  intendedStayFrom      DateTime     @db.Timestamptz(3)
+  intendedStayTo        DateTime     @db.Timestamptz(3)
+  purposeOfVisit        String       @db.Text
+
+  // Visa / immigration
+  visaCategory            String? @db.VarChar(100)
+  requiresVisaSponsorship Boolean @default(true)
+
+  // Uploaded documents — private storage, server-relative paths only
+  passportCopyPath         String? @db.VarChar(500)
+  photoPath                String? @db.VarChar(500)
+  academicTranscriptsPath  String? @db.VarChar(500)
+  nominationLetterPath     String? @db.VarChar(500)
+  statementOfPurposePath   String? @db.VarChar(500)
+  financialProofPath       String? @db.VarChar(500)
+  recommendationLetterPath String? @db.VarChar(500)
+
+  // Office record — the "Internship Sem exch Program" register columns.
+  rollNumber           String?   @db.VarChar(50)
+  instituteEmail       String?   @db.VarChar(255)
+  sponsoringAgency     String?   @db.VarChar(300)
+  yearOfJoining        String?   @db.VarChar(20)
+  dateOfJoining        DateTime? @db.Timestamptz(3)
+  exitDate             DateTime? @db.Timestamptz(3)
+  facultyAdvisor       String?   @db.VarChar(200)
+  citizenshipNo        String?   @db.VarChar(100)
+  passportIssueDate    DateTime? @db.Timestamptz(3)
+  passportPlaceOfIssue String?   @db.VarChar(200)
+  visaDetails          String?   @db.VarChar(200)
+  visaIssueDate        DateTime? @db.Timestamptz(3)
+  visaExpiryDate       DateTime? @db.Timestamptz(3)
+  visaPlaceOfIssue     String?   @db.VarChar(200)
+  sForm                String?   @db.VarChar(100)
+  cForm                String?   @db.VarChar(100)
+  officeRemarks        String?   @db.Text
+
+  // Review / triage
+  status            ApplicationStatus @default(SUBMITTED)
+  reviewNotes       String?           @db.Text
+  reviewedByAdminId String?           @db.Uuid
+  reviewedByAdmin   Admin?            @relation(fields: [reviewedByAdminId], references: [id], onDelete: SetNull)
+
+  submittedAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([nationality])
+  @@index([visaExpiryDate])
+  @@index([exitDate])
+  @@map("inbound_exchange_applications")
 }
 
 // // --- Site Content (Part 31) ---
@@ -373,12 +524,13 @@ model Mou {
 // // --- Student OAuth (Part 37) ---
 
 model Student {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String   @unique @db.VarChar(255)
-  name      String   @db.VarChar(200)
-  googleSub String   @unique @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String    @unique @db.VarChar(255)
+  name        String    @db.VarChar(200)
+  googleSub   String    @unique @db.VarChar(255)
+  lastLoginAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
 
   refreshTokens        StudentRefreshToken[]
   outboundApplications OutboundApplication[]
@@ -435,6 +587,9 @@ model OutboundApplication {
   intendedSemester String              @db.VarChar(50)
   motivation       String              @db.Text
 
+  // Statement of purpose may be written inline or uploaded as a PDF; the
+  // service requires exactly one of these two to be present.
+  statementOfPurposeText   String? @db.Text
   statementOfPurposePath   String? @db.VarChar(500)
   transcriptPath           String? @db.VarChar(500)
   recommendationLetterPath String? @db.VarChar(500)
@@ -450,4 +605,144 @@ model OutboundApplication {
   @@index([status])
   @@index([studentId])
   @@map("outbound_applications")
+}
+
+// // --- Opportunities ---
+//
+// Admin-published openings. Each is tagged for students, faculty, or both, and
+// every listing filters on that: students never see faculty-only postings and
+// the faculty portal never shows student-only ones.
+
+enum OpportunityAudience {
+  STUDENT
+  FACULTY
+  BOTH
+}
+
+enum OpportunityCategory {
+  SCHOLARSHIP
+  EXCHANGE
+  INTERNSHIP
+  RESEARCH
+  FELLOWSHIP
+  CONFERENCE
+  GRANT
+  OTHER
+}
+
+model Opportunity {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String              @db.VarChar(300)
+  description String              @db.Text
+  audience    OpportunityAudience
+  category    OpportunityCategory @default(OTHER)
+
+  organisation String? @db.VarChar(300)
+  country      String? @db.VarChar(100)
+  countryCode  String? @db.VarChar(2)
+
+  externalUrl   String? @db.VarChar(500)
+  attachmentUrl String? @db.VarChar(500)
+
+  applicationDeadline DateTime? @db.Timestamptz(3)
+  // Same visibility window as Announcement — see shared/utils/visibility.ts.
+  publishedAt         DateTime? @db.Timestamptz(3)
+  visibleUntil        DateTime? @db.Timestamptz(3)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([audience])
+  @@index([isActive])
+  @@index([visibleUntil])
+  @@map("opportunities")
+}
+
+// // --- Visitors / Delegates ---
+//
+// Public self-registration form so the office holds the details of every
+// visiting delegate. Anyone may submit; only admins can read the records back.
+
+model Visitor {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName     String  @db.VarChar(200)
+  designation  String? @db.VarChar(200)
+  organisation String  @db.VarChar(300)
+  department   String? @db.VarChar(200)
+  country      String  @db.VarChar(100)
+  countryCode  String? @db.VarChar(2)
+  email        String  @db.VarChar(255)
+  phone        String? @db.VarChar(50)
+  nationality  String? @db.VarChar(100)
+
+  passportNumber String? @db.VarChar(50)
+  purposeOfVisit String  @db.Text
+
+  visitFrom DateTime  @db.Timestamptz(3)
+  visitTo   DateTime? @db.Timestamptz(3)
+
+  hostName            String? @db.VarChar(200)
+  hostDepartment      String? @db.VarChar(200)
+  websiteOrProfileUrl String? @db.VarChar(500)
+  remarks             String? @db.Text
+
+  // Admin triage flag — the form is open to the public, so records start
+  // unverified until the office confirms the visit.
+  isVerified Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([country])
+  @@index([visitFrom])
+  @@map("visitors")
+}
+
+// // --- Notifications / Reminders ---
+
+enum NotificationType {
+  VISA_EXPIRING
+  PASSPORT_EXPIRING
+  MOU_EXPIRING
+  EXIT_DATE_APPROACHING
+  NEW_INBOUND_APPLICATION
+  NEW_EXCHANGE_APPLICATION
+  NEW_VISITOR
+  OTHER
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+model Notification {
+  id       String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type     NotificationType
+  severity NotificationSeverity @default(INFO)
+  title    String               @db.VarChar(300)
+  message  String               @db.Text
+
+  // What this is about, so the admin panel can deep-link to the record.
+  entityType String?   @db.VarChar(50)
+  entityId   String?   @db.Uuid
+  dueDate    DateTime? @db.Timestamptz(3)
+
+  // One row per (record, threshold), e.g. "VISA_EXPIRING:<uuid>:30". The unique
+  // constraint is what stops the daily scan from re-raising the same reminder.
+  dedupeKey String @unique @db.VarChar(255)
+
+  isRead    Boolean   @default(false)
+  readAt    DateTime? @db.Timestamptz(3)
+  emailedAt DateTime? @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isRead])
+  @@index([type])
+  @@index([dueDate])
+  @@map("notifications")
 }
