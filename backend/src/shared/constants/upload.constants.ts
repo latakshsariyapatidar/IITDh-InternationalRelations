@@ -13,7 +13,10 @@ export const IMAGE_FOLDERS = [
   "site-content",
 ] as const;
 
-export const DOCUMENT_FOLDERS = ["downloads", "mous"] as const;
+// "mous" is deliberately absent: MOU documents are signed agreements and now
+// live in private-uploads/mous/, reachable only through the authenticated
+// download route — anything listed here is served publicly from /uploads.
+export const DOCUMENT_FOLDERS = ["downloads", "opportunities"] as const;
 
 export type ImageFolder = (typeof IMAGE_FOLDERS)[number];
 export type DocumentFolder = (typeof DOCUMENT_FOLDERS)[number];

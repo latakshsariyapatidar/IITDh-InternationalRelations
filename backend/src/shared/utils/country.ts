@@ -1,0 +1,116 @@
+// Partners are shown grouped by country with a flag (Part 10). Flags are
+// rendered from an ISO 3166-1 alpha-2 code, so derive one from the country name
+// the admin typed rather than making them look the code up.
+
+const COUNTRY_CODES: Record<string, string> = {
+  afghanistan: "AF",
+  argentina: "AR",
+  australia: "AU",
+  austria: "AT",
+  bangladesh: "BD",
+  belgium: "BE",
+  bhutan: "BT",
+  brazil: "BR",
+  canada: "CA",
+  chile: "CL",
+  china: "CN",
+  colombia: "CO",
+  "czech republic": "CZ",
+  czechia: "CZ",
+  denmark: "DK",
+  egypt: "EG",
+  ethiopia: "ET",
+  finland: "FI",
+  france: "FR",
+  germany: "DE",
+  ghana: "GH",
+  greece: "GR",
+  hungary: "HU",
+  iceland: "IS",
+  india: "IN",
+  indonesia: "ID",
+  iran: "IR",
+  iraq: "IQ",
+  ireland: "IE",
+  israel: "IL",
+  italy: "IT",
+  japan: "JP",
+  jordan: "JO",
+  kazakhstan: "KZ",
+  kenya: "KE",
+  "south korea": "KR",
+  "republic of korea": "KR",
+  korea: "KR",
+  malaysia: "MY",
+  maldives: "MV",
+  mauritius: "MU",
+  mexico: "MX",
+  mongolia: "MN",
+  morocco: "MA",
+  myanmar: "MM",
+  nepal: "NP",
+  netherlands: "NL",
+  "new zealand": "NZ",
+  nigeria: "NG",
+  norway: "NO",
+  oman: "OM",
+  pakistan: "PK",
+  peru: "PE",
+  philippines: "PH",
+  poland: "PL",
+  portugal: "PT",
+  qatar: "QA",
+  romania: "RO",
+  russia: "RU",
+  "russian federation": "RU",
+  rwanda: "RW",
+  "saudi arabia": "SA",
+  singapore: "SG",
+  "south africa": "ZA",
+  spain: "ES",
+  "sri lanka": "LK",
+  sudan: "SD",
+  sweden: "SE",
+  switzerland: "CH",
+  taiwan: "TW",
+  tanzania: "TZ",
+  thailand: "TH",
+  tunisia: "TN",
+  turkey: "TR",
+  "türkiye": "TR",
+  uganda: "UG",
+  ukraine: "UA",
+  "united arab emirates": "AE",
+  uae: "AE",
+  "united kingdom": "GB",
+  uk: "GB",
+  "great britain": "GB",
+  england: "GB",
+  "united states": "US",
+  "united states of america": "US",
+  usa: "US",
+  us: "US",
+  america: "US",
+  uzbekistan: "UZ",
+  vietnam: "VN",
+  "viet nam": "VN",
+  yemen: "YE",
+  zambia: "ZM",
+  zimbabwe: "ZW",
+};
+
+/**
+ * ISO 3166-1 alpha-2 code for a country name, or undefined when unrecognised —
+ * the caller stores null and the frontend simply renders no flag.
+ */
+export function toCountryCode(country: string | null | undefined): string | undefined {
+  if (!country) return undefined;
+
+  const normalized = country.trim().toLowerCase().replace(/\s+/g, " ");
+  if (!normalized) return undefined;
+
+  // Already a code, e.g. an admin typed "DE".
+  if (/^[a-z]{2}$/.test(normalized)) return normalized.toUpperCase();
+
+  return COUNTRY_CODES[normalized];
+}
