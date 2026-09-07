@@ -18,6 +18,7 @@ import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
 import multer from "multer";
 import AppError, { type ValidationErrorDetail } from "../utils/appError.js";
+import { discardUploadedFiles } from "../utils/privateStorage.js";
 import { env } from "../../config/env.js";
 
 function handlePrismaError(
@@ -93,6 +94,15 @@ export default function errorHandler(
   _next: NextFunction,
 ): void {
   console.error(`[ERROR] ${req.method} ${req.path}`, err);
+
+  // Multer writes uploads to disk before validation runs, so a request that
+  // fails anywhere after that point has already left files behind. Nothing has
+  // been persisted to the database on this path, so they are unreferenced.
+  if (req.file || req.files) {
+    void discardUploadedFiles(req).catch((cleanupErr: unknown) => {
+      console.error("[ERROR] Failed to discard uploads for a failed request:", cleanupErr);
+    });
+  }
 
   let appError: AppError;
 

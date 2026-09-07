@@ -1,21 +1,45 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
 import { prisma } from "../config/prisma.js";
+import { toCountryCode } from "../shared/utils/country.js";
 
 async function main() {
   console.log("[SEED] Starting...");
 
   // ── Admin ──────────────────────────────────────────────────────────────────
-  const adminPassword =
-    process.env.SEED_ADMIN_PASSWORD ?? "changeme_in_production";
+  // No fallback password. A default here would mean any deployment that ran the
+  // seed without setting this had a publicly known administrator credential.
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@iitdh.ac.in";
+
+  if (!adminPassword) {
+    throw new Error(
+      "[SEED] SEED_ADMIN_PASSWORD is not set. Choose a strong password and put " +
+        "it in your .env before seeding — there is deliberately no default.",
+    );
+  }
+
+  if (adminPassword.length < 12) {
+    throw new Error(
+      `[SEED] SEED_ADMIN_PASSWORD must be at least 12 characters (got ${adminPassword.length}).`,
+    );
+  }
+
+  // Re-running the seed must not quietly reset a live administrator's password
+  // back to whatever is in the current .env — that is how a rotated credential
+  // silently reverts. Rotating is opt-in.
+  const resetAdminPassword = process.env.SEED_RESET_ADMIN_PASSWORD === "true";
   const adminHash = await bcrypt.hash(adminPassword, 12);
 
   await prisma.admin.upsert({
-    where: { email: "admin@iitdh.ac.in" },
-    update: { passwordHash: adminHash },
-    create: { email: "admin@iitdh.ac.in", passwordHash: adminHash },
+    where: { email: adminEmail },
+    update: resetAdminPassword ? { passwordHash: adminHash } : {},
+    create: { email: adminEmail, passwordHash: adminHash },
   });
-  console.log("[SEED] ✓ Admin");
+  console.log(
+    `[SEED] ✓ Admin (${adminEmail})` +
+      (resetAdminPassword ? " — password reset" : " — existing password kept"),
+  );
 
   // ── Contacts ───────────────────────────────────────────────────────────────
   const contacts = [
@@ -67,25 +91,32 @@ async function main() {
   console.log("[SEED] ✓ Contacts");
 
   // ── Faculty ────────────────────────────────────────────────────────────────
+  // `email` doubles as the faculty-portal allowlist: a Google sign-in with one
+  // of these addresses gets a faculty token rather than a student one.
   const faculty = [
     {
       name: "Prof. Ramesh Chandra",
+      email: "ramesh.chandra@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/ramesh-chandra",
     },
     {
       name: "Prof. Anjali Sharma",
+      email: "anjali.sharma@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/anjali-sharma",
     },
     {
       name: "Prof. Vikram Patel",
+      email: "vikram.patel@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/vikram-patel",
     },
     {
       name: "Prof. Neha Gupta",
+      email: "neha.gupta@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/neha-gupta",
     },
     {
       name: "Prof. Arvind Mishra",
+      email: "arvind.mishra@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/arvind-mishra",
     },
   ];
@@ -168,7 +199,9 @@ async function main() {
     },
   ];
 
-  for (const p of [...universities, ...organisations]) {
+  for (const partner of [...universities, ...organisations]) {
+    // The partners table groups by country and renders a flag from this code.
+    const p = { ...partner, countryCode: toCountryCode(partner.country) };
     const existing = await prisma.partner.findFirst({
       where: { name: p.name },
     });
@@ -544,6 +577,59 @@ async function main() {
     });
   }
   console.log("[SEED] ✓ Demo student application");
+
+  // ── Opportunities ──────────────────────────────────────────────────────────
+  // One per audience, so the student feed, the faculty feed and the shared
+  // case are all exercised.
+  const opportunities = [
+    {
+      title: "DAAD WISE Summer Research Internships",
+      description:
+        "Fully funded summer research internships at German universities for undergraduate students in engineering and the sciences.",
+      audience: "STUDENT" as const,
+      category: "INTERNSHIP" as const,
+      organisation: "DAAD",
+      country: "Germany",
+      countryCode: "DE",
+      externalUrl: "https://www.daad.in/en/study-research-in-germany/scholarships/wise/",
+      applicationDeadline: new Date("2026-12-01"),
+      publishedAt: new Date(),
+    },
+    {
+      title: "Erasmus+ Staff Mobility for Teaching",
+      description:
+        "Short teaching visits at partner universities in the EU, covering travel and subsistence for faculty members.",
+      audience: "FACULTY" as const,
+      category: "EXCHANGE" as const,
+      organisation: "European Commission",
+      country: "Belgium",
+      countryCode: "BE",
+      applicationDeadline: new Date("2026-11-15"),
+      publishedAt: new Date(),
+    },
+    {
+      title: "Call for Joint Research Proposals — Indo-Japanese Collaboration",
+      description:
+        "Joint proposals from IITDh students and faculty with partner laboratories in Japan. Travel and consumables supported for two years.",
+      audience: "BOTH" as const,
+      category: "RESEARCH" as const,
+      organisation: "Osaka University",
+      country: "Japan",
+      countryCode: "JP",
+      applicationDeadline: new Date("2027-01-31"),
+      publishedAt: new Date(),
+    },
+  ];
+
+  for (const o of opportunities) {
+    const existing = await prisma.opportunity.findFirst({ where: { title: o.title } });
+    if (existing) {
+      await prisma.opportunity.update({ where: { id: existing.id }, data: o });
+    } else {
+      await prisma.opportunity.create({ data: o });
+    }
+  }
+  console.log("[SEED] ✓ Opportunities");
 
   console.log("[SEED] Done.");
 }
