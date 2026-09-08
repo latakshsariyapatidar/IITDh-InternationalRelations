@@ -49,6 +49,8 @@ app.use(
     // Uploaded images are embedded by the frontend, which is served from a
     // different origin; helmet's default `same-origin` policy would block them.
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Allow Google Sign-In popups/OneTap to communicate without COOP blocking postMessage
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   }),
 );
 // An explicit ceiling rather than the framework default, so raising it is a

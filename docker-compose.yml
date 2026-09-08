@@ -24,9 +24,11 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:password@db:5432/iro_db?schema=public
-      - JWT_SECRET=${JWT_SECRET:-supersecret_jwt_key_12345}
-      - CORS_ORIGIN=http://localhost:8080,http://localhost
-      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-Admin@123!}
+      - JWT_SECRET=${JWT_SECRET:-supersecret_jwt_key_that_is_at_least_32_characters_long_12345}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://international-relations.latakshsariya.co.in,http://localhost:8080,http://localhost}
+      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-Admin@12345678}
+      - TRUST_PROXY=${TRUST_PROXY:-1}
+      - PUBLIC_API_BASE_URL=${PUBLIC_API_BASE_URL:-https://international-relations.latakshsariya.co.in}
       - GOOGLE_CLIENT_ID=355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com
     depends_on:
       - db
