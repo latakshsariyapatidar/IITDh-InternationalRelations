@@ -5,7 +5,7 @@ import apiClient from '../../api/client';
 import { useStudentAuth } from '../../contexts/StudentAuthContext';
 
 export default function Landing() {
-  const { login, isStudentAuthenticated } = useStudentAuth();
+  const { login, isStudentAuthenticated, role } = useStudentAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,23 +13,34 @@ export default function Landing() {
 
   useEffect(() => {
     if (isStudentAuthenticated) {
-      navigate(from, { replace: true });
+      if (role === 'faculty') {
+        navigate('/faculty-portal', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     }
-  }, [isStudentAuthenticated, navigate, from]);
+  }, [isStudentAuthenticated, role, navigate, from]);
 
   const handleSuccess = async (credentialResponse) => {
     try {
-      const res = await apiClient.post('/student-auth/google', {
+      const res = await apiClient.post('/campus-auth/google', {
         idToken: credentialResponse.credential,
       });
       const token = res.data?.data?.accessToken;
+      const userRole = res.data?.data?.role;
+      const profile = res.data?.data?.faculty;
       if (token) {
-        login(token);
-        navigate(from, { replace: true });
+        login(token, userRole, profile);
+        if (userRole === 'faculty') {
+          navigate('/faculty-portal', { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       }
     } catch (error) {
       console.error(error);
-      alert('Login failed. Please ensure you are using an @iitdh.ac.in account.');
+      const serverMessage = error.response?.data?.message;
+      alert(serverMessage || 'Login failed. Please ensure you are using an @iitdh.ac.in account.');
     }
   };
 
@@ -43,9 +54,9 @@ export default function Landing() {
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center space-y-8">
         <div>
           <img src="/IITDh Logo.svg" alt="IITDh Logo" className="h-20 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-brand-purpleDark mb-2">Student Portal</h1>
+          <h1 className="text-3xl font-bold text-brand-purpleDark mb-2">Campus Portal</h1>
           <p className="text-gray-500 text-sm">
-            Please log in with your official IIT Dharwad Google Account to access the International Relations Office portal.
+            Please log in with your official IIT Dharwad Google Account to access the student or faculty portal.
           </p>
         </div>
         

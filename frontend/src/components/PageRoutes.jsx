@@ -39,10 +39,26 @@ import AdminPartners from '../pages/admin/Partners'
 import MOUs from '../pages/admin/MOUs'
 import Events from '../pages/admin/Events'
 
+// New Admin Pages
+import AdminOpportunities from '../pages/admin/Opportunities'
+import AdminVisitors from '../pages/admin/Visitors'
+import Notifications from '../pages/admin/Notifications'
+import AdminInboundExchange from '../pages/admin/InboundExchange'
+import Reports from '../pages/admin/Reports'
+
 // Student Routes
 import Landing from '../pages/students/Landing'
 import OutboundApply from '../pages/students/OutboundApply'
 import OutboundTrack from '../pages/students/OutboundTrack'
+
+// Faculty Portal
+import FacultyProtectedRoute from './FacultyProtectedRoute'
+import FacultyPortal from '../pages/faculty/FacultyPortal'
+
+// Public Forms & Pages
+import Opportunities from '../pages/Opportunities'
+import VisitorsForm from '../pages/VisitorsForm'
+import InboundExchangeForm from '../pages/InboundExchangeForm'
 
 const COVER_DURATION = 325
 const REVEAL_DURATION = 325
@@ -233,6 +249,17 @@ export default function PageRoutes() {
           <Route path="/search" element={<Search />} />
           <Route path="/apply" element={<Apply />} />
 
+          <Route path="/opportunities" element={<Opportunities />} />
+          <Route 
+            path="/visitors/register" 
+            element={
+              <FacultyProtectedRoute>
+                <VisitorsForm />
+              </FacultyProtectedRoute>
+            } 
+          />
+          <Route path="/inbound-exchange/apply" element={<InboundExchangeForm />} />
+
           {/* Student Routes */}
           <Route path="/students" element={<Landing />} />
           <Route 
@@ -252,6 +279,16 @@ export default function PageRoutes() {
             } 
           />
 
+          {/* Faculty Routes */}
+          <Route 
+            path="/faculty-portal" 
+            element={
+              <FacultyProtectedRoute>
+                <FacultyPortal />
+              </FacultyProtectedRoute>
+            } 
+          />
+
           {/* Admin Routes */}
           <Route path="/admin/login" element={<Login />} />
           <Route 
@@ -265,6 +302,7 @@ export default function PageRoutes() {
             <Route index element={<Dashboard />} />
             <Route path="applications" element={<Applications />} />
             <Route path="outbound-applications" element={<OutboundApplications />} />
+            <Route path="inbound-exchange" element={<AdminInboundExchange />} />
             <Route path="site-content" element={<SiteContent />} />
             
             {/* Resources */}
@@ -276,10 +314,14 @@ export default function PageRoutes() {
             <Route path="faqs" element={<FAQs />} />
             <Route path="gallery" element={<GalleryCRUD />} />
             <Route path="mous" element={<MOUs />} />
+            <Route path="opportunities" element={<AdminOpportunities />} />
             <Route path="partners" element={<AdminPartners />} />
             <Route path="programs" element={<Programs />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="team" element={<Team />} />
             <Route path="testimonials" element={<Testimonials />} />
+            <Route path="visitors" element={<AdminVisitors />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
         </Routes>
       </div>

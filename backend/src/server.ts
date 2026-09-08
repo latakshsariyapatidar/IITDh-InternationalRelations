@@ -4,6 +4,7 @@ import { app } from "./app.js";
 import { env } from "./config/env.js";
 import { runReminderScan } from "./modules/notification/notification.reminders.js";
 
+// Server bootstrap
 app.listen(env.PORT, () => {
   console.log(`[SERVER] Running on port ${env.PORT} in ${env.NODE_ENV} mode`);
 });

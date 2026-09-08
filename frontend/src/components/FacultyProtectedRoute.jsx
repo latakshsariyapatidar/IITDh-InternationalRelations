@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useStudentAuth } from '../contexts/StudentAuthContext';
 
-const StudentProtectedRoute = ({ children }) => {
+const FacultyProtectedRoute = ({ children }) => {
   const { isStudentAuthenticated, role, loading } = useStudentAuth();
   const location = useLocation();
 
@@ -14,11 +14,11 @@ const StudentProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!isStudentAuthenticated || role !== 'student') {
+  if (!isStudentAuthenticated || role !== 'faculty') {
     return <Navigate to="/students" state={{ from: location }} replace />;
   }
 
   return children;
 };
 
-export default StudentProtectedRoute;
+export default FacultyProtectedRoute;

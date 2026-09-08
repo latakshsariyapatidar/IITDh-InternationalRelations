@@ -58,3 +58,25 @@ export const updateVisitor = (id: string, data: UpdateVisitorInput) =>
   prisma.visitor.update({ where: { id }, data });
 
 export const deleteVisitor = (id: string) => prisma.visitor.delete({ where: { id } });
+
+export async function findPublicVisitors() {
+  return prisma.visitor.findMany({
+    select: {
+      id: true,
+      fullName: true,
+      designation: true,
+      organisation: true,
+      country: true,
+      countryCode: true,
+      purposeOfVisit: true,
+      visitFrom: true,
+      visitTo: true,
+      hostName: true,
+      hostDepartment: true,
+      isVerified: true,
+      createdAt: true,
+    },
+    orderBy: { visitFrom: "desc" },
+    take: 50,
+  });
+}

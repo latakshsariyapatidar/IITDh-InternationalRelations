@@ -16,6 +16,8 @@ datasource db {
 enum PartnerType {
   UNIVERSITY
   ORGANIZATION
+  CONSORTIUM
+  NETWORK
 }
 
 enum ProgramLevel {
@@ -32,6 +34,8 @@ enum ContactType {
   IRO_OFFICE
   MOBILITY
   ADMISSION
+  ADVISOR
+  ASSISTANT_REGISTRAR
 }
 
 enum DownloadCategory {

@@ -21,6 +21,9 @@ router.post(
   ctrl.createVisitor,
 );
 
+// Public — delegation visits displayed on the visits page (no sensitive PII)
+router.get("/public", ctrl.listPublicVisitors);
+
 // Admin-only: the stored records carry personal contact and passport details,
 // so nothing below is public.
 router.get("/", authenticate, validate({ query: listVisitorsSchema }), ctrl.listVisitors);
@@ -32,6 +35,7 @@ router.get(
   validate({ query: exportVisitorsSchema }),
   ctrl.exportVisitors,
 );
+
 
 router.get("/:id", authenticate, validate({ params: visitorIdSchema }), ctrl.getVisitor);
 router.patch(

@@ -37,6 +37,14 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (error.response?.status === 403) {
+      alert("Your account doesn't have access");
+    }
+
+    if (error.response?.status === 429) {
+      alert(error.response?.data?.message || "Too many requests");
+    }
+
     // If error is 401 and we haven't already retried this exact request,
     // AND the original request was NOT a login or refresh attempt
     if (

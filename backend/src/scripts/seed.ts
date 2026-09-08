@@ -7,8 +7,6 @@ async function main() {
   console.log("[SEED] Starting...");
 
   // ── Admin ──────────────────────────────────────────────────────────────────
-  // No fallback password. A default here would mean any deployment that ran the
-  // seed without setting this had a publicly known administrator credential.
   const adminPassword = process.env.SEED_ADMIN_PASSWORD;
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@iitdh.ac.in";
 
@@ -25,9 +23,6 @@ async function main() {
     );
   }
 
-  // Re-running the seed must not quietly reset a live administrator's password
-  // back to whatever is in the current .env — that is how a rotated credential
-  // silently reverts. Rotating is opt-in.
   const resetAdminPassword = process.env.SEED_RESET_ADMIN_PASSWORD === "true";
   const adminHash = await bcrypt.hash(adminPassword, 12);
 
@@ -45,36 +40,44 @@ async function main() {
   const contacts = [
     {
       type: "CHAIRPERSON" as const,
-      name: "Dr. Rajesh Kumar",
-      title: "Chairperson – International Collaboration",
-      email: "r.kumar@iitdh.ac.in",
-      phone: "+91-8364-241-113",
-      address: "International Relations Office, IITDH, Dharwad - 580011",
+      name: "Dr. Sagnik Sen",
+      title: "Chairperson, International Relations Office",
+      email: "chairperson.iro@iitdh.ac.in",
+      phone: null,
+      address: "Indian Institute of Technology Dharwad",
+    },
+    {
+      type: "ADVISOR" as const,
+      name: "Ms. Kavitha G R",
+      title: "Advisor, International Relations",
+      email: "advisor.iro@iitdh.ac.in",
+      phone: "+91 9444536574",
+      address: "International Admissions & Inbound Programs, International Relations Office",
+    },
+    {
+      type: "ASSISTANT_REGISTRAR" as const,
+      name: "Mr. Arun Verma",
+      title: "Assistant Registrar, International Relation Office",
+      email: "office.iro@iitdh.ac.in",
+      phone: "(+91)8193814275 / 7017304843",
+      address: null,
     },
     {
       type: "IRO_OFFICE" as const,
-      name: undefined,
+      name: null,
       title: "Office of International Relations",
       email: "iro@iitdh.ac.in",
       phone: "+91-8364-241-200",
-      address: "Building 2, IITDH Campus, Dharwad - 580011",
+      address: "IITDH Campus, Dharwad - 580011",
     },
     {
       type: "MOBILITY" as const,
-      name: "Dr. Priya Singh",
-      title: "International Mobility – Students",
-      email: "mobility@iitdh.ac.in",
-      phone: "+91-8364-241-214",
-      address: undefined,
-    },
-    {
-      type: "ADMISSION" as const,
-      name: "Ms. Sneha Patel",
-      title: "International Admission",
-      email: "international@iitdh.ac.in",
-      phone: "+91-8364-241-215",
-      address: undefined,
-    },
+      name: "Inbound Coordinator",
+      title: "Inbound Coordinator",
+      email: "inbound.iro@iitdh.ac.in",
+      phone: "9444536574",
+      address: null,
+    }
   ];
 
   for (const c of contacts) {
@@ -91,34 +94,23 @@ async function main() {
   console.log("[SEED] ✓ Contacts");
 
   // ── Faculty ────────────────────────────────────────────────────────────────
-  // `email` doubles as the faculty-portal allowlist: a Google sign-in with one
-  // of these addresses gets a faculty token rather than a student one.
   const faculty = [
+    {
+      name: "Dr. Sagnik Sen",
+      email: "chairperson.iro@iitdh.ac.in",
+      redirectUrl: "https://www.iitdh.ac.in/faculty/sagnik-sen",
+    },
+    {
+      name: "Prof. Venkappayya R. Desai",
+      email: "director@iitdh.ac.in",
+      redirectUrl: "https://www.iitdh.ac.in/faculty/director",
+    },
+    // Keep some original demo ones for functionality
     {
       name: "Prof. Ramesh Chandra",
       email: "ramesh.chandra@iitdh.ac.in",
       redirectUrl: "https://www.iitdh.ac.in/faculty/ramesh-chandra",
-    },
-    {
-      name: "Prof. Anjali Sharma",
-      email: "anjali.sharma@iitdh.ac.in",
-      redirectUrl: "https://www.iitdh.ac.in/faculty/anjali-sharma",
-    },
-    {
-      name: "Prof. Vikram Patel",
-      email: "vikram.patel@iitdh.ac.in",
-      redirectUrl: "https://www.iitdh.ac.in/faculty/vikram-patel",
-    },
-    {
-      name: "Prof. Neha Gupta",
-      email: "neha.gupta@iitdh.ac.in",
-      redirectUrl: "https://www.iitdh.ac.in/faculty/neha-gupta",
-    },
-    {
-      name: "Prof. Arvind Mishra",
-      email: "arvind.mishra@iitdh.ac.in",
-      redirectUrl: "https://www.iitdh.ac.in/faculty/arvind-mishra",
-    },
+    }
   ];
 
   for (const f of faculty) {
@@ -135,10 +127,10 @@ async function main() {
 
   // ── IRO Team ───────────────────────────────────────────────────────────────
   const team = [
-    { name: "Arjun Verma", role: "Coordinator", year: "Senior" },
-    { name: "Priya Kapoor", role: "Outreach Lead", year: "Junior" },
-    { name: "Aditya Nair", role: "Events Manager", year: "Junior" },
-    { name: "Divya Reddy", role: "Communications", year: "Sophomore" },
+    { name: "Prajwal N Prasad", role: "IRO Student Head", year: "Student", responsibilities: "1. Oversee the activities of the student body of the IRO\n2. Coordinate between the IR Office and the Heads of all verticals" },
+    { name: "Samartha", role: "Outbound head", email: "cs23bt019@iitdh.ac.in", year: "Student", responsibilities: "1. Manage and create the database of scholarships and international programmes\n2. Coordinate with Kavitha ma'am for MoU signing, renewal and outreach" },
+    { name: "Nilesh Barandwal", role: "Head – Inbound Programs", email: "cs24mt018@iitdh.ac.in", year: "Student", responsibilities: "* Selection and management of buddies\n* Coordinating with IRO Head and IRO office for inbound activities\n* Organizing events and supporting international students" },
+    { name: "Ishabh Janjuha", role: "Management Head", email: "me23bt006@iitdh.ac.in", year: "Student", responsibilities: "i) Selection of various domains of the management team.\nii) Guiding the team for various events /publicity, and design tasks." },
   ];
 
   for (const t of team) {
@@ -156,129 +148,200 @@ async function main() {
   }
   console.log("[SEED] ✓ IRO Team");
 
-  // ── Partners ───────────────────────────────────────────────────────────────
-  const universities = [
+  // ── Partners & MoUs ────────────────────────────────────────────────────────
+  const partnersData = [
     {
-      name: "University of Toronto",
+      name: "University of New Brunswick",
       country: "Canada",
       type: "UNIVERSITY" as const,
+      championName: "Prof Rajeswara Rao M / Prof Ruma Ghosh",
+      mouSigned: new Date("2024-02-01"),
+      mouExpiry: new Date("2029-02-01"),
+      particulars: "Exchange programs, Research Collaboration"
     },
-    { name: "TU Darmstadt", country: "Germany", type: "UNIVERSITY" as const },
-    { name: "Osaka University", country: "Japan", type: "UNIVERSITY" as const },
     {
-      name: "NTU Singapore",
-      country: "Singapore",
+      name: "University of Saskatchewan",
+      country: "Canada",
       type: "UNIVERSITY" as const,
+      championName: "Prof Neelkamal and Prof Sridevi",
+      mouSigned: new Date("2020-09-02"),
+      mouExpiry: new Date("2025-09-01"),
+      particulars: "Exchange programs, Research Collaboration"
     },
     {
-      name: "University of Melbourne",
-      country: "Australia",
+      name: "Carleton University",
+      country: "Canada",
       type: "UNIVERSITY" as const,
-    },
-    { name: "ETH Zurich", country: "Switzerland", type: "UNIVERSITY" as const },
-  ];
-
-  const organisations = [
-    {
-      name: "DAAD",
-      country: "Germany",
-      type: "ORGANIZATION" as const,
-      focus: "Student Mobility",
+      championName: "Prof Rajshekhar Bhat",
+      mouSigned: new Date("2023-02-02"),
+      mouExpiry: new Date("2028-02-01"),
+      particulars: "Exchange programs, Research Collaboration"
     },
     {
-      name: "British Council",
-      country: "United Kingdom",
-      type: "ORGANIZATION" as const,
-      focus: "Academic Programs",
+      name: "École de technologie supérieure (ÉTS)",
+      country: "Canada",
+      type: "UNIVERSITY" as const,
+      championName: "Prof. Pratyasa Bhui, Prof S R M Prasanna",
+      mouSigned: new Date("2023-02-02"),
+      mouExpiry: new Date("2028-02-01"),
+      particulars: "Exchange programs, Research Collaboration"
     },
     {
-      name: "Campus France",
+      name: "Centre national de la recherche scientifique (CNRS)",
       country: "France",
       type: "ORGANIZATION" as const,
-      focus: "Research Collaboration",
+      championName: "Prof. Vigneshwara Raja",
+      mouSigned: new Date("2023-07-24"),
+      mouExpiry: new Date("2028-07-23"),
+      particulars: "Exchange programs, International cooperation"
     },
+    {
+      name: "ROMA, TRE",
+      country: "Italy",
+      type: "UNIVERSITY" as const,
+      championName: "Prof. Satish Naik",
+      mouSigned: new Date("2023-01-11"),
+      mouExpiry: new Date("2028-01-10"),
+      particulars: "Exchange programs, Research Collaboration"
+    },
+    {
+      name: "University of Agder",
+      country: "Norway",
+      type: "UNIVERSITY" as const,
+      championName: "Prof Rajesh Hegde",
+      mouSigned: new Date("2023-06-02"),
+      mouExpiry: new Date("2028-06-01"),
+      particulars: "Exchange programs, Research Collaboration"
+    },
+    {
+      name: "Norwegian University of Science and Technology (NTNU)",
+      country: "Norway",
+      type: "UNIVERSITY" as const,
+      championName: "Dr. Dileep A D",
+      mouSigned: new Date("2025-11-04"),
+      mouExpiry: new Date("2029-11-03"),
+      particulars: "Exchange programs, Research Collaboration"
+    },
+    {
+      name: "National Cheng Kung University",
+      country: "Taiwan",
+      type: "UNIVERSITY" as const,
+      championName: "Prof Naveen Kadayinti & Bharat B N",
+      mouSigned: new Date("2021-04-08"),
+      mouExpiry: new Date("2026-04-07"),
+      particulars: "Departmental Agreement, Exchange programs, Research Collaboration"
+    },
+    {
+      name: "Consortium of Finnish Universities",
+      country: "Finland",
+      type: "CONSORTIUM" as const,
+      championName: "Prof Rakesh Lingam",
+      mouSigned: new Date("2021-09-22"),
+      mouExpiry: new Date("2026-09-21"),
+      particulars: "Consortium MoU"
+    },
+    {
+      name: "TU9 German Universities of Technology e. V. (DAAD)",
+      country: "Germany",
+      type: "NETWORK" as const,
+      championName: "Prof Rajshekhar Bhat",
+      mouSigned: new Date("2019-03-20"),
+      mouExpiry: new Date("2022-07-01"),
+      particulars: "Consortium MoU"
+    },
+    {
+      name: "Indo French Network ENSI Poitiers-IITs",
+      country: "France",
+      type: "NETWORK" as const,
+      championName: "",
+      mouSigned: new Date("2022-03-08"),
+      mouExpiry: new Date("2027-03-08"),
+      particulars: "Consortium MoU"
+    }
   ];
 
-  for (const partner of [...universities, ...organisations]) {
-    // The partners table groups by country and renders a flag from this code.
-    const p = { ...partner, countryCode: toCountryCode(partner.country) };
-    const existing = await prisma.partner.findFirst({
+  for (const partner of partnersData) {
+    const p = { 
+      name: partner.name,
+      country: partner.country,
+      type: partner.type,
+      championName: partner.championName,
+      countryCode: toCountryCode(partner.country) 
+    };
+    
+    let dbPartner = await prisma.partner.findFirst({
       where: { name: p.name },
     });
-    if (existing) {
-      await prisma.partner.update({ where: { id: existing.id }, data: p });
+    
+    if (dbPartner) {
+      dbPartner = await prisma.partner.update({ where: { id: dbPartner.id }, data: p });
     } else {
-      await prisma.partner.create({ data: p });
+      dbPartner = await prisma.partner.create({ data: p });
     }
-  }
-  console.log("[SEED] ✓ Partners");
 
-  // ── Testimonials ───────────────────────────────────────────────────────────
-  const testimonials = [
-    {
-      name: "Marco Rossi",
-      country: "Italy",
-      program: "MS in Computer Science",
-      text: "My experience at IITDH was transformative. The faculty, facilities, and international environment exceeded my expectations.",
-    },
-    {
-      name: "Yuki Tanaka",
-      country: "Japan",
-      program: "PhD in Mechanical Engineering",
-      text: "The research opportunities and collaborative culture made my academic journey enriching and productive.",
-    },
-    {
-      name: "Sarah Mueller",
-      country: "Germany",
-      program: "Semester Exchange",
-      text: "IITDH provided exceptional support and a welcoming environment for international students. Highly recommended!",
-    },
-  ];
-
-  for (const t of testimonials) {
-    const existing = await prisma.testimonial.findFirst({
-      where: { name: t.name },
+    // Upsert MoU
+    await prisma.mou.upsert({
+      where: {
+        id: (await prisma.mou.findFirst({ where: { partnerId: dbPartner.id, title: partner.particulars } }))?.id ?? "00000000-0000-0000-0000-000000000000"
+      },
+      update: {
+        signedDate: partner.mouSigned,
+        expiryDate: partner.mouExpiry,
+        scope: partner.particulars,
+      },
+      create: {
+        partnerId: dbPartner.id,
+        title: partner.particulars,
+        signedDate: partner.mouSigned,
+        expiryDate: partner.mouExpiry,
+        scope: partner.particulars,
+      }
     });
-    if (existing) {
-      await prisma.testimonial.update({ where: { id: existing.id }, data: t });
-    } else {
-      await prisma.testimonial.create({ data: t });
-    }
   }
-  console.log("[SEED] ✓ Testimonials");
+  console.log("[SEED] ✓ Partners & MoUs");
 
   // ── FAQs ───────────────────────────────────────────────────────────────────
   const faqs = [
     {
-      question: "What is the admission timeline for international students?",
-      answer:
-        "Applications are accepted year-round. Regular admissions are processed in March-April for fall enrollment. Refer to our admissions page for detailed timelines.",
+      question: "What kind of visa should I apply for (Course work)?",
+      answer: "All students opting for course work should apply for only STUDENT visa.",
       order: 1,
     },
     {
-      question: "What are the visa requirements for studying in India?",
-      answer:
-        "Student visa (X-category) requires an admission letter, financial documents, and passport. Our office provides complete guidance through the e-FRRO registration process.",
+      question: "Can I do my course work exchange in my first year of UG/PG?",
+      answer: "Foreign students (UG) who want to apply for course work exchange are expected to have completed at least 3-4 semesters at their home institution. PG students are expected to have completed at least one semester at their home institution.",
       order: 2,
     },
     {
-      question: "Are scholarships available for international students?",
-      answer:
-        "Yes, we offer merit-based scholarships, ICCR scholarships, and institutional financial aid. Check our opportunities page for details.",
+      question: "Can I take courses across different departments?",
+      answer: "Yes, students can register for courses at any department at IITDH if the home Institution advisor approves.",
       order: 3,
     },
     {
-      question: "What facilities are available on campus?",
-      answer:
-        "IITDH offers hostel accommodation, dining facilities, sports complexes, medical center, library, and recreational spaces for all students.",
+      question: "Is there a minimum attendance requirement for exchange students?",
+      answer: "Yes, students are requested to have a minimum of 80% attendance.",
       order: 4,
     },
     {
-      question: "How can I exchange abroad as an IITDH student?",
-      answer:
-        "Our office facilitates semester exchanges, research internships, and study tours. Contact our mobility team for available opportunities.",
+      question: "What kind of visa should I apply for (Research)?",
+      answer: "Master’s by course work students can apply for a student visa. Master’s by research work and PhD students are requested to apply for a research visa.",
       order: 5,
     },
+    {
+      question: "Can a UG student do research work / project work / internship?",
+      answer: "Yes, UG students can apply for research work, project work, and internship.",
+      order: 6,
+    },
+    {
+      question: "Will I get an additional scholarship from IIT Dharwad apart from what I receive from my Embassy?",
+      answer: "No additional scholarships will be given to Embassy sponsored students.",
+      order: 7,
+    },
+    {
+      question: "What if a certain program is not sponsored by the Embassy?",
+      answer: "In case the student is not sponsored by the Embassy, deserving students can apply directly to IIT Dharwad under Self Financed category.",
+      order: 8,
+    }
   ];
 
   for (const f of faqs) {
@@ -439,11 +502,6 @@ async function main() {
       type: "TEXT" as const,
       value: "Director, IIT Dharwad",
     },
-    // directorQuote demonstrates the RICH_TEXT paragraph contract (Part 31.2):
-    // every paragraph lives in this one string, separated by a blank line
-    // ("\n\n"). The frontend splits on that and renders one <p> per piece, so
-    // a future edit that collapses this to two paragraphs — or expands it to
-    // eight — needs no key changes and no schema changes, just a new value.
     {
       key: "home.leadership.directorQuote",
       label: "Director's Welcome Message (Homepage)",
@@ -455,28 +513,6 @@ async function main() {
         "As a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.\n\n" +
         "Located in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.\n\n" +
         "We look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community.",
-    },
-    {
-      key: "home.leadership.registrarName",
-      label: "Registrar Name",
-      page: "home",
-      type: "TEXT" as const,
-      value: "Shri Sandeep Karmakar",
-    },
-    {
-      key: "home.leadership.registrarTitle",
-      label: "Registrar Title",
-      page: "home",
-      type: "TEXT" as const,
-      value: "Registrar, IIT Dharwad",
-    },
-    {
-      key: "home.leadership.registrarQuote",
-      label: "Registrar Quote",
-      page: "home",
-      type: "RICH_TEXT" as const,
-      value:
-        "We are committed to providing seamless administrative support for our international visitors, ensuring a comfortable and enriching stay.",
     },
 
     {
@@ -492,7 +528,7 @@ async function main() {
       label: "Footer Phone Number",
       page: "footer",
       type: "TEXT" as const,
-      value: "+91-836-XXXXXXX",
+      value: "+91 9444536574",
     },
     {
       key: "footer.copyrightText",
@@ -502,35 +538,40 @@ async function main() {
       value:
         "© 2026 International Relations Office, IIT Dharwad. All rights reserved.",
     },
-
     {
-      key: "admission.facts.mous",
-      label: "Admission Key Fact — MOUs",
-      page: "admission",
-      type: "TEXT" as const,
-      value: "50+",
+      key: "about.intro",
+      label: "About Us Intro",
+      page: "about",
+      type: "RICH_TEXT" as const,
+      value:
+        "Internationalisation is an inherent aspect of the Indian Institutes and the International Relations Office at IIT Dharwad is committed to achieving its goals through a focused approach, supported by two verticals, 'International Collaborations and International Academic Programs'.\n\n" +
+        "We look forward to welcoming the international community to our midst, in the spirit of mutually beneficial partnerships. To broaden the experience -- both yours and ours -- of academic and cultural life, to be better equipped to participate in multicultural, globalised workspaces; and to contribute meaningfully to a dynamic, more integrated world.\n\n" +
+        "The departments and centers of IIT Dharwad are responsible for teaching, research, and industrial consultancy. With our excellent faculty, students who excel both in academics and extra-curricular activities, dedicated staff members, and state-of-the-art research facilities, the first decade of our existence is proving to be an exciting phase. Going forward, we expect to have:\n" +
+        "• International student admissions to full time taught and research programs\n" +
+        "• Semester abroad student exchanges with partner institutes\n" +
+        "• Research internships, immersion programs, study tours, project work.\n" +
+        "• Twinning arrangements to collaboratively design and offer programs, and jointly award degrees\n" +
+        "• Course-specific tie-ups and blended teaching-learning\n" +
+        "• Visiting faculty exchanges\n" +
+        "• Joint Research & Development on projects of relevance to either/both/ all concerned countries to offer just an indicative list."
     },
     {
-      key: "admission.facts.countries",
-      label: "Admission Key Fact — Countries",
-      page: "admission",
-      type: "TEXT" as const,
-      value: "25+",
-    },
-    {
-      key: "admission.facts.faculty",
-      label: "Admission Key Fact — Faculty",
-      page: "admission",
-      type: "TEXT" as const,
-      value: "500+",
-    },
-    {
-      key: "admission.facts.students",
-      label: "Admission Key Fact — Students",
-      page: "admission",
-      type: "TEXT" as const,
-      value: "10K+",
-    },
+      key: "about.chairpersonMessage",
+      label: "Chairperson's Message",
+      page: "about",
+      type: "RICH_TEXT" as const,
+      value:
+        "Dear International Community,\n\n" +
+        "A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.\n\n" +
+        "It is our pleasure to welcome students, faculty members, researchers, and academic partners from around the world to our vibrant and growing academic community. At IIT Dharwad, we believe that international engagement is built through meaningful academic collaboration, mutual respect, and shared learning.\n\n" +
+        "The International Relations Office serves as a bridge between the Institute and the global academic community. We are committed to facilitating international partnerships, student and faculty mobility, collaborative research, academic exchanges, and other initiatives that foster global learning and intercultural understanding. Our team strives to ensure that every international visitor experiences a smooth transition and feels welcomed, supported, and connected throughout their journey at the Institute.\n\n" +
+        "Beyond academics, IIT Dharwad offers an opportunity to experience India's rich cultural heritage while being part of an innovative and inclusive campus environment. We encourage you to engage with our students and faculty, explore new ideas, build lasting friendships, and contribute your unique perspectives to our academic community.\n\n" +
+        "We look forward to welcoming you to IIT Dharwad and to building enduring partnerships that advance knowledge, innovation, and global cooperation.\n\n" +
+        "With warm regards,\n" +
+        "Chairperson\n" +
+        "International Relations Office\n" +
+        "Indian Institute of Technology Dharwad"
+    }
   ];
 
   for (const c of siteContent) {
@@ -579,54 +620,88 @@ async function main() {
   console.log("[SEED] ✓ Demo student application");
 
   // ── Opportunities ──────────────────────────────────────────────────────────
-  // One per audience, so the student feed, the faculty feed and the shared
-  // case are all exercised.
   const opportunities = [
     {
-      title: "DAAD WISE Summer Research Internships",
-      description:
-        "Fully funded summer research internships at German universities for undergraduate students in engineering and the sciences.",
+      title: "INSPIRE FELLOWSHIPS",
+      description: "Scholarships for IITDH Students.",
       audience: "STUDENT" as const,
-      category: "INTERNSHIP" as const,
-      organisation: "DAAD",
-      country: "Germany",
-      countryCode: "DE",
-      externalUrl: "https://www.daad.in/en/study-research-in-germany/scholarships/wise/",
-      applicationDeadline: new Date("2026-12-01"),
+      category: "SCHOLARSHIP" as const,
+      organisation: "INSPIRE",
+      country: "India",
+      countryCode: "IN",
+      externalUrl: null,
+      applicationDeadline: null,
       publishedAt: new Date(),
     },
     {
-      title: "Erasmus+ Staff Mobility for Teaching",
-      description:
-        "Short teaching visits at partner universities in the EU, covering travel and subsistence for faculty members.",
+      title: "India–Japan Cooperative Science Programme (IJCSP)",
+      description: "IJCSP is a bilateral initiative that supports collaborative research projects between Indian and Japanese researchers in frontier areas of science and technology. The programme provides an excellent opportunity to strengthen research partnerships with Japanese institutions, facilitate faculty exchanges, promote joint research activities, and enhance international research visibility.",
       audience: "FACULTY" as const,
-      category: "EXCHANGE" as const,
-      organisation: "European Commission",
-      country: "Belgium",
-      countryCode: "BE",
-      applicationDeadline: new Date("2026-11-15"),
-      publishedAt: new Date(),
-    },
-    {
-      title: "Call for Joint Research Proposals — Indo-Japanese Collaboration",
-      description:
-        "Joint proposals from IITDh students and faculty with partner laboratories in Japan. Travel and consumables supported for two years.",
-      audience: "BOTH" as const,
-      category: "RESEARCH" as const,
-      organisation: "Osaka University",
+      category: "GRANT" as any, 
+      organisation: "DST and JSPS",
       country: "Japan",
       countryCode: "JP",
-      applicationDeadline: new Date("2027-01-31"),
+      externalUrl: "https://www.onlinedst.gov.in",
+      applicationDeadline: new Date("2026-09-03"),
       publishedAt: new Date(),
     },
+    {
+      title: "Global Initiative of Academic Networks (GIAN)",
+      description: "Through GIAN, internationally renowned academicians, researchers, scientists, and industry experts are invited to offer short-term, intensive courses, typically ranging from one to three weeks. A lump-sum amount of up to US$ 8000 for 12 to 14 hours of contact and up to US$ 12000 for 20 to 28 hours of contact can be paid to the foreign experts covering their travel and honorarium.",
+      audience: "FACULTY" as const,
+      category: "FELLOWSHIP" as const,
+      organisation: "Ministry of Education, Government of India",
+      country: "India",
+      countryCode: "IN",
+      externalUrl: "https://gian.iitkgp.ac.in/",
+      applicationDeadline: null,
+      publishedAt: new Date(),
+    },
+    {
+      title: "Visiting Advanced Joint Research (VAJRA) Faculty Scheme",
+      description: "It is a dedicated program exclusively for overseas scientists and academicians with emphasis on Non-resident Indians (NRI) and Persons of Indian Origin (PIO) / Overseas Citizen of India (OCI) to work as adjunct/visiting faculty for a specific period of time in Indian public funded academic and research institutions. The Faculty will work for a minimum of 1 month and a maximum of 3 months a year in an institution in India.",
+      audience: "FACULTY" as const,
+      category: "RESEARCH" as const,
+      organisation: "SERB",
+      country: "India",
+      countryCode: "IN",
+      externalUrl: "https://www.vajra-india.in/",
+      applicationDeadline: null,
+      publishedAt: new Date(),
+    },
+    {
+      title: "Scheme for Promotion of Academic and Research Collaboration (SPARC)",
+      description: "Aims at improving the research ecosystem of India’s Higher Educational Institutions by facilitating academic and research collaborations between Indian Institutions and the best institutions in the world from 28 selected nations. The proposal will be for a period of two years. Budget up to ₹ 100 lakhs.",
+      audience: "FACULTY" as const,
+      category: "RESEARCH" as const,
+      organisation: "Ministry of Education",
+      country: "India",
+      countryCode: "IN",
+      externalUrl: "https://sparc.iitkgp.ac.in/index.php",
+      applicationDeadline: null,
+      publishedAt: new Date(),
+    },
+    {
+      title: "Finnish Indian Consortia for Research and Education network (FICORE)",
+      description: "Funding Landscape for India Collaboration – EU, Finland, and India contexts. FICORE involves 23 IITs and 15 Finnish Higher Education Institutions.",
+      audience: "FACULTY" as const,
+      category: "RESEARCH" as const,
+      organisation: "FICORE",
+      country: "Finland",
+      countryCode: "FI",
+      externalUrl: "https://www.aalto.fi/en/events/funding-landscape-for-india-collaboration-eu-finland-and-india-contexts",
+      applicationDeadline: null,
+      publishedAt: new Date(),
+    }
   ];
 
   for (const o of opportunities) {
+    let cat = o.category;
     const existing = await prisma.opportunity.findFirst({ where: { title: o.title } });
     if (existing) {
-      await prisma.opportunity.update({ where: { id: existing.id }, data: o });
+      await prisma.opportunity.update({ where: { id: existing.id }, data: { ...o, category: cat as any } });
     } else {
-      await prisma.opportunity.create({ data: o });
+      await prisma.opportunity.create({ data: { ...o, category: cat as any } });
     }
   }
   console.log("[SEED] ✓ Opportunities");

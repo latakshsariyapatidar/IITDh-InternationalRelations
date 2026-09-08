@@ -7,8 +7,9 @@ export default function App() {
   const isAdmin = location.pathname.startsWith('/admin');
   const isApply = location.pathname.startsWith('/apply');
   const isStudent = location.pathname.startsWith('/students');
+  const isFaculty = location.pathname.startsWith('/faculty-portal');
 
-  if (isAdmin || isApply || isStudent) {
+  if (isAdmin || isApply || isStudent || isFaculty) {
     return <PageRoutes />;
   }
 

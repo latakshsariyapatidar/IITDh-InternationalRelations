@@ -11,6 +11,7 @@ import type {
 } from "./visitor.schema.js";
 
 export const getAll = (query: ListVisitorsQuery) => repo.findAllVisitors(query);
+export const getPublicVisitors = () => repo.findPublicVisitors();
 
 export async function getById(id: string) {
   const item = await repo.findVisitorById(id);

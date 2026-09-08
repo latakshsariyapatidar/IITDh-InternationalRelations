@@ -8,31 +8,39 @@ export const useStudentAuth = () => useContext(StudentAuthContext);
 
 export const StudentAuthProvider = ({ children }) => {
   const [isStudentAuthenticated, setIsStudentAuthenticated] = useState(false);
+  const [role, setRole] = useState(null);
+  const [facultyProfile, setFacultyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const login = (token) => {
+  const login = (token, userRole, profile) => {
     setAccessToken(token);
     setIsStudentAuthenticated(true);
+    setRole(userRole);
+    setFacultyProfile(profile);
   };
 
   const logout = async () => {
     try {
-      await apiClient.post('/student-auth/logout');
+      await apiClient.post('/campus-auth/logout');
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
       setAccessToken(null);
       setIsStudentAuthenticated(false);
+      setRole(null);
+      setFacultyProfile(null);
     }
   };
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiClient.post('/student-auth/refresh');
+        const response = await apiClient.post('/campus-auth/refresh');
         const token = response.data?.data?.accessToken;
+        const userRole = response.data?.data?.role;
+        const profile = response.data?.data?.faculty;
         if (token) {
-          login(token);
+          login(token, userRole, profile);
         }
       } catch (error) {
         console.log("No active student session found.");
@@ -46,6 +54,8 @@ export const StudentAuthProvider = ({ children }) => {
 
   const value = {
     isStudentAuthenticated,
+    role,
+    facultyProfile,
     login,
     logout,
     loading

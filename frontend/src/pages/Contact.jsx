@@ -22,17 +22,17 @@ export default function Contact() {
         />
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {[
-            { name: 'Dr. Chairperson', role: 'IRO Chairperson', email: 'chairperson@iitdh.ac.in', phone: '+91-8364-241-201' },
-            { name: 'Ms. Priya Sharma', role: 'IRO Director', email: 'iro@iitdh.ac.in', phone: '+91-8364-241-202' },
-            { name: 'Mr. Arun Kumar', role: 'International Mobility', email: 'mobility@iitdh.ac.in', phone: '+91-8364-241-203' },
-            { name: 'Ms. Sneha Patel', role: 'Admissions', email: 'admission@iitdh.ac.in', phone: '+91-8364-241-204' }
+            { name: 'Dr. Sagnik Sen', role: 'Chairperson, International Relations Office', email: 'chairperson.iro@iitdh.ac.in', phone: '' },
+            { name: 'Ms. Kavitha G R', role: 'Advisor, International Relations', email: 'advisor.iro@iitdh.ac.in', phone: '+91 9444536574' },
+            { name: 'Mr. Arun Verma', role: 'Assistant Registrar', email: 'office.iro@iitdh.ac.in', phone: '(+91)8193814275 / 7017304843' },
+            { name: 'Inbound Coordinator', role: 'Inbound Coordinator', email: 'inbound.iro@iitdh.ac.in', phone: '9444536574' }
           ].map((contact, idx) => (
             <Card key={idx} variant="light" border>
               <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
               <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.role}</p>
               <div className="space-y-2 text-sm">
                 <p><span className="font-semibold text-brand-purple">Email:</span> <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.email}</a></p>
-                <p><span className="font-semibold text-brand-purple">Phone:</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>
+                {contact.phone && <p><span className="font-semibold text-brand-purple">Phone:</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>}
               </div>
             </Card>
           ))}

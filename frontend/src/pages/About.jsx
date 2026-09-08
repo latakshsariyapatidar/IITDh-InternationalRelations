@@ -78,7 +78,7 @@ export default function About() {
                 badge={<RiHandHeartLine size={24} />}
               />
               <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
-                <p><strong>Dear Members of the International Community,</strong></p>
+                <p><strong>Dear International Community,</strong></p>
                 <p>
                   A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.
                 </p>

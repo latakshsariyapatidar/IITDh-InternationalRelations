@@ -6,31 +6,14 @@ import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
 import apiClient from '../api/client'
 import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine } from '@remixicon/react'
-import { useSiteContent } from '../contexts/SiteContentContext'
 
 export default function Admission() {
-  const { getContent } = useSiteContent()
-  const [programs, setPrograms] = useState({ undergraduate: [], postgraduate: [], phd: [] })
-  const [testimonials, setTestimonials] = useState([])
   const [faqs, setFaqs] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [progRes, testRes, faqRes] = await Promise.all([
-          apiClient.get('/programs?limit=100'),
-          apiClient.get('/testimonials?limit=10'),
-          apiClient.get('/faqs?limit=20')
-        ])
-        
-        const allProg = progRes.data?.data?.programs || []
-        setPrograms({
-          undergraduate: allProg.filter(p => p.level === 'UNDERGRADUATE').map(p => p.name),
-          postgraduate: allProg.filter(p => p.level === 'POSTGRADUATE').map(p => p.name),
-          phd: allProg.filter(p => p.level === 'PHD').map(p => p.name),
-        })
-        
-        setTestimonials(testRes.data?.data?.testimonials || [])
+        const faqRes = await apiClient.get('/faqs?limit=20')
         setFaqs(faqRes.data?.data?.faqs || [])
       } catch (err) {
         console.error("Failed to load admission data", err)
@@ -38,149 +21,117 @@ export default function Admission() {
     }
     fetchData()
   }, [])
+
   return (
     <div>
       <HeroSection
         title="International Admissions"
         subtitle="Your pathway to world-class education at IITDH"
-        cta={{ label: 'Apply Now', onClick: () => window.location.href = 'https://admission.iitdh.ac.in' }}
       />
 
-      {/* About Program */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
-          title="Why Study at IITDH?"
-          subtitle="Excellence in engineering and technology education"
+          title="STUDY IN INDIA Applications"
+          subtitle="Apply via the Study in India portal"
           badge={<RiGraduationCapLine size={24} />}
         />
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h3 className="text-2xl font-bold text-brand-purple mb-4">World-Class Education</h3>
-            <p className="text-neutral-textDark/80 leading-relaxed mb-4">
-              IITDH offers rigorous academic programs with emphasis on research and innovation. Our faculty are leaders in their respective fields, committed to mentoring the next generation of engineers and scientists.
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <Card>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">About the Program</h3>
+            <p className="text-gray-700 leading-relaxed text-sm">
+              Study in India (SII) is the flagship international education initiative of the Ministry of Education (MoE), Government of India. The programme is open to students from across the globe, with strong participation from South Asia (SAARC), Africa, Southeast Asia, Central Asia, and the Middle East.
             </p>
-            <p className="text-neutral-textDark/80 leading-relaxed mb-6">
-              With modern infrastructure, collaborative learning environment, and global partnerships, IITDH provides an educational experience that prepares students for international careers.
+            <p className="text-gray-700 leading-relaxed text-sm mt-3">
+              The Study in India portal serves as a comprehensive single-window platform for international students to explore programs, submit applications, and receive admission offers.
             </p>
-            <CTAButton label="Apply Now" href="https://admission.iitdh.ac.in" variant="primary" />
-          </div>
-          <div className="bg-white rounded-xl aspect-video flex items-center justify-center border border-brand-purpleLight/70">
-            <p className="text-neutral-textDark/60">Program Video</p>
-          </div>
+          </Card>
+          <Card>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Application Details</h3>
+            <ul className="space-y-3 text-sm text-gray-700">
+              <li><strong>Eligibility:</strong> The medium of instruction is English. Candidates must have a functional knowledge of English (read, write, understand, and speak). Qualification as per IIT Dharwad rules.</li>
+              <li><strong>Application Procedure:</strong> Apply through the <a href="https://www.studyinindia.gov.in/admission/Registrations" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">Study in India portal</a>.</li>
+              <li><strong>Funding Details:</strong> The selected applicant has to pay fees as per IIT Dharwad fee structure.</li>
+              <li><strong>Application Deadline:</strong> Please visit the SII website.</li>
+            </ul>
+          </Card>
         </div>
       </section>
 
-      {/* Programs & Facts */}
-      <section id="faqs" className="bg-neutral-canvas py-16">
+      <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h3 className="text-2xl font-bold text-brand-purple mb-6">Programs Offered</h3>
-              <div className="space-y-4">
-                {[
-                  { label: 'Undergraduate', programs: programs.undergraduate },
-                  { label: 'Postgraduate', programs: programs.postgraduate },
-                  { label: 'Doctoral', programs: programs.phd }
-                ].map((section, sidx) => (
-                  <div key={sidx}>
-                    <p className="font-bold text-brand-purple mb-2">{section.label}</p>
-                    <ul className="space-y-1 text-sm text-neutral-textDark/80 ml-4">
-                      {section.programs.map((prog, idx) => (
-                        <li key={idx}>✓ {prog}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-brand-purple mb-6">Key Facts</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { num: getContent("admission.facts.mous", "50+"), label: 'International MOUs' },
-                  { num: getContent("admission.facts.countries", "25+"), label: 'Countries Represented' },
-                  { num: getContent("admission.facts.faculty", "500+"), label: 'Faculty Members' },
-                  { num: getContent("admission.facts.students", "10K+"), label: 'Total Students' }
-                ].map((stat, idx) => (
-                  <Card key={idx} variant="light">
-                    <div className="text-3xl font-bold text-brand-marigold mb-2">{stat.num}</div>
-                    <p className="text-sm text-neutral-textDark/80">{stat.label}</p>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Admission Process */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="How to Apply"
-          subtitle="Simple and transparent admission process"
-          badge={<RiListCheck2 size={24} />}
-        />
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            { num: '1', title: 'Check Eligibility', desc: 'Review requirements for your program' },
-            { num: '2', title: 'Prepare Documents', desc: 'Gather transcripts, test scores, and visa docs' },
-            { num: '3', title: 'Submit Application', desc: 'Apply through our online portal' },
-            { num: '4', title: 'Receive Decision', desc: 'Get admission decision in 4-6 weeks' }
-          ].map((step, idx) => (
-            <Card key={idx} variant="default">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-brand-marigold mb-3 bg-neutral-canvas w-12 h-12 rounded-full flex items-center justify-center mx-auto">{step.num}</div>
-                <h4 className="font-bold text-brand-purple mb-2">{step.title}</h4>
-                <p className="text-sm text-neutral-textDark/80">{step.desc}</p>
+          <SectionHeader
+            title="Self-Financed Applications"
+            subtitle="Apply directly through the International Relations Office"
+          />
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Program Details</h3>
+              <p className="text-gray-700 leading-relaxed text-sm mb-4">
+                International students who want to pursue a full time Masters can go through IIT Dharwad Departments and Programs offered and apply through the International Relations Office.
+              </p>
+              <h4 className="font-bold text-brand-purple mb-2">Eligibility</h4>
+              <ul className="space-y-2 text-sm text-gray-700 mb-4 list-disc pl-5">
+                <li>For Masters by Technology (MTech): Bachelor’s degree in relevant area</li>
+                <li>For Masters by Science (MSc): Bachelor’s degree in relevant area</li>
+                <li>Functional knowledge of English is required.</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Application Procedure</h3>
+              <ul className="space-y-2 text-sm text-gray-700 mb-4">
+                <li>1. Interested students can download the application form, fill in the details and submit the application to the International Relations office along with the required documents.</li>
+                <li>2. Shortlisted candidates will be called for an interview.</li>
+                <li>3. Admission is subject to the recommendations by the selection committee.</li>
+              </ul>
+              <div className="bg-brand-purpleLight/30 p-4 rounded-lg mt-4">
+                <p className="font-semibold text-brand-purpleDark text-sm mb-2">Documents to be submitted (as single PDF):</p>
+                <ul className="list-disc pl-5 text-sm text-gray-700">
+                  <li>Grade cards (10th, 12th and UG)</li>
+                  <li>Statement of Purpose (SOP)</li>
+                  <li>Recommendation by two members</li>
+                  <li>Work experience / Publications (If any)</li>
+                  <li>Passport copy/ID card (in case of Nepal and Bhutan citizens)</li>
+                  <li>Passport photo</li>
+                </ul>
               </div>
             </Card>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="bg-brand-purple py-16">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="text-center text-white mb-12">
-            <h2 className="text-4xl font-bold mb-4">Get in Touch</h2>
-            <p className="text-neutral-canvas">Questions? Contact our admissions team</p>
-          </div>
-          <Card variant="white">
-            <h3 className="text-2xl font-bold text-neutral-textDark mb-4 text-center">International Admissions Office</h3>
-            <div className="space-y-3 text-center mb-6">
-              <p className="text-neutral-textDark"><strong>Contact Person:</strong> Ms. Sneha Patel</p>
-              <p className="text-neutral-textDark"><strong>Email:</strong> <a href="mailto:international@iitdh.ac.in" className="font-semibold hover:underline">international@iitdh.ac.in</a></p>
-              <p className="text-neutral-textDark"><strong>Phone:</strong> <a href="tel:+91-8364-241-215" className="font-semibold hover:underline">+91-8364-241-215</a></p>
-            </div>
-            <div className="text-center">
-              <CTAButton label="Apply Now" href="https://admission.iitdh.ac.in" variant="secondary" size="lg" />
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Embassies & Funding"
+          subtitle="Additional avenues for admission"
+        />
+        <div className="grid md:grid-cols-2 gap-8">
+          <Card>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Embassies</h3>
+            <p className="text-gray-700 leading-relaxed text-sm mb-4">
+              International students who want to pursue a full time Masters or PhD program can apply through their respective Embassies for the International Relations Office at IIT Dharwad.
+            </p>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li><strong>Procedure & Funding:</strong> As per your Embassy guidelines.</li>
+              <li><strong>Deadlines:</strong> As per your Embassy guidelines.</li>
+            </ul>
+          </Card>
+          <Card>
+            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Fee Structure (2026-2027)</h3>
+            <p className="text-gray-700 leading-relaxed text-sm mb-4">
+              <strong>Application processing fee:</strong> 10 USD<br/>
+              <strong>Institute Fees:</strong> To be decided (for MS/PhD and M.Tech/M.Sc)<br/>
+              <strong>International relations fees (after admission):</strong> 100 USD
+            </p>
+            <div className="bg-brand-marigold/20 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-brand-purpleDark">Financial Assistance</p>
+              <p className="text-sm text-gray-700 mt-1">
+                Meritorious self-financed students can apply for financial assistance/fee waiver specifying a valid reason. The institute will decide the level of scholarship that can be given.
+              </p>
             </div>
           </Card>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Student Testimonials"
-          subtitle="Hear from our international students"
-          badge={<RiChatQuoteLine size={24} />}
-        />
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, idx) => (
-            <Card key={idx} variant="light" border>
-              <p className="text-gray-700 italic mb-4">"{testimonial.text}"</p>
-              <div className="border-t border-brand-purpleLight/70 pt-4">
-                <p className="font-bold text-brand-purpleDark">{testimonial.name}</p>
-                <p className="text-sm text-gray-600">{testimonial.country}</p>
-                <p className="text-sm text-brand-marigold font-semibold">{testimonial.program}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQs */}
       <section className="bg-neutral-canvas py-16">
         <div className="max-w-3xl mx-auto px-4">
           <SectionHeader

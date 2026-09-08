@@ -12,29 +12,61 @@ const OpportunityCategoryEnum = z.enum([
   "OTHER",
 ]);
 
-export const createOpportunitySchema = z.object({
-  title: z.string().trim().min(1, "Title is required").max(300),
-  description: z.string().trim().min(1, "Description is required"),
-  // Who the posting is for. Admin picks this on upload; every listing filters
-  // on it so students never see faculty-only postings and vice versa.
-  audience: OpportunityAudienceEnum,
-  category: OpportunityCategoryEnum.default("OTHER"),
-  organisation: z.string().trim().max(300).optional(),
-  country: z.string().trim().max(100).optional(),
-  countryCode: z.string().trim().length(2).toUpperCase().optional(),
-  externalUrl: z.string().url("Must be a valid URL").max(500).optional(),
-  attachmentUrl: z.string().trim().max(500).optional(),
-  applicationDeadline: z.coerce.date().optional(),
-  publishedAt: z.coerce.date().optional(),
-  visibleUntil: z.coerce.date().optional(),
-  isActive: z.boolean().default(true),
-});
+const urlPreprocess = (v: unknown) => {
+  if (typeof v !== "string") return v;
+  const trimmed = v.trim();
+  if (!trimmed) return undefined;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+};
 
-export const updateOpportunitySchema = createOpportunitySchema.partial().extend({
-  applicationDeadline: z.coerce.date().nullish(),
-  publishedAt: z.coerce.date().nullish(),
-  visibleUntil: z.coerce.date().nullish(),
-});
+export const createOpportunitySchema = z
+  .object({
+    title: z.string().trim().min(1, "Title is required").max(300),
+    description: z.string().trim().min(1, "Description is required"),
+    // Who the posting is for. Admin picks this on upload; every listing filters
+    // on it so students never see faculty-only postings and vice versa.
+    audience: OpportunityAudienceEnum,
+    category: OpportunityCategoryEnum.default("OTHER"),
+    organisation: z.string().trim().max(300).nullish(),
+    country: z.string().trim().max(100).nullish(),
+    countryCode: z.string().trim().length(2).toUpperCase().nullish(),
+    externalUrl: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
+    url: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
+    attachmentUrl: z.string().trim().max(500).nullish(),
+    applicationDeadline: z.coerce.date().nullish(),
+    publishedAt: z.coerce.date().nullish(),
+    visibleUntil: z.coerce.date().nullish(),
+    isActive: z.boolean().default(true),
+  })
+  .transform(({ url, ...data }) => ({
+    ...data,
+    ...(url !== undefined && !data.externalUrl ? { externalUrl: url } : {}),
+  }));
+
+export const updateOpportunitySchema = z
+  .object({
+    title: z.string().trim().min(1).max(300).optional(),
+    description: z.string().trim().min(1).optional(),
+    audience: OpportunityAudienceEnum.optional(),
+    category: OpportunityCategoryEnum.optional(),
+    organisation: z.string().trim().max(300).nullish(),
+    country: z.string().trim().max(100).nullish(),
+    countryCode: z.string().trim().length(2).toUpperCase().nullish(),
+    externalUrl: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
+    url: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
+    attachmentUrl: z.string().trim().max(500).nullish(),
+    applicationDeadline: z.coerce.date().nullish(),
+    publishedAt: z.coerce.date().nullish(),
+    visibleUntil: z.coerce.date().nullish(),
+    isActive: z.boolean().optional(),
+  })
+  .transform(({ url, ...data }) => ({
+    ...data,
+    ...(url !== undefined && data.externalUrl === undefined ? { externalUrl: url } : {}),
+  }));
 
 export const opportunityIdSchema = z.object({ id: z.string().uuid("Invalid ID") });
 
