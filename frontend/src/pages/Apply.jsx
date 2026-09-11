@@ -3,6 +3,7 @@ import apiClient from '../api/client';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { compressDocument, formatBytes } from '../utils/fileCompressor';
 
 const STEPS = [
   "Personal Details",
@@ -23,26 +24,51 @@ export default function Apply() {
     firstName: '', lastName: '', dateOfBirth: '', gender: 'PREFER_NOT_TO_SAY',
     nationality: '', countryOfResidence: '', passportNumber: '', passportExpiryDate: '',
     email: '', phone: '', currentAddress: '', emergencyContactName: '',
-    emergencyContactPhone: '', emergencyContactRelation: '',
-    programLevel: 'UNDERGRADUATE', programAppliedFor: '', intendedIntake: '',
+    emergencyContactRelation: '', emergencyContactPhone: '',
+    programLevel: 'BACHELORS', programAppliedFor: '', intendedIntake: '',
     highestQualification: '', previousInstitution: '', previousGradeOrGPA: '',
     englishTestType: 'NOT_APPLICABLE', englishTestScore: '', visaCategory: '',
     requiresVisaSponsorship: 'true',
   });
 
   const [files, setFiles] = useState({});
+  const [compressing, setCompressing] = useState({});
+  const [compressionStats, setCompressionStats] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const { name, files: fileList } = e.target;
     if (fileList && fileList[0]) {
-      setFiles(prev => ({ ...prev, [name]: fileList[0] }));
+      const originalFile = fileList[0];
+      setCompressing(prev => ({ ...prev, [name]: true }));
+      try {
+        const compressed = await compressDocument(originalFile);
+        setFiles(prev => ({ ...prev, [name]: compressed }));
+        setCompressionStats(prev => ({
+          ...prev,
+          [name]: {
+            original: originalFile.size,
+            compressed: compressed.size,
+            reduction: compressed.reductionPercent || 0,
+          }
+        }));
+      } catch (err) {
+        console.warn('Compression fallback to original file:', err);
+        setFiles(prev => ({ ...prev, [name]: originalFile }));
+      } finally {
+        setCompressing(prev => ({ ...prev, [name]: false }));
+      }
     } else {
       setFiles(prev => {
+        const copy = { ...prev };
+        delete copy[name];
+        return copy;
+      });
+      setCompressionStats(prev => {
         const copy = { ...prev };
         delete copy[name];
         return copy;
@@ -85,9 +111,16 @@ export default function Apply() {
       Object.keys(formData).forEach(key => {
         payload.append(key, formData[key]);
       });
-      Object.keys(files).forEach(key => {
-        payload.append(key, files[key]);
-      });
+
+      // Ensure any pending file compression completes before payload creation
+      for (const [key, file] of Object.entries(files)) {
+        if (!file.compressedSize && (file.type?.startsWith('image/') || file.type === 'application/pdf')) {
+          const compressed = await compressDocument(file);
+          payload.append(key, compressed);
+        } else {
+          payload.append(key, file);
+        }
+      }
 
       await apiClient.post('/applications', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -96,7 +129,11 @@ export default function Apply() {
       setSuccess(true);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'An error occurred while submitting your application.');
+      if (err.response?.status === 413) {
+        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 2MB.');
+      } else {
+        setError(err.response?.data?.message || 'An error occurred while submitting your application.');
+      }
     } finally {
       setLoading(false);
     }
@@ -123,6 +160,27 @@ export default function Apply() {
     );
   }
 
+  const renderFileBadge = (name) => {
+    if (compressing[name]) {
+      return <p className="text-xs text-brand-purple animate-pulse mt-1">Compressing document...</p>;
+    }
+    const stat = compressionStats[name];
+    if (stat) {
+      return (
+        <p className="text-xs text-green-600 flex items-center gap-1 mt-1 font-medium">
+          <span>✓ Ready:</span>
+          <span>{formatBytes(stat.compressed)}</span>
+          {stat.reduction > 0 && (
+            <span className="text-gray-500 font-normal">
+              (reduced by {stat.reduction}%)
+            </span>
+          )}
+        </p>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="h-screen w-screen overflow-hidden bg-gray-50 flex flex-col md:flex-row font-sans">
       
@@ -139,20 +197,26 @@ export default function Apply() {
             {STEPS.map((step, idx) => {
               const isActive = idx === currentStep;
               const isPast = idx < currentStep;
+
               return (
                 <div key={step} className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                    isActive ? 'bg-brand-marigold text-brand-purpleDark shadow-[0_0_15px_rgba(255,184,28,0.5)]' : 
-                    isPast ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300
+                    ${isActive ? 'bg-brand-marigold text-brand-purpleDark' : 
+                      isPast ? 'bg-brand-purple text-white' : 'bg-brand-purple/40 text-brand-purpleLight/40'}`}>
                     {isPast ? '✓' : idx + 1}
                   </div>
-                  <span className={`font-semibold transition-colors duration-300 ${isActive ? 'text-white' : isPast ? 'text-white/80' : 'text-white/40'}`}>
-                    {step}
-                  </span>
+                  <div>
+                    <h3 className={`font-semibold text-sm ${isActive ? 'text-white font-bold' : isPast ? 'text-brand-purpleLight/80' : 'text-brand-purpleLight/40'}`}>
+                      {step}
+                    </h3>
+                  </div>
                 </div>
               );
             })}
+          </div>
+
+          <div className="text-xs text-brand-purpleLight/40 border-t border-brand-purple/20 pt-6">
+            IIT Dharwad, Permanent Campus, Chikkamalligawad, Karnataka - 580007
           </div>
         </div>
         
@@ -163,29 +227,25 @@ export default function Apply() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: Form Area */}
+      {/* RIGHT CONTENT AREA */}
       <div className="flex-1 flex flex-col h-full bg-white relative">
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
-          
-          {/* Header for mobile (hidden on desktop) */}
-          <div className="md:hidden bg-brand-purpleDark text-white p-6 shrink-0 flex items-center justify-between">
-            <span className="font-bold">Step {currentStep + 1} of {STEPS.length}</span>
-            <span className="text-brand-marigold font-semibold">{STEPS[currentStep]}</span>
-          </div>
-
-          {/* Form Content Area (Scrollable internally if needed, but designed to fit) */}
-          <div className="flex-1 p-8 md:p-16 overflow-y-auto custom-scrollbar">
-            <div className="max-w-2xl mx-auto h-full flex flex-col justify-center">
+          <div className="flex-1 overflow-y-auto p-6 md:p-16">
+            <div className="max-w-2xl mx-auto space-y-8">
               
-              <div className="mb-10">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">{STEPS[currentStep]}</h2>
-                <p className="text-gray-500">Please provide your details below.</p>
-                {error && (
-                  <div className="mt-4 bg-red-50 text-red-600 p-4 rounded-lg border border-red-100 text-sm font-medium">
-                    {error}
-                  </div>
-                )}
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-marigold">Step {currentStep + 1} of {STEPS.length}</span>
+                <h2 className="text-3xl font-bold text-gray-900 mt-1">{STEPS[currentStep]}</h2>
+                <p className="text-gray-500 mt-2 text-sm">Please provide accurate information as per your official documents.</p>
               </div>
+
+              {error && (
+                <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-6">
 
               {/* STEP 1: Personal Details */}
               <div className={currentStep === 0 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
@@ -203,8 +263,8 @@ export default function Apply() {
                     <Input required={currentStep === 0} type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Gender <span className="text-red-500">*</span></Label>
-                    <select required={currentStep === 0} name="gender" value={formData.gender} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <Label>Gender</Label>
+                    <select name="gender" value={formData.gender} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                       <option value="MALE">Male</option>
                       <option value="FEMALE">Female</option>
                       <option value="OTHER">Other</option>
@@ -234,28 +294,28 @@ export default function Apply() {
               <div className={currentStep === 1 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
-                    <Label>Email <span className="text-red-500">*</span></Label>
+                    <Label>Email Address <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 1} type="email" name="email" value={formData.email} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Phone <span className="text-red-500">*</span></Label>
+                    <Label>Phone Number <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 1} name="phone" value={formData.phone} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Current Address <span className="text-red-500">*</span></Label>
-                    <textarea required={currentStep === 1} name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
+                    <Label>Current Residential Address <span className="text-red-500">*</span></Label>
+                    <Input required={currentStep === 1} name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
                     <Label>Emergency Contact Name <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 1} name="emergencyContactName" value={formData.emergencyContactName} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Emergency Contact Phone <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} />
+                    <Label>Emergency Contact Relation <span className="text-red-500">*</span></Label>
+                    <Input required={currentStep === 1} name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Emergency Contact Relation</Label>
-                    <Input name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleInputChange} />
+                    <Label>Emergency Contact Phone <span className="text-red-500">*</span></Label>
+                    <Input required={currentStep === 1} name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} />
                   </div>
                 </div>
               </div>
@@ -266,14 +326,15 @@ export default function Apply() {
                   <div className="space-y-2">
                     <Label>Program Level <span className="text-red-500">*</span></Label>
                     <select required={currentStep === 2} name="programLevel" value={formData.programLevel} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                      <option value="UNDERGRADUATE">Undergraduate</option>
-                      <option value="POSTGRADUATE">Postgraduate</option>
+                      <option value="BACHELORS">Bachelors</option>
+                      <option value="MASTERS">Masters</option>
                       <option value="PHD">PhD</option>
+                      <option value="POSTDOC">Postdoc</option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <Label>Program Applied For <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="programAppliedFor" value={formData.programAppliedFor} onChange={handleInputChange} placeholder="e.g. B.Tech CS" />
+                    <Input required={currentStep === 2} name="programAppliedFor" value={formData.programAppliedFor} onChange={handleInputChange} placeholder="e.g. Computer Science" />
                   </div>
                   <div className="space-y-2">
                     <Label>Intended Intake <span className="text-red-500">*</span></Label>
@@ -333,36 +394,43 @@ export default function Apply() {
                   <div className="space-y-2">
                     <Label>Passport Copy <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 4} type="file" name="passportCopy" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('passportCopy')}
                   </div>
                   <div className="space-y-2">
                     <Label>Photo <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 4} type="file" name="photo" accept=".jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('photo')}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Academic Transcripts <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 4} type="file" name="academicTranscripts" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('academicTranscripts')}
                   </div>
                   <div className="space-y-2">
                     <Label>English Test Score Card</Label>
                     <Input type="file" name="englishTestScoreCard" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('englishTestScoreCard')}
                   </div>
                   <div className="space-y-2">
                     <Label>Statement of Purpose</Label>
                     <Input type="file" name="statementOfPurpose" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('statementOfPurpose')}
                   </div>
                   <div className="space-y-2">
                     <Label>Financial Proof</Label>
                     <Input type="file" name="financialProof" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('financialProof')}
                   </div>
                   <div className="space-y-2">
                     <Label>Recommendation Letter</Label>
                     <Input type="file" name="recommendationLetter" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                  </div>
+                    {renderFileBadge('recommendationLetter')}
                 </div>
               </div>
-
             </div>
           </div>
+        </div>
+      </div>
 
           {/* Bottom Action Bar */}
           <div className="shrink-0 border-t bg-gray-50/50 p-6 md:px-16 flex items-center justify-between">

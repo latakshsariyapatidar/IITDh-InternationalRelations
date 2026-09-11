@@ -3,6 +3,7 @@ import apiClient from '../api/client';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { compressDocument, formatBytes } from '../utils/fileCompressor';
 
 export default function InboundExchangeForm() {
   const [formData, setFormData] = useState({
@@ -11,11 +12,20 @@ export default function InboundExchangeForm() {
     email: '',
     nationality: '',
     homeInstitution: '',
-    programType: '',
-    duration: ''
+    homeUniversityCountry: '',
+    programType: 'SEMESTER_EXCHANGE',
+    duration: '',
+    intendedStayFrom: '',
+    intendedStayTo: '',
+    emergencyContactName: '',
+    emergencyContactRelation: '',
+    emergencyContactPhone: '',
+    emergencyContactEmail: '',
   });
   
   const [files, setFiles] = useState({});
+  const [compressing, setCompressing] = useState({});
+  const [compressionStats, setCompressionStats] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -29,16 +39,37 @@ export default function InboundExchangeForm() {
     cv: useRef(null)
   };
 
-  const handleFileChange = (e, field) => {
+  const handleFileChange = async (e, field) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFiles(prev => ({
-        ...prev,
-        [field]: e.target.files[0]
-      }));
+      const originalFile = e.target.files[0];
+      setCompressing(prev => ({ ...prev, [field]: true }));
+      try {
+        const compressed = await compressDocument(originalFile);
+        setFiles(prev => ({
+          ...prev,
+          [field]: compressed
+        }));
+        setCompressionStats(prev => ({
+          ...prev,
+          [field]: {
+            original: originalFile.size,
+            compressed: compressed.size,
+            reduction: compressed.reductionPercent || 0,
+          }
+        }));
+      } catch (err) {
+        console.warn('Compression error:', err);
+        setFiles(prev => ({ ...prev, [field]: originalFile }));
+      } finally {
+        setCompressing(prev => ({ ...prev, [field]: false }));
+      }
     } else {
       const newFiles = { ...files };
       delete newFiles[field];
       setFiles(newFiles);
+      const newStats = { ...compressionStats };
+      delete newStats[field];
+      setCompressionStats(newStats);
     }
   };
 
@@ -53,9 +84,14 @@ export default function InboundExchangeForm() {
         if (value) payload.append(key, value);
       });
       
-      Object.entries(files).forEach(([key, file]) => {
-        payload.append(key, file);
-      });
+      for (const [key, file] of Object.entries(files)) {
+        if (!file.compressedSize && (file.type?.startsWith('image/') || file.type === 'application/pdf')) {
+          const compressed = await compressDocument(file);
+          payload.append(key, compressed);
+        } else {
+          payload.append(key, file);
+        }
+      }
 
       await apiClient.post('/inbound-exchange', payload, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -212,6 +248,15 @@ export default function InboundExchangeForm() {
                       ref={fileInputRefs[field.id]}
                       onChange={(e) => handleFileChange(e, field.id)}
                     />
+                    {compressing[field.id] && (
+                      <p className="text-xs text-brand-purple animate-pulse">Compressing document...</p>
+                    )}
+                    {compressionStats[field.id] && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Ready: {formatBytes(compressionStats[field.id].compressed)}
+                        {compressionStats[field.id].reduction > 0 && ` (saved ${compressionStats[field.id].reduction}%)`}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

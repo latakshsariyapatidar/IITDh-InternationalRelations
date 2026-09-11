@@ -4,6 +4,7 @@ import apiClient from '../../api/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { compressDocument, formatBytes } from '../../utils/fileCompressor';
 
 const STEPS = [
   "Program Selection",
@@ -32,6 +33,8 @@ export default function OutboundApply() {
   });
 
   const [files, setFiles] = useState({});
+  const [compressing, setCompressing] = useState({});
+  const [compressionStats, setCompressionStats] = useState({});
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -50,12 +53,35 @@ export default function OutboundApply() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const { name, files: fileList } = e.target;
     if (fileList && fileList[0]) {
-      setFiles(prev => ({ ...prev, [name]: fileList[0] }));
+      const originalFile = fileList[0];
+      setCompressing(prev => ({ ...prev, [name]: true }));
+      try {
+        const compressed = await compressDocument(originalFile);
+        setFiles(prev => ({ ...prev, [name]: compressed }));
+        setCompressionStats(prev => ({
+          ...prev,
+          [name]: {
+            original: originalFile.size,
+            compressed: compressed.size,
+            reduction: compressed.reductionPercent || 0,
+          }
+        }));
+      } catch (err) {
+        console.warn('Compression error:', err);
+        setFiles(prev => ({ ...prev, [name]: originalFile }));
+      } finally {
+        setCompressing(prev => ({ ...prev, [name]: false }));
+      }
     } else {
       setFiles(prev => {
+        const copy = { ...prev };
+        delete copy[name];
+        return copy;
+      });
+      setCompressionStats(prev => {
         const copy = { ...prev };
         delete copy[name];
         return copy;
@@ -92,9 +118,15 @@ export default function OutboundApply() {
       Object.keys(formData).forEach(key => {
         payload.append(key, formData[key]);
       });
-      Object.keys(files).forEach(key => {
-        payload.append(key, files[key]);
-      });
+
+      for (const [key, file] of Object.entries(files)) {
+        if (!file.compressedSize && (file.type?.startsWith('image/') || file.type === 'application/pdf')) {
+          const compressed = await compressDocument(file);
+          payload.append(key, compressed);
+        } else {
+          payload.append(key, file);
+        }
+      }
 
       await apiClient.post('/outbound-applications', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -256,10 +288,28 @@ export default function OutboundApply() {
                   <div className="space-y-2">
                     <Label>Academic Transcripts (PDF) <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 2} type="file" name="transcript" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
+                    {compressing['transcript'] && (
+                      <p className="text-xs text-brand-purple animate-pulse">Compressing PDF...</p>
+                    )}
+                    {compressionStats['transcript'] && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Ready: {formatBytes(compressionStats['transcript'].compressed)}
+                        {compressionStats['transcript'].reduction > 0 && ` (saved ${compressionStats['transcript'].reduction}%)`}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label>NOC / Endorsement Form (Optional)</Label>
                     <Input type="file" name="recommendationLetter" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
+                    {compressing['recommendationLetter'] && (
+                      <p className="text-xs text-brand-purple animate-pulse">Compressing PDF...</p>
+                    )}
+                    {compressionStats['recommendationLetter'] && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Ready: {formatBytes(compressionStats['recommendationLetter'].compressed)}
+                        {compressionStats['recommendationLetter'].reduction > 0 && ` (saved ${compressionStats['recommendationLetter'].reduction}%)`}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

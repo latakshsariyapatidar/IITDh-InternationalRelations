@@ -24,6 +24,27 @@ export default function Collaboration() {
     fetchMous();
   }, []);
 
+  const handleDownloadMou = async (id, title) => {
+    try {
+      const res = await apiClient.get(`/mous/${id}/document`, { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `MOU_${(title || id).replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        alert('Please sign in with your IIT Dharwad account to read and download the full signed MOU.');
+      } else {
+        alert('MOU document unavailable: ' + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
   return (
     <div>
       <HeroSection
@@ -149,42 +170,65 @@ export default function Collaboration() {
             />
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mous.map((mou) => (
-                <div key={mou.id} className="bg-white rounded-xl border border-brand-purpleLight/40 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors flex-1 pr-4">
-                      {mou.universityName}
-                    </h3>
-                    <div className="w-10 h-10 rounded-full bg-brand-purpleLight/20 flex items-center justify-center shrink-0 text-brand-purple">
-                      <RiEarthLine size={20} />
+              {mous.map((mou) => {
+                const partnerName = mou.partner?.name || mou.title || "Partner Institution";
+                const country = mou.partner?.country || "";
+                const expiryDate = mou.expiryDate || mou.validUntil;
+
+                return (
+                  <div key={mou.id} className="bg-white rounded-xl border border-brand-purpleLight/40 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 pr-4">
+                        <h3 className="text-xl font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors">
+                          {partnerName}
+                        </h3>
+                        {mou.title && mou.title !== partnerName && (
+                          <p className="text-xs text-brand-purple font-medium mt-1 line-clamp-2">
+                            {mou.title}
+                          </p>
+                        )}
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-brand-purpleLight/20 flex items-center justify-center shrink-0 text-brand-purple">
+                        <RiEarthLine size={20} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2 text-sm text-neutral-textDark/80 mb-6 flex-1">
-                    <p className="flex items-center gap-2">
-                      <RiMapPinLine size={16} className="text-brand-marigold" />
-                      {mou.country}
-                    </p>
-                    {mou.signedDate && (
-                      <p className="flex items-center gap-2">
-                        <RiCalendarLine size={16} className="text-brand-marigold" />
-                        Signed: {new Date(mou.signedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
+                    <div className="space-y-2 text-sm text-neutral-textDark/80 mb-6 flex-1">
+                      {country && (
+                        <p className="flex items-center gap-2">
+                          <RiMapPinLine size={16} className="text-brand-marigold shrink-0" />
+                          <span>{country}</span>
+                        </p>
+                      )}
+                      {mou.signedDate && (
+                        <p className="flex items-center gap-2">
+                          <RiCalendarLine size={16} className="text-brand-marigold shrink-0" />
+                          <span>Signed: {new Date(mou.signedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </p>
+                      )}
+                      {expiryDate && (
+                        <p className="flex items-center gap-2">
+                          <RiCalendarLine size={16} className="text-brand-marigold shrink-0" />
+                          <span>Valid Until: {new Date(expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </p>
+                      )}
+                      {mou.scope && (
+                        <p className="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg border border-gray-100 line-clamp-2">
+                          <span className="font-semibold text-gray-700">Scope:</span> {mou.scope}
+                        </p>
+                      )}
+                    </div>
+                    {mou.hasDocument && (
+                      <button 
+                        onClick={() => handleDownloadMou(mou.id, partnerName)}
+                        className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        Read / Download MOU
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                      </button>
                     )}
-                    {mou.validUntil && (
-                      <p className="flex items-center gap-2">
-                        <RiCalendarLine size={16} className="text-brand-marigold" />
-                        Valid Until: {new Date(mou.validUntil).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    )}
                   </div>
-                  {mou.documentUrl && (
-                    <a href={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${mou.documentUrl}`} target="_blank" rel="noreferrer" className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">
-                      View Document
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                    </a>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

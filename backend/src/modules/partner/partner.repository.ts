@@ -28,15 +28,64 @@ export async function findAllPartners(query: ListPartnersQuery) {
       orderBy: ORDER_BY[query.sortBy],
       skip: (query.page - 1) * query.limit,
       take: query.limit,
+      include: {
+        mous: {
+          select: {
+            id: true,
+            title: true,
+            signedDate: true,
+            expiryDate: true,
+            status: true,
+            scope: true,
+            documentPath: true,
+          },
+        },
+      },
     }),
     prisma.partner.count({ where }),
   ]);
 
-  return { partners, total, page: query.page, limit: query.limit };
+  return {
+    partners: partners.map((p) => ({
+      ...p,
+      mous: p.mous.map(({ documentPath, ...mou }) => ({
+        ...mou,
+        hasDocument: documentPath !== null,
+      })),
+    })),
+    total,
+    page: query.page,
+    limit: query.limit,
+  };
 }
 
-export const findPartnerById = (id: string) =>
-  prisma.partner.findUnique({ where: { id } });
+export const findPartnerById = async (id: string) => {
+  const p = await prisma.partner.findUnique({
+    where: { id },
+    include: {
+      mous: {
+        select: {
+          id: true,
+          title: true,
+          signedDate: true,
+          expiryDate: true,
+          status: true,
+          scope: true,
+          documentPath: true,
+        },
+      },
+    },
+  });
+  if (!p) return null;
+  const { mous, ...partner } = p;
+  return {
+    ...partner,
+    mous: mous.map(({ documentPath, ...mou }) => ({
+      ...mou,
+      hasDocument: documentPath !== null,
+    })),
+  };
+};
 export const createPartner = (data: CreatePartnerInput) =>
   prisma.partner.create({ data });
 export const updatePartner = (id: string, data: UpdatePartnerInput) =>
