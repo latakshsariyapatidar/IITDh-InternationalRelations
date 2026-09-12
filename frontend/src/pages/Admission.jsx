@@ -26,7 +26,8 @@ export default function Admission() {
     <div>
       <HeroSection
         title="International Admissions"
-        subtitle="Your pathway to world-class education at IITDH"
+        subtitle="Your pathway to world-class degree education at IIT Dharwad"
+        cta={{ label: 'Apply Online for Degree Programs', to: '/international-admissions/apply' }}
       />
 
       <section className="max-w-7xl mx-auto px-4 py-16">
@@ -79,10 +80,13 @@ export default function Admission() {
             <Card>
               <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Application Procedure</h3>
               <ul className="space-y-2 text-sm text-gray-700 mb-4">
-                <li>1. Interested students can download the application form, fill in the details and submit the application to the International Relations office along with the required documents.</li>
+                <li>1. Interested students can apply directly through our online application portal or submit their application package to the International Relations Office.</li>
                 <li>2. Shortlisted candidates will be called for an interview.</li>
                 <li>3. Admission is subject to the recommendations by the selection committee.</li>
               </ul>
+              <div className="mb-4">
+                <CTAButton label="Submit Online Application" to="/international-admissions/apply" variant="primary" size="sm" />
+              </div>
               <div className="bg-brand-purpleLight/30 p-4 rounded-lg mt-4">
                 <p className="font-semibold text-brand-purpleDark text-sm mb-2">Documents to be submitted (as single PDF):</p>
                 <ul className="list-disc pl-5 text-sm text-gray-700">

@@ -1,16 +1,20 @@
 #!/bin/sh
+set -e
 
-echo "Waiting for PostgreSQL to be ready..."
-while ! nc -z db 5432; do
+DB_HOST=${DB_HOST:-db}
+DB_PORT=${DB_PORT:-5432}
+
+echo "[ENTRYPOINT] Waiting for PostgreSQL at ${DB_HOST}:${DB_PORT}..."
+until nc -z "$DB_HOST" "$DB_PORT"; do
   sleep 1
 done
-echo "PostgreSQL is reachable."
+echo "[ENTRYPOINT] PostgreSQL is reachable."
 
-echo "Deploying Prisma Migrations..."
+echo "[ENTRYPOINT] Deploying Prisma Migrations..."
 npm run db:deploy
 
-echo "Seeding Database..."
-npm run seed || echo "Seeding finished with notices or already seeded."
+echo "[ENTRYPOINT] Initializing Seed Data..."
+npm run seed || echo "[ENTRYPOINT] Seed step completed or already initialized."
 
-echo "Starting Backend Server..."
-exec npm start
+echo "[ENTRYPOINT] Starting Backend Server (Production)..."
+exec node dist/server.js

@@ -2,8 +2,7 @@ import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import { useState, useEffect } from 'react'
-import apiClient from '../api/client'
-import { RiBookReadLine, RiFilePaper2Line, RiHomeOfficeLine, RiSlideshowLine, RiCalendarEventLine, RiBookOpenLine, RiFilePaperLine, RiFileTextLine, RiGroupLine, RiListCheck2, RiFileList3Line, RiGlobalLine, RiPlayCircleLine, RiDownloadCloud2Line } from '@remixicon/react'
+import { RiBookReadLine, RiFilePaper2Line, RiHomeOfficeLine, RiSlideshowLine, RiCalendarEventLine, RiBookOpenLine, RiFilePaperLine, RiFileTextLine, RiGroupLine, RiListCheck2, RiFileList3Line, RiGlobalLine, RiDownloadCloud2Line } from '@remixicon/react'
 
 export default function Downloads() {
   const [downloads, setDownloads] = useState([]);
@@ -109,42 +108,7 @@ export default function Downloads() {
         <div className="py-24 text-center text-gray-500">No resources available for download currently.</div>
       )}
 
-      {/* Video Library */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Video Library"
-          subtitle="Helpful video guides and tutorials"
-        />
-        <div className="grid md:grid-cols-3 gap-8">
-          <Card>
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4 text-brand-purple hover:text-brand-marigold transition-colors cursor-pointer">
-              <RiPlayCircleLine size={64} />
-            </div>
-            <h3 className="text-lg font-bold text-brand-purpleDark mb-2">Visa Application Guide</h3>
-            <p className="text-sm text-gray-700 mb-4">Step-by-step video guide for student visa application</p>
-            <span className="text-xs text-gray-500">Duration: 8 mins</span>
-          </Card>
-
-          <Card>
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4 text-brand-purple hover:text-brand-marigold transition-colors cursor-pointer">
-              <RiPlayCircleLine size={64} />
-            </div>
-            <h3 className="text-lg font-bold text-brand-purpleDark mb-2">Campus Orientation</h3>
-            <p className="text-sm text-gray-700 mb-4">Virtual tour and orientation for new students</p>
-            <span className="text-xs text-gray-500">Duration: 15 mins</span>
-          </Card>
-
-          <Card>
-            <div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center mb-4 text-brand-purple hover:text-brand-marigold transition-colors cursor-pointer">
-              <RiPlayCircleLine size={64} />
-            </div>
-            <h3 className="text-lg font-bold text-brand-purpleDark mb-2">e-FRRO Registration</h3>
-            <p className="text-sm text-gray-700 mb-4">How to complete your e-FRRO registration online</p>
-            <span className="text-xs text-gray-500">Duration: 6 mins</span>
-          </Card>
-        </div>
-      </section>
-
+     
       {/* Contact for Custom Requests */}
       <section className="bg-neutral-canvas py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">

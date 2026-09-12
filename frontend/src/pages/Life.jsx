@@ -1,6 +1,7 @@
 import HeroSection from "../components/HeroSection";
 import SectionHeader from "../components/ui/SectionHeader";
 import Card from "../components/ui/Card";
+import { RiExternalLinkLine } from "@remixicon/react";
 
 export default function Life() {
   return (
@@ -83,9 +84,20 @@ export default function Life() {
           <p className="text-gray-700 leading-relaxed mb-4">
             The Institute currently has two hostel complexes—<strong>Hostel Block I and Hostel Block II</strong>—equipped with modern amenities to ensure a comfortable living experience. Separate accommodation is provided for female students, with dedicated hostel sections designed to ensure privacy, comfort, and security.
           </p>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-gray-700 leading-relaxed mb-6">
             The hostels are maintained to high standards of cleanliness and are supported by essential facilities, including Wi-Fi connectivity, common rooms, laundry services, recreational spaces, and dining facilities. The campus provides a safe and secure environment with <strong>24×7 security surveillance</strong>, controlled access to hostel premises, and round-the-clock support for students. International students are provided <strong>individual (single-occupancy) rooms</strong> to ensure privacy, comfort, and a conducive environment for study and research.
           </p>
+          <div>
+            <a
+              href="https://studentswelfare.iitdh.ac.in/hostels"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-purple text-white text-sm font-semibold hover:bg-brand-purpleDark shadow-sm transition-all group"
+            >
+              <span>Visit IIT Dharwad Hostels Portal</span>
+              <RiExternalLinkLine size={16} className="text-brand-marigold transition-transform group-hover:translate-x-0.5" />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -105,6 +117,17 @@ export default function Life() {
               <p className="text-gray-700 mb-3 text-sm">
                 The Institute offers <strong>both vegetarian and multi-cuisine meal options</strong> across three dining halls, catering to the diverse dietary preferences of the campus community.
               </p>
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <a
+                  href="https://studentswelfare.iitdh.ac.in/mess_canteen"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-brand-purple hover:text-brand-purpleDark font-semibold text-sm transition-colors group"
+                >
+                  <span>Explore Mess & Canteen Facilities</span>
+                  <RiExternalLinkLine size={16} className="text-brand-marigold transition-transform group-hover:translate-x-0.5" />
+                </a>
+              </div>
             </Card>
             <Card>
               <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Shared Kitchen & Cafeterias</h3>
@@ -114,8 +137,16 @@ export default function Life() {
               <p className="text-gray-700 text-sm">
                 In addition, a campus canteen remains open until late at night, providing snacks, beverages, and light meals for students.
               </p>
-              <div className="mt-4">
-                <a href="https://studentswelfare.iitdh.ac.in/hostels" target="_blank" rel="noopener noreferrer" className="text-brand-purple hover:underline font-semibold text-sm">Learn more about hostels & dining</a>
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <a
+                  href="https://studentswelfare.iitdh.ac.in/mess_canteen"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-brand-purple hover:text-brand-purpleDark font-semibold text-sm transition-colors group"
+                >
+                  <span>View Canteen & Dining Details</span>
+                  <RiExternalLinkLine size={16} className="text-brand-marigold transition-transform group-hover:translate-x-0.5" />
+                </a>
               </div>
             </Card>
           </div>

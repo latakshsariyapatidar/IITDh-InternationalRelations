@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import barba from '@barba/core'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import Home from '../pages/Home'
 import About from '../pages/About'
@@ -15,6 +15,8 @@ import Gallery from '../pages/Gallery'
 import Contact from '../pages/Contact'
 import Search from '../pages/Search'
 import Apply from '../pages/Apply'
+import NotFound from '../pages/NotFound'
+import TitleAndScrollManager from './TitleAndScrollManager'
 
 import Login from '../pages/admin/Login'
 import AdminLayout from '../pages/admin/AdminLayout'
@@ -96,8 +98,14 @@ function shouldIgnoreLink(event, anchor) {
     return true
   }
 
-  // Disable transitions for admin routes
-  if (href.includes('/admin')) {
+  // Disable transitions for admin and full-screen application portal routes
+  if (
+    href.includes('/admin') ||
+    href.includes('/apply') ||
+    href.includes('/inbound-exchange/apply') ||
+    href.includes('/international-admissions/apply') ||
+    href.includes('/international-mobility/apply')
+  ) {
     return true
   }
 
@@ -214,6 +222,7 @@ export default function PageRoutes() {
 
   return (
     <div className="relative min-h-screen" data-barba="wrapper">
+      <TitleAndScrollManager />
       <div className="relative min-h-screen" data-barba="container" data-barba-namespace="iro">
         <div className={curtainClassName} key={curtainKey} aria-hidden="true">
           <div className="barba-curtain-content">
@@ -237,8 +246,19 @@ export default function PageRoutes() {
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/collaboration" element={<Collaboration />} />
-          <Route path="/admission" element={<Admission />} />
+
+          {/* International Admissions (Degree Programs) */}
+          <Route path="/international-admissions" element={<Admission />} />
+          <Route path="/international-admissions/apply" element={<Apply />} />
+          <Route path="/admission" element={<Navigate to="/international-admissions" replace />} />
+          <Route path="/apply" element={<Navigate to="/international-admissions/apply" replace />} />
+
+          {/* International Mobility (Non-Degree Exchanges, Internships & Visiting) */}
+          <Route path="/international-mobility" element={<Collaboration />} />
+          <Route path="/international-mobility/apply" element={<InboundExchangeForm />} />
+          <Route path="/collaboration" element={<Navigate to="/international-mobility" replace />} />
+          <Route path="/inbound-exchange/apply" element={<Navigate to="/international-mobility/apply" replace />} />
+
           <Route path="/partners" element={<Partners />} />
           <Route path="/visa" element={<Visa />} />
           <Route path="/downloads" element={<Downloads />} />
@@ -247,7 +267,6 @@ export default function PageRoutes() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/apply" element={<Apply />} />
 
           <Route path="/opportunities" element={<Opportunities />} />
           <Route 
@@ -258,7 +277,6 @@ export default function PageRoutes() {
               </FacultyProtectedRoute>
             } 
           />
-          <Route path="/inbound-exchange/apply" element={<InboundExchangeForm />} />
 
           {/* Student Routes */}
           <Route path="/students" element={<Landing />} />
@@ -323,6 +341,9 @@ export default function PageRoutes() {
             <Route path="visitors" element={<AdminVisitors />} />
             <Route path="notifications" element={<Notifications />} />
           </Route>
+
+          {/* 404 Catch-All */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>

@@ -4,46 +4,9 @@ import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import { useState, useEffect } from 'react'
 import apiClient from '../api/client'
-import { RiExchangeBoxLine, RiMicroscopeLine, RiBriefcaseLine, RiMacbookLine, RiEarthLine, RiGraduationCapLine, RiUserStarLine, RiAwardLine, RiSunLine, RiUserSmileLine, RiBuilding4Line, RiWallet3Line, RiBankLine, RiGroupLine, RiLinksLine, RiMapPinLine, RiCalendarLine } from '@remixicon/react'
+import { RiExchangeBoxLine, RiMicroscopeLine, RiBriefcaseLine, RiMacbookLine, RiEarthLine, RiGraduationCapLine, RiUserStarLine, RiAwardLine, RiSunLine, RiUserSmileLine, RiGroupLine, RiLinksLine, RiMapPinLine, RiCalendarLine } from '@remixicon/react'
 
 export default function Collaboration() {
-  const [mous, setMous] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMous = async () => {
-      try {
-        const res = await apiClient.get('/mous?isPublic=true&limit=100');
-        setMous(res.data?.data?.mous || []);
-      } catch (err) {
-        console.error('Failed to fetch MOUs', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMous();
-  }, []);
-
-  const handleDownloadMou = async (id, title) => {
-    try {
-      const res = await apiClient.get(`/mous/${id}/document`, { responseType: 'blob' });
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `MOU_${(title || id).replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        alert('Please sign in with your IIT Dharwad account to read and download the full signed MOU.');
-      } else {
-        alert('MOU document unavailable: ' + (err.response?.data?.message || err.message));
-      }
-    }
-  };
 
   return (
     <div>
@@ -57,7 +20,7 @@ export default function Collaboration() {
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="International Students Programs"
-          subtitle="Exchange and learning opportunities"
+          subtitle="Exchange and learning opportunities (Non-Degree)"
           badge={<RiExchangeBoxLine size={24} />}
         />
         <div className="grid md:grid-cols-3 gap-8">
@@ -67,7 +30,7 @@ export default function Collaboration() {
             { icon: <RiBriefcaseLine size={28} className="text-brand-purple" />, title: 'Project Work', desc: 'Undertake industry-relevant projects under faculty guidance with hands-on experience.', duration: '2-6 months' },
             { icon: <RiMacbookLine size={28} className="text-brand-purple" />, title: 'Internships', desc: 'Gain practical experience through internships in laboratories or industry partner organizations.', duration: '2-4 months' },
             { icon: <RiEarthLine size={28} className="text-brand-purple" />, title: 'Study Tours', desc: 'Educational trips combining classroom learning with visits to industry, heritage sites, and research centers.', duration: '1-2 weeks' },
-            { icon: <RiGraduationCapLine size={28} className="text-brand-purple" />, title: "Master's Programs", desc: 'Pursue full MS degree with research focus under expert faculty guidance.', duration: '2 years' }
+            { icon: <RiGraduationCapLine size={28} className="text-brand-purple" />, title: 'Visiting Students', desc: 'Undertake short-term coursework, lab rotations, or research attachments for academic credit transfer without degree conferral.', duration: '1-2 semesters' }
           ].map((prog, idx) => (
             <Card key={idx} variant="light" icon={prog.icon} title={prog.title}>
               <p className="text-gray-700 mb-4 text-sm">{prog.desc}</p>
@@ -159,103 +122,48 @@ export default function Collaboration() {
         </div>
       </section>
 
-      {/* Active MOUs Section */}
-      {mous.length > 0 && (
-        <section className="bg-neutral-canvas py-16 relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <SectionHeader
-              title="Memorandums of Understanding (MOUs)"
-              subtitle="Our active academic and research partnerships worldwide"
-              badge={<RiLinksLine size={24} />}
-            />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mous.map((mou) => {
-                const partnerName = mou.partner?.name || mou.title || "Partner Institution";
-                const country = mou.partner?.country || "";
-                const expiryDate = mou.expiryDate || mou.validUntil;
-
-                return (
-                  <div key={mou.id} className="bg-white rounded-xl border border-brand-purpleLight/40 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1 pr-4">
-                        <h3 className="text-xl font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors">
-                          {partnerName}
-                        </h3>
-                        {mou.title && mou.title !== partnerName && (
-                          <p className="text-xs text-brand-purple font-medium mt-1 line-clamp-2">
-                            {mou.title}
-                          </p>
-                        )}
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-brand-purpleLight/20 flex items-center justify-center shrink-0 text-brand-purple">
-                        <RiEarthLine size={20} />
-                      </div>
-                    </div>
-                    <div className="space-y-2 text-sm text-neutral-textDark/80 mb-6 flex-1">
-                      {country && (
-                        <p className="flex items-center gap-2">
-                          <RiMapPinLine size={16} className="text-brand-marigold shrink-0" />
-                          <span>{country}</span>
-                        </p>
-                      )}
-                      {mou.signedDate && (
-                        <p className="flex items-center gap-2">
-                          <RiCalendarLine size={16} className="text-brand-marigold shrink-0" />
-                          <span>Signed: {new Date(mou.signedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </p>
-                      )}
-                      {expiryDate && (
-                        <p className="flex items-center gap-2">
-                          <RiCalendarLine size={16} className="text-brand-marigold shrink-0" />
-                          <span>Valid Until: {new Date(expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </p>
-                      )}
-                      {mou.scope && (
-                        <p className="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg border border-gray-100 line-clamp-2">
-                          <span className="font-semibold text-gray-700">Scope:</span> {mou.scope}
-                        </p>
-                      )}
-                    </div>
-                    {mou.hasDocument && (
-                      <button 
-                        onClick={() => handleDownloadMou(mou.id, partnerName)}
-                        className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1 cursor-pointer"
-                      >
-                        Read / Download MOU
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+      {/* Inbound Mobility & Exchange CTA */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <div className="bg-brand-purpleDark rounded-2xl p-8 md:p-12 text-white relative overflow-hidden shadow-xl">
+          <div className="relative z-10 max-w-3xl">
+            <span className="text-brand-marigold text-xs font-bold uppercase tracking-widest mb-2 block">
+              Non-Degree Mobility & Exchange
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Apply for Inbound Exchange & Mobility
+            </h2>
+            <p className="text-gray-200 text-base mb-8 leading-relaxed">
+              Are you an international student seeking a semester exchange, research internship, or short-term academic stay at IIT Dharwad? Apply through our dedicated inbound mobility portal.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <CTAButton 
+                label="Apply for Inbound Exchange" 
+                to="/international-mobility/apply" 
+                variant="primary" 
+                size="lg" 
+              />
+              <CTAButton 
+                label="Explore Partner Universities" 
+                to="/partners" 
+                variant="outline" 
+                size="lg" 
+                className="text-white border-white hover:bg-white hover:text-brand-purpleDark"
+              />
+            </div>
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <p className="text-sm text-gray-300">
+                Looking for full-time degree-granting programs (B.Tech, M.Tech, M.Sc, MS, Ph.D.)?{' '}
+                <a 
+                  href="/international-admissions" 
+                  className="text-brand-marigold hover:underline font-semibold"
+                >
+                  Visit International Admissions &rarr;
+                </a>
+              </p>
             </div>
           </div>
-        </section>
-      )}
-
-      {/* International Admissions */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="International Admissions"
-          subtitle="Study in India programs and pathways"
-          badge={<RiAwardLine size={24} />}
-        />
-        <div className="bg-brand-purpleLight/30 rounded-xl p-8 border border-brand-purpleLight/70">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: <RiBuilding4Line size={48} className="text-brand-purple" />, title: 'SII Program', desc: 'Study in India - Government of India initiative promoting higher education for international students.' },
-              { icon: <RiWallet3Line size={48} className="text-brand-purple" />, title: 'Self-Financed', desc: 'Direct admissions for self-funded international students with flexible payment options.' },
-              { icon: <RiBankLine size={48} className="text-brand-purple" />, title: 'ICCR Scholarships', desc: 'Indian Council for Cultural Relations scholarships for nominated international students.' }
-            ].map((prog, idx) => (
-              <div key={idx}>
-                <div className="mb-4">{prog.icon}</div>
-                <h3 className="text-xl font-bold text-brand-purple mb-3">{prog.title}</h3>
-                <p className="text-gray-700 text-sm mb-4">{prog.desc}</p>
-                <CTAButton label="Learn More" to="/admission" variant="primary" size="sm" />
-              </div>
-            ))}
-          </div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-brand-marigold/10 rounded-full blur-2xl pointer-events-none" />
         </div>
       </section>
     </div>

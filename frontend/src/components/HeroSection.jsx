@@ -25,6 +25,7 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
               <CTAButton
                 label={cta.label}
                 onClick={cta.onClick}
+                to={cta.to}
                 variant="primary"
                 size="lg"
               />

@@ -46,6 +46,15 @@ const resolveCountryCode = (country, countryCode) => {
   return countryCodeMap[country]?.toLowerCase() || ''
 }
 
+const resolveLogoUrl = (url) => {
+  if (!url) return null
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url
+  }
+  const backendOrigin = (apiClient.defaults?.baseURL || '').replace('/api/v1', '')
+  return `${backendOrigin}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
 function FlagIcon({ country, code, className = "h-4 w-auto rounded-[2px] shadow-xs" }) {
   if (!code) {
     return (
@@ -237,44 +246,6 @@ export default function Partners() {
         }}
       />
 
-      {/* Quick Statistics Strip */}
-      <div className="bg-white border-b border-brand-purpleLight/40 shadow-xs relative z-20">
-        <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
-          <div className="p-3">
-            <p className="text-3xl sm:text-4xl font-extrabold text-brand-purple">
-              {loading ? '...' : partners.length || '21+'}
-            </p>
-            <p className="text-xs sm:text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">
-              Total Partners
-            </p>
-          </div>
-          <div className="p-3 border-l border-gray-100">
-            <p className="text-3xl sm:text-4xl font-extrabold text-brand-marigold">
-              {loading ? '...' : universities.length || '14'}
-            </p>
-            <p className="text-xs sm:text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">
-              Partner Universities
-            </p>
-          </div>
-          <div className="p-3 border-l border-gray-100">
-            <p className="text-3xl sm:text-4xl font-extrabold text-brand-purpleDark">
-              {loading ? '...' : organizations.length || '7'}
-            </p>
-            <p className="text-xs sm:text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">
-              Consortia & Networks
-            </p>
-          </div>
-          <div className="p-3 border-l border-gray-100">
-            <p className="text-3xl sm:text-4xl font-extrabold text-emerald-600">
-              {loading ? '...' : mous.length || '12'}
-            </p>
-            <p className="text-xs sm:text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">
-              Active MOUs
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Marquee Ticker */}
       {marqueeList.length > 0 && (
         <div className="w-full overflow-hidden border-b border-brand-purpleLight/40 bg-white py-3">
@@ -300,18 +271,18 @@ export default function Partners() {
       )}
 
       {/* Search & Navigation Bar */}
-      <section className="max-w-7xl mx-auto px-4 pt-12 pb-6">
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-brand-purpleLight/40">
+      <section className="max-w-7xl mx-auto px-4 pt-8 pb-2">
+        <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xs border border-brand-purpleLight/60">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Tab buttons */}
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedTab('all')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   selectedTab === 'all'
                     ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
                 }`}
               >
                 All Collaborations ({partners.length})
@@ -319,10 +290,10 @@ export default function Partners() {
               <button
                 type="button"
                 onClick={() => setSelectedTab('universities')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   selectedTab === 'universities'
                     ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
                 }`}
               >
                 Universities ({universities.length})
@@ -330,10 +301,10 @@ export default function Partners() {
               <button
                 type="button"
                 onClick={() => setSelectedTab('organizations')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   selectedTab === 'organizations'
                     ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
                 }`}
               >
                 Organizations & Consortia ({organizations.length})
@@ -341,10 +312,10 @@ export default function Partners() {
               <button
                 type="button"
                 onClick={() => setSelectedTab('mous')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                   selectedTab === 'mous'
                     ? 'bg-emerald-700 text-white shadow-xs'
-                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/60'
                 }`}
               >
                 <RiLinksLine size={16} />
@@ -364,12 +335,12 @@ export default function Partners() {
                   placeholder="Search partner, country..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple"
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple text-brand-purpleDark placeholder:text-gray-400 shadow-2xs"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     Clear
                   </button>
@@ -379,7 +350,7 @@ export default function Partners() {
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple text-gray-700 cursor-pointer"
+                className="px-3 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple text-brand-purpleDark font-medium cursor-pointer shadow-2xs"
               >
                 <option value="ALL">All Countries ({countries.length})</option>
                 {countries.map((c) => (
@@ -434,20 +405,21 @@ export default function Partners() {
         <>
           {/* SECTION 1: Partner Universities */}
           {(selectedTab === 'all' || selectedTab === 'universities') && (
-            <section className="max-w-7xl mx-auto px-4 py-8">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-                <div>
-                  <SectionHeader
-                    title="Partner Universities"
-                    subtitle="Accredited higher education institutions collaborating with IIT Dharwad"
-                    badge={<RiBuilding4Line size={24} />}
-                  />
-                </div>
+            <section className="max-w-7xl mx-auto px-4 pt-6 pb-12">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-4 border-b border-brand-purpleLight/40">
+                <SectionHeader
+                  title="Partner Universities"
+                  subtitle="Accredited higher education institutions collaborating with IIT Dharwad"
+                  badge={<RiBuilding4Line size={18} />}
+                  badgeText="Partner Universities"
+                  centered={false}
+                  className="mb-0"
+                />
                 {filteredUniversities.length > 6 && !showAllUniversities && (
                   <button
                     type="button"
                     onClick={() => setShowAllUniversities(true)}
-                    className="self-start sm:self-auto inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-brand-purple hover:text-brand-purpleDark hover:underline"
+                    className="self-start sm:self-auto inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-brand-purple hover:text-brand-purpleDark hover:underline shrink-0"
                   >
                     <span>View all {filteredUniversities.length} universities</span>
                     <span className="bg-brand-purpleLight/40 px-2 py-0.5 rounded-full text-[11px]">
@@ -479,16 +451,26 @@ export default function Partners() {
                         <div>
                           {/* Card Top: Avatar & Flag */}
                           <div className="flex items-start justify-between mb-4">
-                            <div className="h-12 w-12 rounded-2xl bg-brand-purpleLight/30 flex items-center justify-center text-brand-purpleDark font-bold text-lg group-hover:bg-brand-purple group-hover:text-white transition-colors">
+                            <div className="h-12 w-12 rounded-2xl bg-brand-purpleLight/30 flex items-center justify-center text-brand-purpleDark font-bold text-lg group-hover:bg-brand-purple group-hover:text-white transition-colors overflow-hidden shrink-0 border border-brand-purpleLight/40 bg-white">
                               {uni.logoUrl ? (
                                 <img
-                                  src={uni.logoUrl}
+                                  src={resolveLogoUrl(uni.logoUrl)}
                                   alt={uni.name}
-                                  className="h-10 w-10 object-contain rounded-xl"
+                                  className="h-full w-full object-contain p-1.5 rounded-xl"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none'
+                                    if (e.currentTarget.nextElementSibling) {
+                                      e.currentTarget.nextElementSibling.style.display = 'flex'
+                                    }
+                                  }}
                                 />
-                              ) : (
-                                uni.name.charAt(0)
-                              )}
+                              ) : null}
+                              <span
+                                className="items-center justify-center w-full h-full text-center"
+                                style={{ display: uni.logoUrl ? 'none' : 'flex' }}
+                              >
+                                {uni.name.charAt(0)}
+                              </span>
                             </div>
                             <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200/70 px-2.5 py-1 rounded-full text-xs font-medium text-gray-700">
                               <FlagIcon country={uni.country} code={countryCode} />
@@ -593,12 +575,14 @@ export default function Partners() {
 
           {/* SECTION 2: Partner Organizations, Consortia & Networks */}
           {(selectedTab === 'all' || selectedTab === 'organizations') && (
-            <section className="bg-white/90 border-y border-brand-purpleLight/40 py-16 my-8">
+            <section className="bg-white/90 border-y border-brand-purpleLight/40 py-12 my-8">
               <div className="max-w-7xl mx-auto px-4">
                 <SectionHeader
                   title="Partner Organizations & Consortia"
                   subtitle="Collaborating international bodies, research agencies, and academic networks"
-                  badge={<RiGlobalLine size={24} />}
+                  badge={<RiGlobalLine size={18} />}
+                  badgeText="Networks & Bodies"
+                  centered={false}
                 />
 
                 {filteredOrganizations.length === 0 ? (
@@ -624,9 +608,21 @@ export default function Partners() {
                         >
                           <div>
                             <div className="flex items-start justify-between mb-3">
-                              <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-brand-purpleLight/30 text-brand-purpleDark">
-                                {typeLabel}
-                              </span>
+                              <div className="flex items-center gap-2.5">
+                                {org.logoUrl && (
+                                  <div className="h-8 w-8 rounded-lg bg-white border border-brand-purpleLight/40 flex items-center justify-center overflow-hidden shrink-0">
+                                    <img
+                                      src={resolveLogoUrl(org.logoUrl)}
+                                      alt={org.name}
+                                      className="h-full w-full object-contain p-1"
+                                      onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                    />
+                                  </div>
+                                )}
+                                <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-brand-purpleLight/30 text-brand-purpleDark">
+                                  {typeLabel}
+                                </span>
+                              </div>
                               <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
                                 <FlagIcon country={org.country} code={countryCode} />
                                 <span>{org.country}</span>
@@ -674,11 +670,13 @@ export default function Partners() {
 
           {/* SECTION 3: Active Memorandums of Understanding (MOUs) */}
           {(selectedTab === 'all' || selectedTab === 'mous') && (
-            <section id="active-mous-section" className="max-w-7xl mx-auto px-4 py-16">
+            <section id="active-mous-section" className="max-w-7xl mx-auto px-4 py-12">
               <SectionHeader
                 title="Active Memorandums of Understanding (MOUs)"
                 subtitle="Formally ratified bilateral agreements governing student exchanges, dual degrees, and joint scientific investigations"
-                badge={<RiLinksLine size={24} />}
+                badge={<RiLinksLine size={18} />}
+                badgeText="Bilateral Agreements"
+                centered={false}
               />
 
               {filteredMous.length === 0 ? (

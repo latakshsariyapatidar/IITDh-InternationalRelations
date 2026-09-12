@@ -21,7 +21,7 @@ export default function Footer() {
             </p>
             {/* Social Media Icons */}
             <div className="flex gap-4">
-              <a href="https://www.linkedin.com/company/iit-dharwad?originalSubdomain=in" className="w-8 h-8 rounded-full bg-white/10 hover:bg-brand-marigold/20 flex items-center justify-center transition-colors text-brand-purpleLight">
+              <a href="https://www.linkedin.com/school/indian-institute-of-technology-dharwad-india/posts/?feedView=all" className="w-8 h-8 rounded-full bg-white/10 hover:bg-brand-marigold/20 flex items-center justify-center transition-colors text-brand-purpleLight">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.469v6.766z" />
                 </svg>
@@ -36,7 +36,7 @@ export default function Footer() {
                   <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7a10.6 10.6 0 01-3 1" />
                 </svg>
               </a>
-              <a href="https://www.youtube.com/@IITDharwadOfficialChannel" className="w-8 h-8 rounded-full bg-white/10 hover:bg-brand-marigold/20 flex items-center justify-center transition-colors text-brand-purpleLight">
+              <a href="https://www.youtube.com/c/iitdharwadofficialchannel" className="w-8 h-8 rounded-full bg-white/10 hover:bg-brand-marigold/20 flex items-center justify-center transition-colors text-brand-purpleLight">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>
@@ -48,7 +48,8 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold text-brand-marigold mb-4">Quicklinks</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/admission#faqs" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">FAQs</Link></li>
+              <li><Link to="/opportunities" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Opportunities</Link></li>
+              <li><Link to="/international-admissions#faqs" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">FAQs</Link></li>
               <li><Link to="/contact#campus-map" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Campus Map</Link></li>
               <li><Link to="/downloads" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">IITDH Faculty Research Profiles</Link></li>
               <li><Link to="/contact#feedback" className="text-brand-purpleLight/80 hover:text-brand-marigold transition">Feedback</Link></li>

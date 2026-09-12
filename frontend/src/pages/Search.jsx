@@ -23,6 +23,14 @@ const pageMetaByPath = {
     description: 'Contact the International Relations Office and send a message.',
     keywords: ['email', 'phone', 'address'],
   },
+  '/international-admissions': {
+    description: 'Admissions and degree application guidance for international students.',
+    keywords: ['apply', 'admission', 'degree', 'international admissions'],
+  },
+  '/international-mobility': {
+    description: 'International mobility, exchange programs, and research internships.',
+    keywords: ['exchange', 'mobility', 'internship', 'visiting', 'programs'],
+  },
   '/admission': {
     description: 'Admissions and application guidance for international students.',
     keywords: ['apply', 'admission', 'international'],
@@ -56,7 +64,7 @@ const pageMetaByPath = {
 const quickLinks = [
   {
     title: 'FAQs',
-    path: '/admission#faqs',
+    path: '/international-admissions#faqs',
     description: 'Common questions on admissions and programs.',
     keywords: ['faq', 'questions'],
   },
@@ -153,7 +161,7 @@ export default function Search() {
   }, [items, normalizedQuery])
 
   const popularItems = useMemo(() => {
-    const popularPaths = ['/admission', '/collaboration', '/visa', '/partners', '/downloads', '/visits']
+    const popularPaths = ['/international-admissions', '/international-mobility', '/visa', '/partners', '/downloads', '/visits']
     return items.filter((item) => popularPaths.includes(item.path))
   }, [items])
 

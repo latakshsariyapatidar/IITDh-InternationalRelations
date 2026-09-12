@@ -148,13 +148,18 @@ export default function Apply() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Application Submitted!</h2>
-          <p className="text-gray-600 text-lg">
-            Thank you for applying to IIT Dharwad. Your application has been received and is currently under review.
+          <h2 className="text-3xl font-bold text-gray-900">Admissions Application Submitted!</h2>
+          <p className="text-gray-600 text-base leading-relaxed">
+            Thank you for applying for degree studies at IIT Dharwad. Your application has been received and is currently under review by the International Relations Office.
           </p>
-          <Button onClick={() => window.location.href = '/'} className="mt-4 bg-brand-purple hover:bg-brand-purpleDark w-full">
-            Return to Home
-          </Button>
+          <div className="space-y-3 pt-2">
+            <Button onClick={() => window.location.href = '/international-admissions'} className="w-full bg-brand-purple hover:bg-brand-purpleDark">
+              Return to International Admissions
+            </Button>
+            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full">
+              Return to Home
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -189,8 +194,11 @@ export default function Apply() {
         <div className="relative z-10 flex-1 flex flex-col">
           <div className="mb-12">
             <img src="/IITDh Logo.svg" alt="IITDh Logo" className="h-16 mb-4" />
-            <h1 className="text-3xl font-bold tracking-tight">Admissions</h1>
-            <p className="text-brand-purpleLight/70 mt-2 text-sm">International Relations Office</p>
+            <div className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-marigold/20 text-brand-marigold mb-2">
+              Degree Programs
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">International Admissions</h1>
+            <p className="text-brand-purpleLight/70 mt-1 text-sm">International Relations Office</p>
           </div>
           
           <div className="flex-1 space-y-8">

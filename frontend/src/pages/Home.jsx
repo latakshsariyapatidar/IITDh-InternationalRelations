@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import CTAButton from "../components/ui/CTAButton";
 import apiClient from "../api/client";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
@@ -49,7 +48,7 @@ export default function Home() {
 
   return (
     <div className="pb-24">
-      <section className="relative min-h-[70vh] flex flex-col justify-center text-brand-purpleDark py-20 overflow-hidden border-b border-brand-purpleLight/70">
+      <section className="relative min-h-[65vh] sm:min-h-[72vh] flex flex-col justify-end text-white pt-32 pb-10 sm:pb-14 overflow-hidden border-b border-black/20">
         <div className="absolute inset-0 z-0">
           {slideshowImages.map((image, index) => (
             <div
@@ -61,28 +60,20 @@ export default function Home() {
             />
           ))}
         </div>
-        <div className="absolute inset-0 z-1 bg-linear-to-b from-brand-purpleLight/20 via-neutral-canvas/80 to-neutral-canvas" />
-        <div className="container mx-auto max-w-7xl px-6 z-10 text-center">
-          <p className="text-brand-marigold font-semibold tracking-widest uppercase mb-4 text-sm">
-            {getContent("home.hero.tagline", "Globally Connected • Locally Rooted")}
-          </p>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            {getContent("home.hero.title", "International Relations Office")}
-          </h1>
-          <div className="text-xl text-brand-purpleDark/75 max-w-3xl mx-auto mb-12 space-y-4">
-            {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
-          </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <CTAButton
-              to="/collaboration"
-              label="For Inbound Scholars"
-              className="bg-brand-marigold text-brand-purpleDark font-bold hover:bg-brand-marigoldDark"
-            />
-            <CTAButton
-              to="/collaboration"
-              label="For Outgoing IITDH Cohort"
-              className="bg-white text-brand-purpleDark border border-brand-purpleLight font-bold hover:bg-brand-purpleLight/35"
-            />
+        {/* Low-opacity black overlay for clear segregation between text and image */}
+        <div className="absolute inset-0 z-1 bg-black/35" />
+
+        <div className="container mx-auto max-w-7xl px-6 z-10 text-left">
+          <div className="max-w-xl md:max-w-2xl">
+            <p className="text-brand-marigold font-bold tracking-widest uppercase mb-1.5 text-xs drop-shadow-xs">
+              {getContent("home.hero.tagline", "Globally Connected • Locally Rooted")}
+            </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 leading-tight text-white drop-shadow-sm">
+              {getContent("home.hero.title", "International Relations Office")}
+            </h1>
+            <div className="text-sm sm:text-base text-white/90 font-normal space-y-1.5 leading-relaxed drop-shadow-xs">
+              {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
+            </div>
           </div>
         </div>
       </section>
@@ -151,67 +142,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Opportunities */}
+      {/* Upcoming Events */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto max-w-7xl px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-neutral-textDark mb-3">
-              Opportunities
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-neutral-canvas p-8 rounded-2xl border border-brand-purpleLight/60 shadow-sm">
-              <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">
-                IITDH Students:
-              </h3>
-              <div className="mb-4">
-                <h4 className="text-lg font-bold text-brand-marigoldDark mb-2">SCHOLARSHIPS</h4>
-                <p className="text-sm text-neutral-textDark/80">
-                  <strong>Name of the program:</strong> INSPIRE FELLOWSHIPS<br/>
-                  <strong>Program details:</strong> .
-                </p>
-              </div>
-            </div>
-            <div className="bg-neutral-canvas p-8 rounded-2xl border border-brand-purpleLight/60 shadow-sm">
-              <h3 className="text-2xl font-bold text-brand-purpleDark mb-4">
-                IITDH Faculty Programs:
-              </h3>
-              <h4 className="text-lg font-bold text-brand-marigoldDark mb-2">FUNDING</h4>
-              <div className="space-y-4 text-sm text-neutral-textDark/80">
-                <p><strong>1) Name of the program:</strong> India–Japan Cooperative Science Programme (IJCSP)</p>
-                <p><strong>Program details:</strong> IJCSP is a bilateral initiative that supports collaborative research projects between Indian and Japanese researchers in frontier areas of science and technology.</p>
-                <p>The programme provides an excellent opportunity to strengthen research partnerships with Japanese institutions, facilitate faculty exchanges, promote joint research activities, and enhance international research visibility.</p>
-                <p>Faculty members who already have collaborators in Japan, or those interested in establishing research partnerships with Japanese universities and research institutions, are strongly encouraged to explore this opportunity and submit proposals.</p>
-                <p>Some of the key objectives of the programme include:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Promotion of collaborative research between Indian and Japanese scientists.</li>
-                  <li>Exchange visits of researchers and faculty members.</li>
-                  <li>Development of long-term institutional and research partnerships.</li>
-                  <li>Strengthening international research networks and capacity building.</li>
-                </ul>
-                <p>Interested faculty members are requested to review the programme guidelines and eligibility criteria and consider submitting applications within the stipulated deadline.</p>
-                <p>This programme aligns well with IIT Dharwad’s efforts to expand international research collaborations and enhance engagement with leading institutions in Japan.</p>
-                <hr className="border-brand-purpleLight/50 my-4" />
-                <p>The Department of Science & Technology (fDST), Government of India, and the Japan Society for the Promotion of Science (JSPS) invite proposals for:</p>
-                <p><strong>Who Can Apply?</strong><br/>Eligible Indian researchers and scientists</p>
-                <p><strong>Priority Research Areas</strong><br/>
-                1. Physical Sciences<br/>
-                2. Chemical Sciences<br/>
-                3. Life Sciences & Agriculture<br/>
-                4. Mathematics & Computational Science<br/>
-                5. Astronomy & Earth Sciences<br/>
-                6. Materials Science & Engineering
-                </p>
-                <p className="bg-yellow-200 text-yellow-900 font-bold p-2 rounded inline-block">Last Date for Proposal Submission: September 3, 2026</p>
-                <p>For details and applications: <a href="http://www.onlinedst.gov.in" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">www.onlinedst.gov.in</a></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Upcoming Events (Moved below Opportunities) */}
-      <section className="py-20 bg-neutral-canvas">
         <div className="container mx-auto max-w-7xl px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
             <div>

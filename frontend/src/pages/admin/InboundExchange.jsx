@@ -292,7 +292,7 @@ export default function InboundExchange() {
               <div className="border-t pt-4">
                 <h4 className="font-semibold text-gray-800 mb-3">Supporting Documents</h4>
                 <div className="flex flex-wrap gap-2">
-                  {['passportCopy', 'photo', 'academicTranscripts', 'recommendationLetter', 'noc', 'cv'].map(field => (
+                  {['passportCopy', 'photo', 'academicTranscripts', 'nominationLetter', 'statementOfPurpose', 'financialProof', 'recommendationLetter'].map(field => (
                     <Button 
                       key={field} 
                       variant="secondary" 
