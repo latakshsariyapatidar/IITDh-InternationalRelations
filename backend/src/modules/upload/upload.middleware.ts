@@ -15,7 +15,6 @@ const ALLOWED_IMAGE_MIMES = new Set([
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ]);
 const ALLOWED_DOCUMENT_MIMES = new Set(["application/pdf"]);
 
@@ -47,7 +46,7 @@ export const imageUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // increased to 10MB
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED_IMAGE_MIMES.has(file.mimetype)) {
-      cb(AppError.badRequest("Only JPEG, PNG, WEBP, GIF, or SVG images are allowed"));
+      cb(AppError.badRequest("Only JPEG, PNG, WEBP, or GIF images are allowed"));
       return;
     }
     cb(null, true);

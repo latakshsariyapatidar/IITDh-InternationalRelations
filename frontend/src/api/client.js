@@ -57,12 +57,13 @@ apiClient.interceptors.response.use(
     }
 
     // If error is 401 and we haven't already retried this exact request,
-    // AND the original request was NOT a login or refresh attempt
+    // AND the original request was NOT a login or refresh attempt (admin or campus)
     if (
       error.response?.status === 401 && 
       !originalRequest._retry &&
-      !originalRequest.url.includes('/auth/login') &&
-      !originalRequest.url.includes('/auth/refresh')
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/refresh') &&
+      !originalRequest.url?.includes('/campus-auth')
     ) {
       originalRequest._retry = true;
 

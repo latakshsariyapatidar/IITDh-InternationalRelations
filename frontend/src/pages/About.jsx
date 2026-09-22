@@ -4,6 +4,7 @@ import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import { useState, useEffect } from 'react'
 import { RiHandHeartLine, RiUserStarLine, RiGroupLine } from '@remixicon/react'
+import DOMPurify from 'dompurify'
 import apiClient from '../api/client'
 
 export default function About() {
@@ -191,7 +192,7 @@ export default function About() {
                     {member.responsibilities && member.responsibilities !== '<p><br></p>' && (
                       <div 
                         className="text-xs text-gray-300 leading-relaxed px-4 mt-2 mb-4 text-left prose prose-invert prose-sm max-w-none w-full break-words overflow-hidden [&_ol]:pl-4 [&_ul]:pl-4"
-                        dangerouslySetInnerHTML={{ __html: member.responsibilities }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(member.responsibilities) }}
                       />
                     )}
                     
