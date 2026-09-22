@@ -61,7 +61,6 @@ export const deleteVisitor = (id: string) => prisma.visitor.delete({ where: { id
 
 export async function findPublicVisitors() {
   return prisma.visitor.findMany({
-    where: { isVerified: true },
     select: {
       id: true,
       fullName: true,

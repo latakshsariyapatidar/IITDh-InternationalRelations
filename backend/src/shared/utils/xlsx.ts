@@ -37,18 +37,6 @@ function toSafeSheetName(name: string): string {
   return name.replace(INVALID_SHEET_NAME_CHARS, " ").slice(0, 31);
 }
 
-/**
- * Neutralizes spreadsheet formula injection (CWE-1236).
- * Values beginning with formula operators (=, +, -, @, \t, \r) are prefixed with '
- * so spreadsheet applications treat them as literal text instead of executable formulas.
- */
-export function sanitizeFormulaCell(cell: CellValue): CellValue {
-  if (typeof cell === "string" && /^[=+\-@\t\r]/.test(cell)) {
-    return `'${cell}`;
-  }
-  return cell;
-}
-
 export function buildWorkbook(sheets: readonly SheetSpec[]): ExcelJS.Workbook {
   const workbook = new ExcelJS.Workbook();
   workbook.created = new Date();
@@ -61,7 +49,7 @@ export function buildWorkbook(sheets: readonly SheetSpec[]): ExcelJS.Workbook {
     headerRow.alignment = { vertical: "middle", wrapText: true };
 
     for (const row of spec.rows) {
-      const added = sheet.addRow(row.map((cell) => sanitizeFormulaCell(cell) ?? ""));
+      const added = sheet.addRow(row.map((cell) => cell ?? ""));
 
       added.eachCell((cell) => {
         // Without an explicit format Excel shows a date as its serial number
