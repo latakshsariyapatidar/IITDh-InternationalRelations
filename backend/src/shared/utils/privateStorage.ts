@@ -4,6 +4,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import type { Request } from "express";
 import { extensionForMime } from "./mimeExtension.js";
+import AppError from "./appError.js";
 
 // Every form that accepts uploads (inbound admission, inbound exchange,
 // outbound) stores files the same way: one folder per submission, under
@@ -18,6 +19,20 @@ export const DEFAULT_ALLOWED_MIMES = new Set([
 ]);
 
 type RequestWithSubmissionFolder = Request & { submissionFolder?: string };
+
+/**
+ * Per-file ceiling for applicant documents.
+ *
+ * This is the number that decides how fast the disk fills, because it is the
+ * only upload path a member of the public can reach and each submission
+ * carries up to seven files. At 10 MB a single application could occupy 70 MB;
+ * at 5 MB the worst case halves, and 5 MB still comfortably accepts a phone
+ * photo of a passport page or a multi-page PDF scan.
+ *
+ * Raising it is a capacity decision, not a code one: multiply by seven, then
+ * by the expected number of applicants, and check that against the disk.
+ */
+const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
 
 export interface PrivateUploadOptions {
   /** Folder under private-uploads/, e.g. "applications". */
@@ -37,7 +52,7 @@ export function createPrivateUpload({
   folder,
   fields,
   allowedMimes = DEFAULT_ALLOWED_MIMES,
-  maxFileSizeBytes = 10 * 1024 * 1024,
+  maxFileSizeBytes = MAX_DOCUMENT_BYTES,
   rejectionMessage = "Only PDF, JPEG, or PNG files are accepted",
 }: PrivateUploadOptions) {
   const root = path.join(PRIVATE_UPLOADS_BASE, folder);
@@ -68,7 +83,11 @@ export function createPrivateUpload({
     limits: { fileSize: maxFileSizeBytes, files: fields.length },
     fileFilter: (_req, file, cb) => {
       if (!allowedMimes.has(file.mimetype)) {
-        cb(new Error(rejectionMessage));
+        // AppError, not Error. multer forwards whatever a fileFilter hands it
+        // straight to the error handler, and a bare Error has no status, so an
+        // applicant uploading a .docx used to get a 500 "Something went wrong"
+        // with the real reason hidden.
+        cb(AppError.badRequest(rejectionMessage));
         return;
       }
       cb(null, true);

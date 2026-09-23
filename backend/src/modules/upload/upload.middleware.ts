@@ -10,12 +10,22 @@ import {
   DOCUMENT_FOLDERS,
 } from "../../shared/constants/upload.constants.js";
 
+// image/svg+xml is deliberately absent.
+//
+// An SVG is a document, not a bitmap: it can carry <script>, and it is served
+// back from this API's own origin out of /uploads. An admin uploading one —
+// or anyone who has taken over an admin session — would get script execution
+// on the API origin, where the refresh cookie lives and /auth/refresh will
+// hand out a fresh access token to a same-origin caller. That is a full
+// session takeover from what looks like uploading a logo.
+//
+// The stored-file layer also has no extension mapping for SVG, so one would
+// have landed on disk with no extension at all.
 const ALLOWED_IMAGE_MIMES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ]);
 const ALLOWED_DOCUMENT_MIMES = new Set(["application/pdf"]);
 
@@ -47,7 +57,7 @@ export const imageUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // increased to 10MB
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED_IMAGE_MIMES.has(file.mimetype)) {
-      cb(AppError.badRequest("Only JPEG, PNG, WEBP, GIF, or SVG images are allowed"));
+      cb(AppError.badRequest("Only JPEG, PNG, WEBP, or GIF images are allowed"));
       return;
     }
     cb(null, true);

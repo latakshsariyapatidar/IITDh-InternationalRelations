@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_VERIFY_OPTIONS } from "../utils/jwtOptions.js";
 import { env } from "../../config/env.js";
 import AppError from "../utils/appError.js";
 import type { CampusJwtPayload } from "./authenticateCampus.js";
@@ -17,7 +18,7 @@ type AnyPayload = AdminJwtPayload | CampusJwtPayload;
 /**
  * Accepts any IIT Dharwad identity — an admin token, or a campus token from the
  * Google sign-in that already enforces @iitdh.ac.in. Gates MOU documents
- * (Part 11): the MOU itself is public, the signed document is not.
+ * The MOU record itself is public; the signed document is not.
  */
 export default async function authenticateIitdh(
   req: Request,
@@ -39,7 +40,11 @@ export default async function authenticateIitdh(
     let decoded: AnyPayload;
 
     try {
-      decoded = jwt.verify(token, env.JWT_SECRET) as AnyPayload;
+      decoded = jwt.verify(
+          token,
+          env.JWT_SECRET,
+          ACCESS_TOKEN_VERIFY_OPTIONS,
+        ) as AnyPayload;
     } catch {
       throw AppError.unauthorized("Invalid or expired session");
     }

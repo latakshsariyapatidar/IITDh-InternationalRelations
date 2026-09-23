@@ -1,15 +1,16 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateEventInput,
   UpdateEventInput,
   ListEventsQuery,
 } from "./event.schema.js";
 
-export async function findAllEvents(query: ListEventsQuery) {
+export async function findAllEvents(query: ListEventsQuery, isAdmin: boolean) {
   const now = new Date();
   const where = {
     ...(query.type && { type: query.type }),
-    ...(query.isPublic !== undefined && { isPublic: query.isPublic }),
+    ...visibilityFlagWhere("isPublic", isAdmin, query.isPublic),
     ...(query.upcoming === true && { startDate: { gte: now } }),
     ...(query.upcoming === false && { startDate: { lt: now } }),
   };

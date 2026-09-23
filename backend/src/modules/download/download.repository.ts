@@ -1,14 +1,18 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateDownloadInput,
   UpdateDownloadInput,
   ListDownloadsQuery,
 } from "./download.schema.js";
 
-export async function findAllDownloads(query: ListDownloadsQuery) {
+export async function findAllDownloads(
+  query: ListDownloadsQuery,
+  isAdmin: boolean,
+) {
   const where = {
     ...(query.category && { category: query.category }),
-    ...(query.isPublic !== undefined && { isPublic: query.isPublic }),
+    ...visibilityFlagWhere("isPublic", isAdmin, query.isPublic),
   };
 
   const [downloads, total] = await Promise.all([

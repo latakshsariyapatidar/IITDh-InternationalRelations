@@ -68,6 +68,15 @@ model Admin {
   id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email                        String                        @unique @db.VarChar(255)
   passwordHash                 String                        @db.VarChar(255)
+
+  // Per-account login throttling. The IP rate limiter alone cannot stop a
+  // distributed guessing attempt against one known address, and it lives in
+  // process memory, so it resets on deploy and is not shared between replicas.
+  // These two columns are in Postgres precisely so neither is true of them.
+  failedLoginAttempts          Int                           @default(0)
+  lockedUntil                  DateTime?                     @db.Timestamptz(3)
+  lastLoginAt                  DateTime?                     @db.Timestamptz(3)
+
   createdAt                    DateTime                      @default(now()) @db.Timestamptz(3)
   updatedAt                    DateTime                      @updatedAt @db.Timestamptz(3)
   refreshTokens                RefreshToken[]
@@ -131,7 +140,7 @@ model Faculty {
   name        String @db.VarChar(200)
   redirectUrl String @db.VarChar(500)
 
-  // This directory doubles as the faculty-portal allowlist (Part 13): a Google
+  // This directory doubles as the faculty-portal allowlist: a Google
   // sign-in whose verified @iitdh.ac.in address matches an active row here gets
   // a faculty token instead of a student one.
   email            String? @unique @db.VarChar(255)
@@ -263,12 +272,28 @@ model RefreshToken {
   expiresAt DateTime @db.Timestamptz(3)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
+  // One sign-in produces one family; every rotation keeps the familyId and
+  // mints a new tokenHash. That is what makes reuse detectable: a token
+  // presented after it was already rotated can only be a copy, and the copy
+  // names the family whose whole chain must then be revoked.
+  familyId  String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Rotation marks the old row revoked instead of deleting it, so a replay
+  // arrives at a row that says "already used" rather than at no row at all —
+  // which is indistinguishable from a token that never existed.
+  revokedAt DateTime? @db.Timestamptz(3)
+
   admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
+  // adminId: "sign out everywhere" and the per-admin sweep both filter on it.
+  // expiresAt: the nightly deletion of spent rows scans on it.
+  @@index([adminId])
+  @@index([expiresAt])
+  @@index([familyId])
   @@map("refresh_tokens")
 }
 
-// // --- Student Application (Part 30) ---
+// // --- Student Application ---
 
 enum Gender {
   MALE
@@ -303,12 +328,12 @@ model StudentApplication {
   // Personal details
   firstName                String   @db.VarChar(100)
   lastName                 String   @db.VarChar(100)
-  dateOfBirth              DateTime @db.Timestamptz(3)
+  dateOfBirth              DateTime @db.Date
   gender                   Gender
   nationality              String   @db.VarChar(100)
   countryOfResidence       String   @db.VarChar(100)
   passportNumber           String   @db.VarChar(50)
-  passportExpiryDate       DateTime @db.Timestamptz(3)
+  passportExpiryDate       DateTime @db.Date
   email                    String   @db.VarChar(255)
   phone                    String   @db.VarChar(50)
   currentAddress           String   @db.Text
@@ -348,15 +373,15 @@ model StudentApplication {
   instituteEmail       String?   @db.VarChar(255)
   sponsoringAgency     String?   @db.VarChar(300)
   yearOfJoining        String?   @db.VarChar(20)
-  dateOfJoining        DateTime? @db.Timestamptz(3)
-  exitDate             DateTime? @db.Timestamptz(3)
+  dateOfJoining        DateTime? @db.Date
+  exitDate             DateTime? @db.Date
   facultyAdvisor       String?   @db.VarChar(200)
   citizenshipNo        String?   @db.VarChar(100)
-  passportIssueDate    DateTime? @db.Timestamptz(3)
+  passportIssueDate    DateTime? @db.Date
   passportPlaceOfIssue String?   @db.VarChar(200)
   visaDetails          String?   @db.VarChar(200)
-  visaIssueDate        DateTime? @db.Timestamptz(3)
-  visaExpiryDate       DateTime? @db.Timestamptz(3)
+  visaIssueDate        DateTime? @db.Date
+  visaExpiryDate       DateTime? @db.Date
   visaPlaceOfIssue     String?   @db.VarChar(200)
   sForm                String?   @db.VarChar(100)
   cForm                String?   @db.VarChar(100)
@@ -399,12 +424,12 @@ model InboundExchangeApplication {
   // Personal details
   firstName                String   @db.VarChar(100)
   lastName                 String   @db.VarChar(100)
-  dateOfBirth              DateTime @db.Timestamptz(3)
+  dateOfBirth              DateTime @db.Date
   gender                   Gender
   nationality              String   @db.VarChar(100)
   countryOfResidence       String   @db.VarChar(100)
   passportNumber           String   @db.VarChar(50)
-  passportExpiryDate       DateTime @db.Timestamptz(3)
+  passportExpiryDate       DateTime @db.Date
   email                    String   @db.VarChar(255)
   phone                    String   @db.VarChar(50)
   currentAddress           String   @db.Text
@@ -422,8 +447,8 @@ model InboundExchangeApplication {
   programLevelOther     String?      @db.VarChar(200)
   proposedDepartment    String?      @db.VarChar(200)
   proposedFacultyHost   String?      @db.VarChar(200)
-  intendedStayFrom      DateTime     @db.Timestamptz(3)
-  intendedStayTo        DateTime     @db.Timestamptz(3)
+  intendedStayFrom      DateTime     @db.Date
+  intendedStayTo        DateTime     @db.Date
   purposeOfVisit        String       @db.Text
 
   // Visa / immigration
@@ -444,15 +469,15 @@ model InboundExchangeApplication {
   instituteEmail       String?   @db.VarChar(255)
   sponsoringAgency     String?   @db.VarChar(300)
   yearOfJoining        String?   @db.VarChar(20)
-  dateOfJoining        DateTime? @db.Timestamptz(3)
-  exitDate             DateTime? @db.Timestamptz(3)
+  dateOfJoining        DateTime? @db.Date
+  exitDate             DateTime? @db.Date
   facultyAdvisor       String?   @db.VarChar(200)
   citizenshipNo        String?   @db.VarChar(100)
-  passportIssueDate    DateTime? @db.Timestamptz(3)
+  passportIssueDate    DateTime? @db.Date
   passportPlaceOfIssue String?   @db.VarChar(200)
   visaDetails          String?   @db.VarChar(200)
-  visaIssueDate        DateTime? @db.Timestamptz(3)
-  visaExpiryDate       DateTime? @db.Timestamptz(3)
+  visaIssueDate        DateTime? @db.Date
+  visaExpiryDate       DateTime? @db.Date
   visaPlaceOfIssue     String?   @db.VarChar(200)
   sForm                String?   @db.VarChar(100)
   cForm                String?   @db.VarChar(100)
@@ -474,7 +499,7 @@ model InboundExchangeApplication {
   @@map("inbound_exchange_applications")
 }
 
-// // --- Site Content (Part 31) ---
+// // --- Site Content ---
 
 enum SiteContentType {
   TEXT
@@ -497,7 +522,7 @@ model SiteContent {
   @@map("site_content")
 }
 
-// // --- MOU Tracking (Part 39) ---
+// // --- MOU Tracking ---
 
 enum MouStatus {
   ACTIVE
@@ -510,11 +535,16 @@ model Mou {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   partnerId String  @db.Uuid
-  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade. A database-level cascade deleted a partner's MOUs
+  // without the application ever running, so mou.service.remove never got to
+  // delete the signed PDFs and they stayed on disk with no row pointing at
+  // them. Partner deletion now goes through the service, which removes each
+  // MOU and its file first.
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Restrict)
 
   title        String    @db.VarChar(300)
-  signedDate   DateTime  @db.Timestamptz(3)
-  expiryDate   DateTime? @db.Timestamptz(3)
+  signedDate   DateTime  @db.Date
+  expiryDate   DateTime? @db.Date
   status       MouStatus @default(ACTIVE)
   scope        String?   @db.Text
   documentPath String?   @db.VarChar(500)
@@ -528,7 +558,7 @@ model Mou {
   @@map("mous")
 }
 
-// // --- Student OAuth (Part 37) ---
+// // --- Student OAuth ---
 
 model Student {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -552,12 +582,19 @@ model StudentRefreshToken {
   expiresAt DateTime @db.Timestamptz(3)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
+  // Same rotation and reuse-detection scheme as RefreshToken above.
+  familyId  String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  revokedAt DateTime? @db.Timestamptz(3)
+
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  @@index([studentId])
+  @@index([expiresAt])
+  @@index([familyId])
   @@map("student_refresh_tokens")
 }
 
-// // --- Outbound Exchange Applications (Part 38) ---
+// // --- Outbound Exchange Applications ---
 
 enum OutboundProgramType {
   SEMESTER_EXCHANGE
@@ -686,8 +723,8 @@ model Visitor {
   passportNumber String? @db.VarChar(50)
   purposeOfVisit String  @db.Text
 
-  visitFrom DateTime  @db.Timestamptz(3)
-  visitTo   DateTime? @db.Timestamptz(3)
+  visitFrom DateTime  @db.Date
+  visitTo   DateTime? @db.Date
 
   hostName            String? @db.VarChar(200)
   hostDepartment      String? @db.VarChar(200)
@@ -752,4 +789,45 @@ model Notification {
   @@index([type])
   @@index([dueDate])
   @@map("notifications")
+}
+
+// // --- PII access audit ---
+
+enum DocumentAccessMethod {
+  // An admin opened the document from the panel, with a live session.
+  SESSION
+  // Someone clicked a signed link out of an exported spreadsheet. No session
+  // is involved, so the HMAC is the only thing that authorised it.
+  SIGNED_LINK
+}
+
+/// Who opened which applicant document, when, and how.
+///
+/// These files are passport scans, photographs and financial statements
+/// belonging to named individuals. Until now nothing recorded that any of them
+/// had ever been read, so "was this applicant's passport copy accessed after
+/// the sheet leaked?" had no answer. One row per successful download makes it
+/// answerable.
+model DocumentAccessLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Route segment the document lives under, e.g. "applications".
+  scope    String @db.VarChar(64)
+  recordId String @db.Uuid
+  field    String @db.VarChar(64)
+
+  method DocumentAccessMethod
+
+  // Admin email for a session, null for a signed link — nobody is signed in on
+  // that path, which is exactly what makes the address and agent worth keeping.
+  actorEmail String? @db.VarChar(255)
+  ipAddress  String? @db.VarChar(64)
+  userAgent  String? @db.VarChar(400)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([recordId])
+  @@index([createdAt])
+  @@index([scope, recordId])
+  @@map("document_access_logs")
 }

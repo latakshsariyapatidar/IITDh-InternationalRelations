@@ -1,13 +1,16 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateContactInput,
   UpdateContactInput,
   ListContactsQuery,
 } from "./contact.schema.js";
 
-export async function findAllContacts(query: ListContactsQuery) {
-  const where =
-    query.isActive !== undefined ? { isActive: query.isActive } : {};
+export async function findAllContacts(
+  query: ListContactsQuery,
+  isAdmin: boolean,
+) {
+  const where = visibilityFlagWhere("isActive", isAdmin, query.isActive);
   return prisma.contact.findMany({ where, orderBy: { type: "asc" } });
 }
 

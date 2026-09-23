@@ -1,13 +1,13 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateTestimonialInput,
   UpdateTestimonialInput,
   ListTestimonialsQuery,
 } from "./testimonial.schema.js";
 
-export async function findAllTestimonials(query: ListTestimonialsQuery) {
-  const where =
-    query.isActive !== undefined ? { isActive: query.isActive } : {};
+export async function findAllTestimonials(query: ListTestimonialsQuery, isAdmin: boolean) {
+  const where = visibilityFlagWhere("isActive", isAdmin, query.isActive);
   const [testimonials, total] = await Promise.all([
     prisma.testimonial.findMany({
       where,

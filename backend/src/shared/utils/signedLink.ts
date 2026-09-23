@@ -6,9 +6,15 @@ import { env } from "../../config/env.js";
 // instead of the bearer token the admin routes use, export links carry an
 // expiry and an HMAC over (scope, id, field, expiry). The signature is
 // unforgeable without EXPORT_LINK_SECRET and the link stops working on its own
-// after EXPORT_LINK_TTL_DAYS, so a leaked sheet does not leak the documents
+// after EXPORT_LINK_TTL_HOURS, so a leaked sheet does not leak the documents
 // forever. That key is deliberately separate from the one signing access
 // tokens: rotating either should not silently invalidate the other.
+//
+// Read this as what it is: a bearer credential for someone's passport scan,
+// written into a file that gets emailed. Its lifetime used to be 30 days. It
+// is now measured in hours, every use is recorded in document_access_logs, and
+// rotating EXPORT_LINK_SECRET invalidates every outstanding link at once —
+// which is the only revocation this scheme has.
 
 const SEPARATOR = ":";
 
@@ -34,7 +40,7 @@ export function signDocumentLink(
   field: string,
 ): string {
   const exp =
-    Math.floor(Date.now() / 1000) + env.EXPORT_LINK_TTL_DAYS * 24 * 60 * 60;
+    Math.floor(Date.now() / 1000) + env.EXPORT_LINK_TTL_HOURS * 60 * 60;
   const sig = computeSignature(scope, id, field, exp);
   const query = new URLSearchParams({ exp: String(exp), sig });
 

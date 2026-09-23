@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { queryBoolean } from "../../shared/utils/zodHelpers.js";
 
 const NotificationTypeEnum = z.enum([
   "VISA_EXPIRING",
@@ -16,10 +17,7 @@ const NotificationSeverityEnum = z.enum(["INFO", "WARNING", "CRITICAL"]);
 export const listNotificationsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
-  isRead: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  isRead: queryBoolean(),
   type: NotificationTypeEnum.optional(),
   severity: NotificationSeverityEnum.optional(),
 });

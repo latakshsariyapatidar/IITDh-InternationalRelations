@@ -1,14 +1,18 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateProgramInput,
   UpdateProgramInput,
   ListProgramsQuery,
 } from "./program.schema.js";
 
-export async function findAllPrograms(query: ListProgramsQuery) {
+export async function findAllPrograms(
+  query: ListProgramsQuery,
+  isAdmin: boolean,
+) {
   const where = {
     ...(query.level && { level: query.level }),
-    ...(query.isActive !== undefined && { isActive: query.isActive }),
+    ...visibilityFlagWhere("isActive", isAdmin, query.isActive),
   };
 
   const [programs, total] = await Promise.all([

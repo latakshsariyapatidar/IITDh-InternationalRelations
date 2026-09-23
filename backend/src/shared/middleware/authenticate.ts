@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_VERIFY_OPTIONS } from "../utils/jwtOptions.js";
 import { env } from "../../config/env.js";
 import AppError from "../utils/appError.js";
 
@@ -32,7 +33,11 @@ export default async function authenticate(
     let decoded: JwtPayload;
 
     try {
-      decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+      decoded = jwt.verify(
+          token,
+          env.JWT_SECRET,
+          ACCESS_TOKEN_VERIFY_OPTIONS,
+        ) as JwtPayload;
       if (decoded.role !== "admin") throw new Error("Wrong token type");
     } catch {
       throw AppError.unauthorized("Invalid or expired token");

@@ -1,13 +1,13 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateTeamMemberInput,
   UpdateTeamMemberInput,
   ListTeamQuery,
 } from "./team.schema.js";
 
-export async function findAllTeamMembers(query: ListTeamQuery) {
-  const where =
-    query.isActive !== undefined ? { isActive: query.isActive } : {};
+export async function findAllTeamMembers(query: ListTeamQuery, isAdmin: boolean) {
+  const where = visibilityFlagWhere("isActive", isAdmin, query.isActive);
   const [team, total] = await Promise.all([
     prisma.iROTeamMember.findMany({
       where,

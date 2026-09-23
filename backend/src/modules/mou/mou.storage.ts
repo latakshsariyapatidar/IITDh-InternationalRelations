@@ -4,6 +4,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import { PRIVATE_UPLOADS_BASE } from "../../shared/utils/privateStorage.js";
 import { extensionForMime } from "../../shared/utils/mimeExtension.js";
+import AppError from "../../shared/utils/appError.js";
 
 // MOU documents used to live under the public `uploads/` tree, which Express
 // serves statically to anyone. They are signed institutional agreements, so
@@ -28,7 +29,9 @@ export const mouDocumentUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype !== "application/pdf") {
-      cb(new Error("Only PDF documents are accepted for MOUs"));
+      // AppError so multer's error path produces a 400, not a 500 — see the
+      // same note in shared/utils/privateStorage.ts.
+      cb(AppError.badRequest("Only PDF documents are accepted for MOUs"));
       return;
     }
     cb(null, true);

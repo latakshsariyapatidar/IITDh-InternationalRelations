@@ -21,11 +21,18 @@ router.post(
   ctrl.createVisitor,
 );
 
-// Public — delegation visits displayed on the visits page (no sensitive PII)
-router.get("/public", ctrl.listPublicVisitors);
-
-// Admin-only: the stored records carry personal contact and passport details,
-// so nothing below is public.
+// There is deliberately NO public read route on this module.
+//
+// The visitor form is a data-collection form for the office: a delegate
+// submits their own contact details, passport number and travel dates so the
+// IRO has a record of who is on campus. It is not website content, and it does
+// not become website content by being approved — approval only means the
+// office has checked the record.
+//
+// The public Visits page is a separate thing entirely: events and conferences
+// the office publishes itself. It is built from the events module.
+//
+// So everything below requires a sign-in.
 router.get("/", authenticate, validate({ query: listVisitorsSchema }), ctrl.listVisitors);
 
 // Registered before "/:id" so "export" is not read as a visitor id.

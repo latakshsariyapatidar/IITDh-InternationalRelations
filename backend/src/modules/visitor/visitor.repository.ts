@@ -59,24 +59,18 @@ export const updateVisitor = (id: string, data: UpdateVisitorInput) =>
 
 export const deleteVisitor = (id: string) => prisma.visitor.delete({ where: { id } });
 
-export async function findPublicVisitors() {
-  return prisma.visitor.findMany({
-    select: {
-      id: true,
-      fullName: true,
-      designation: true,
-      organisation: true,
-      country: true,
-      countryCode: true,
-      purposeOfVisit: true,
-      visitFrom: true,
-      visitTo: true,
-      hostName: true,
-      hostDepartment: true,
-      isVerified: true,
-      createdAt: true,
-    },
-    orderBy: { visitFrom: "desc" },
-    take: 50,
-  });
-}
+// There is deliberately no "find public visitors" query here.
+//
+// Visitor records are an internal office register. A delegate fills the form
+// so the IRO knows who is on campus and can hold their contact details,
+// passport number and travel dates. None of that is website content, and
+// marking a record verified does not make it website content — it only means
+// the office has checked it.
+//
+// This used to be published. The query had no `where` clause at all, so
+// anything a stranger typed into an open form appeared on the public site
+// within seconds under IIT Dharwad's name. Gating it on `isVerified` was the
+// first fix; removing the public route altogether is the correct one, because
+// the page it fed was never meant to show this data.
+//
+// The public Visits page is built from the events module instead.

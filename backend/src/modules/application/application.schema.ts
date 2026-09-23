@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { calendarDate, formBoolean } from "../../shared/utils/zodHelpers.js";
 import { updateInboundRecordSchema } from "../inbound-shared/inbound-record.schema.js";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"]);
@@ -29,12 +30,12 @@ export const createApplicationSchema = z
   .object({
     firstName: z.string().trim().min(1).max(100),
     lastName: z.string().trim().min(1).max(100),
-    dateOfBirth: z.coerce.date(),
+    dateOfBirth: calendarDate(),
     gender: GenderEnum,
     nationality: z.string().trim().min(1).max(100),
     countryOfResidence: z.string().trim().min(1).max(100),
     passportNumber: z.string().trim().min(1).max(50),
-    passportExpiryDate: z.coerce.date(),
+    passportExpiryDate: calendarDate(),
     email: z.string().trim().email().max(255),
     phone: z.string().trim().min(1).max(50),
     currentAddress: z.string().trim().min(1),
@@ -53,7 +54,11 @@ export const createApplicationSchema = z
     englishTestScore: z.string().trim().max(50).optional(),
 
     visaCategory: z.string().trim().max(100).optional(),
-    requiresVisaSponsorship: z.coerce.boolean().default(true),
+    // NOT z.coerce.boolean(). This body arrives through multer as multipart
+    // form data, so every field is a string, and `Boolean("false")` is true —
+    // which meant every applicant who ticked "I do not need visa sponsorship"
+    // was stored as needing it. formBoolean reads the string instead.
+    requiresVisaSponsorship: formBoolean(true),
   })
   .superRefine((data, ctx) => {
     if (data.programLevel === "OTHER" && !data.programLevelOther) {

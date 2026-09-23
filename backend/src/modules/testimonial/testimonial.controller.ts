@@ -15,7 +15,7 @@ export const listTestimonials = catchAsync(
       .json(
         successResponse(
           "Testimonials fetched",
-          await service.getAll(req.query as unknown as ListTestimonialsQuery),
+          await service.getAll(req.query as unknown as ListTestimonialsQuery, Boolean(req.user)),
         ),
       );
   },
@@ -27,7 +27,7 @@ export const getTestimonial = catchAsync(
       .json(
         successResponse(
           "Testimonial fetched",
-          await service.getById(req.params.id as string),
+          await service.getById(req.params.id as string, Boolean(req.user)),
         ),
       );
   },

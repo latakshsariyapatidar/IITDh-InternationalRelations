@@ -28,3 +28,48 @@ export function isVisibleNow(
   if (record.visibleUntil && record.visibleUntil < now) return false;
   return true;
 }
+
+// ---------------------------------------------------------------------------
+// Server-enforced visibility for the flag-based content modules.
+// ---------------------------------------------------------------------------
+//
+// Eleven models hide rows behind a boolean: `isPublic` on gallery, downloads,
+// events and MOUs, `isActive` on partners, faculty, team, testimonials, FAQs,
+// programs and contacts. That flag used to be an *optional query filter*, so a
+// caller who simply omitted it saw hidden rows — the public pages only looked
+// public because the frontend happened to pass the filter.
+//
+// Visibility is authorisation, so it belongs on the server. These two helpers
+// are the single place that decides it, mounted behind `optionalAuthenticate`:
+// an admin bearer token widens the result set, everyone else is pinned to the
+// live rows and cannot opt out.
+
+/**
+ * Prisma `where` fragment for one visibility flag.
+ *
+ * Anonymous callers are forced to `flag: true` and the requested filter is
+ * ignored. Admins get the filter they asked for, or no constraint at all.
+ */
+export function visibilityFlagWhere<K extends string>(
+  flag: K,
+  isAdmin: boolean,
+  requested?: boolean,
+): Partial<Record<K, boolean>> {
+  if (!isAdmin) return { [flag]: true } as Record<K, true>;
+  return requested === undefined
+    ? {}
+    : ({ [flag]: requested } as Record<K, boolean>);
+}
+
+/**
+ * True when a single fetched row may be shown to this caller. A hidden row is
+ * reported as a 404 rather than a 403: the public has no business learning
+ * that an id exists at all.
+ */
+export function canSeeRecord(
+  record: Record<string, unknown>,
+  flag: string,
+  isAdmin: boolean,
+): boolean {
+  return isAdmin || record[flag] === true;
+}

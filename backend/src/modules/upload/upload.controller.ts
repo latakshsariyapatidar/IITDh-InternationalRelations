@@ -26,13 +26,16 @@ export const uploadDocument = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const deleteUpload = catchAsync(async (req: Request, res: Response) => {
-  const url = req.query.url;
-  if (typeof url !== "string" || !url)
-    throw AppError.badRequest('Query param "url" is required');
+  // Shape already enforced by deleteUploadQuerySchema on the route.
+  const url = req.query.url as string;
 
   const relative = url.replace(/^\/uploads\//, "");
   const resolved = path.resolve(UPLOAD_ROOT, relative);
 
+  // Kept even though the schema now rejects traversal: this is the check that
+  // is true regardless of how the value got here, and defence that depends on
+  // exactly one validator being correct is defence with a single point of
+  // failure.
   if (!resolved.startsWith(UPLOAD_ROOT + path.sep)) {
     throw AppError.badRequest("Invalid file path");
   }

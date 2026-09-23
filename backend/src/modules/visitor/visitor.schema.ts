@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  calendarDate,
+  clearableCalendarDate,
+  clearableHttpUrl,
+  httpUrl,
+  normaliseUrlInput,
+  queryBoolean,
+} from "../../shared/utils/zodHelpers.js";
 
 // The delegate register. Anyone may submit this form without signing in, so it
 // asks only for what the office needs and stays rate-limited; the records
@@ -16,11 +24,14 @@ export const createVisitorSchema = z
     nationality: z.string().trim().max(100).optional(),
     passportNumber: z.string().trim().max(50).optional(),
     purposeOfVisit: z.string().trim().min(1, "Purpose of visit is required"),
-    visitFrom: z.coerce.date(),
-    visitTo: z.coerce.date().optional(),
+    visitFrom: calendarDate(),
+    visitTo: clearableCalendarDate(),
     hostName: z.string().trim().max(200).optional(),
     hostDepartment: z.string().trim().max(200).optional(),
-    websiteOrProfileUrl: z.string().url("Must be a valid URL").max(500).optional(),
+    // The one link field on this list that a stranger controls, so the scheme
+    // restriction matters most here: the office opens these from the admin
+    // panel and from the exported spreadsheet.
+    websiteOrProfileUrl: clearableHttpUrl(),
     remarks: z.string().trim().optional(),
   })
   .superRefine((data, ctx) => {
@@ -46,11 +57,11 @@ export const updateVisitorSchema = z.object({
   nationality: z.string().trim().max(100).nullish(),
   passportNumber: z.string().trim().max(50).nullish(),
   purposeOfVisit: z.string().trim().min(1).optional(),
-  visitFrom: z.coerce.date().optional(),
-  visitTo: z.coerce.date().nullish(),
+  visitFrom: calendarDate().optional(),
+  visitTo: clearableCalendarDate(),
   hostName: z.string().trim().max(200).nullish(),
   hostDepartment: z.string().trim().max(200).nullish(),
-  websiteOrProfileUrl: z.string().url().max(500).nullish(),
+  websiteOrProfileUrl: clearableHttpUrl(),
   remarks: z.string().trim().nullish(),
   isVerified: z.boolean().optional(),
 });
@@ -60,10 +71,7 @@ export const visitorIdSchema = z.object({ id: z.string().uuid("Invalid ID") });
 const visitorFilterShape = {
   country: z.string().trim().optional(),
   search: z.string().trim().optional(),
-  isVerified: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  isVerified: queryBoolean(),
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
 };

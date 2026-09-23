@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_VERIFY_OPTIONS } from "../utils/jwtOptions.js";
 import { env } from "../../config/env.js";
 import AppError from "../utils/appError.js";
 
-// One Google sign-in serves both campus roles (Part 13): the token says
+// One Google sign-in serves both campus roles: the token says
 // "faculty" when the verified @iitdh.ac.in address matches an active row in the
 // faculty directory, and "student" otherwise. Routes pick which roles they
 // accept — outbound applications stay student-only, the faculty portal is
@@ -40,7 +41,11 @@ export function requireCampusRole(...allowed: readonly CampusRole[]) {
       let decoded: CampusJwtPayload;
 
       try {
-        decoded = jwt.verify(token, env.JWT_SECRET) as CampusJwtPayload;
+        decoded = jwt.verify(
+          token,
+          env.JWT_SECRET,
+          ACCESS_TOKEN_VERIFY_OPTIONS,
+        ) as CampusJwtPayload;
         if (decoded.role !== "student" && decoded.role !== "faculty") {
           throw new Error("Wrong token type");
         }

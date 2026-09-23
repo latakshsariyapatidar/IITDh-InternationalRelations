@@ -14,7 +14,7 @@ export const listTeam = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Team fetched",
-        await service.getAll(req.query as unknown as ListTeamQuery),
+        await service.getAll(req.query as unknown as ListTeamQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getTeamMember = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Team member fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

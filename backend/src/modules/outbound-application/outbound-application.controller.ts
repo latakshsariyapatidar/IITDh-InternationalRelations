@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import catchAsync from "../../shared/utils/catchAsync.js";
 import { successResponse } from "../../shared/utils/apiResponse.js";
 import { sendPrivateDocument } from "../../shared/utils/sendPrivateDocument.js";
+import { recordDocumentAccess } from "../../shared/utils/documentAccessLog.js";
 import * as service from "./outbound-application.service.js";
 import type {
   CreateOutboundApplicationInput,
@@ -48,5 +49,14 @@ export const updateOutboundApplicationStatus = catchAsync(async (req: Request, r
 export const downloadOutboundDocument = catchAsync(async (req: Request, res: Response) => {
   const field = req.params.field as OutboundDocumentField;
   const absolutePath = await service.getDocumentAbsolutePath(req.params.id as string, field);
+
+  // One row per successful download. Admin sessions and signed links from
+  // exported spreadsheets both land here, and the log distinguishes them.
+  recordDocumentAccess(req, {
+    scope: "outbound-applications",
+    recordId: req.params.id as string,
+    field,
+  });
+
   sendPrivateDocument(res, absolutePath, `${req.params.id}-${field}`);
 });

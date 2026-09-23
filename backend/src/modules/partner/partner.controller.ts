@@ -14,7 +14,7 @@ export const listPartners = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Partners fetched",
-        await service.getAll(req.query as unknown as ListPartnersQuery),
+        await service.getAll(req.query as unknown as ListPartnersQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getPartner = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Partner fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

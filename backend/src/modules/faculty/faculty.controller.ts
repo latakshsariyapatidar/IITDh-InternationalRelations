@@ -14,7 +14,7 @@ export const listFaculty = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Faculty fetched",
-        await service.getAll(req.query as unknown as ListFacultyQuery),
+        await service.getAll(req.query as unknown as ListFacultyQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getFaculty = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Faculty member fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

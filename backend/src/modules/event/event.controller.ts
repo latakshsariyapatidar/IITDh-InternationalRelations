@@ -14,7 +14,7 @@ export const listEvents = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Events fetched",
-        await service.getAll(req.query as unknown as ListEventsQuery),
+        await service.getAll(req.query as unknown as ListEventsQuery, Boolean(req.user)),
       ),
     );
 });
@@ -25,7 +25,7 @@ export const getEvent = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Event fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

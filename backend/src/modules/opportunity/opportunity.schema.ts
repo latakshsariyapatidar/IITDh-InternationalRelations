@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  clearableHttpUrl,
+  clearableHttpUrlOrPath,
+  httpUrl,
+  httpUrlOrPath,
+  normaliseUrlInput,
+  queryBoolean,
+} from "../../shared/utils/zodHelpers.js";
 
 const OpportunityAudienceEnum = z.enum(["STUDENT", "FACULTY", "BOTH"]);
 const OpportunityCategoryEnum = z.enum([
@@ -12,15 +20,12 @@ const OpportunityCategoryEnum = z.enum([
   "OTHER",
 ]);
 
-const urlPreprocess = (v: unknown) => {
-  if (typeof v !== "string") return v;
-  const trimmed = v.trim();
-  if (!trimmed) return undefined;
-  if (!/^https?:\/\//i.test(trimmed)) {
-    return `https://${trimmed}`;
-  }
-  return trimmed;
-};
+// Was a local helper that prefixed "https://" onto anything without it —
+// including "javascript:alert(1)", which already has a scheme and so was left
+// alone and then accepted by z.string().url(). normaliseUrlInput does the same
+// convenience job but hands anything already carrying a scheme straight to
+// httpUrl, which only admits http and https.
+const urlPreprocess = normaliseUrlInput;
 
 export const createOpportunitySchema = z
   .object({
@@ -33,9 +38,12 @@ export const createOpportunitySchema = z
     organisation: z.string().trim().max(300).nullish(),
     country: z.string().trim().max(100).nullish(),
     countryCode: z.string().trim().length(2).toUpperCase().nullish(),
-    externalUrl: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
-    url: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
-    attachmentUrl: z.string().trim().max(500).nullish(),
+    externalUrl: clearableHttpUrl(),
+    url: clearableHttpUrl(),
+    // Had no scheme check at all, and the faculty portal renders it as an
+    // href. It holds either an uploaded "/uploads/opportunities/<file>" path
+    // or an external link, so it accepts both and nothing else.
+    attachmentUrl: clearableHttpUrlOrPath(),
     applicationDeadline: z.coerce.date().nullish(),
     publishedAt: z.coerce.date().nullish(),
     visibleUntil: z.coerce.date().nullish(),
@@ -55,9 +63,12 @@ export const updateOpportunitySchema = z
     organisation: z.string().trim().max(300).nullish(),
     country: z.string().trim().max(100).nullish(),
     countryCode: z.string().trim().length(2).toUpperCase().nullish(),
-    externalUrl: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
-    url: z.preprocess(urlPreprocess, z.string().url("Must be a valid URL").max(500).nullish()),
-    attachmentUrl: z.string().trim().max(500).nullish(),
+    externalUrl: clearableHttpUrl(),
+    url: clearableHttpUrl(),
+    // Had no scheme check at all, and the faculty portal renders it as an
+    // href. It holds either an uploaded "/uploads/opportunities/<file>" path
+    // or an external link, so it accepts both and nothing else.
+    attachmentUrl: clearableHttpUrlOrPath(),
     applicationDeadline: z.coerce.date().nullish(),
     publishedAt: z.coerce.date().nullish(),
     visibleUntil: z.coerce.date().nullish(),
@@ -77,10 +88,7 @@ export const listOpportunitiesSchema = z.object({
   category: OpportunityCategoryEnum.optional(),
   // Admin-only: include postings outside their visibility window. Ignored for
   // anonymous callers, who only ever see what is currently live.
-  includeExpired: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  includeExpired: queryBoolean(),
 });
 
 export const opportunityFeedSchema = z.object({

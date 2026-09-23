@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_VERIFY_OPTIONS } from "../utils/jwtOptions.js";
 import { env } from "../../config/env.js";
 
 interface JwtPayload {
@@ -28,7 +29,11 @@ export default async function optionalAuthenticate(
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+        const decoded = jwt.verify(
+          token,
+          env.JWT_SECRET,
+          ACCESS_TOKEN_VERIFY_OPTIONS,
+        ) as JwtPayload;
         if (decoded.role === "admin") {
           req.user = { adminId: decoded.adminId, email: decoded.email };
         }

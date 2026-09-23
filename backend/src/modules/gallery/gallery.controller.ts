@@ -14,7 +14,7 @@ export const listImages = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Gallery fetched",
-        await service.getAll(req.query as unknown as ListGalleryQuery),
+        await service.getAll(req.query as unknown as ListGalleryQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getImage = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Image fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

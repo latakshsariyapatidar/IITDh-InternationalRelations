@@ -14,7 +14,7 @@ export const listDownloads = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Downloads fetched",
-        await service.getAll(req.query as unknown as ListDownloadsQuery),
+        await service.getAll(req.query as unknown as ListDownloadsQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getDownload = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Download fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

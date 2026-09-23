@@ -14,7 +14,7 @@ export const listPrograms = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Programs fetched",
-        await service.getAll(req.query as unknown as ListProgramsQuery),
+        await service.getAll(req.query as unknown as ListProgramsQuery, Boolean(req.user)),
       ),
     );
 });
@@ -25,7 +25,7 @@ export const getProgram = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Program fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

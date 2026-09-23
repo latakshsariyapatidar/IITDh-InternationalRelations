@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import type { Prisma } from "@prisma/client";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreatePartnerInput,
   UpdatePartnerInput,
@@ -15,11 +16,27 @@ const ORDER_BY: Record<
   type: [{ type: "asc" }, { name: "asc" }],
 };
 
-export async function findAllPartners(query: ListPartnersQuery) {
+// A partner carries its MOUs, and an MOU has its own `isPublic` flag, so the
+// nested read needs the same gate as a direct one — otherwise a non-public
+// agreement leaks out through the partners listing instead of /mous.
+const mouSelect = (isAdmin: boolean) => ({
+  where: isAdmin ? {} : { isPublic: true },
+  select: {
+    id: true,
+    title: true,
+    signedDate: true,
+    expiryDate: true,
+    status: true,
+    scope: true,
+    documentPath: true,
+  },
+});
+
+export async function findAllPartners(query: ListPartnersQuery, isAdmin: boolean) {
   const where: Prisma.PartnerWhereInput = {
     ...(query.type && { type: query.type }),
     ...(query.country && { country: { contains: query.country, mode: "insensitive" } }),
-    ...(query.isActive !== undefined && { isActive: query.isActive }),
+    ...visibilityFlagWhere("isActive", isAdmin, query.isActive),
   };
 
   const [partners, total] = await Promise.all([
@@ -28,19 +45,7 @@ export async function findAllPartners(query: ListPartnersQuery) {
       orderBy: ORDER_BY[query.sortBy],
       skip: (query.page - 1) * query.limit,
       take: query.limit,
-      include: {
-        mous: {
-          select: {
-            id: true,
-            title: true,
-            signedDate: true,
-            expiryDate: true,
-            status: true,
-            scope: true,
-            documentPath: true,
-          },
-        },
-      },
+      include: { mous: mouSelect(isAdmin) },
     }),
     prisma.partner.count({ where }),
   ]);
@@ -59,22 +64,10 @@ export async function findAllPartners(query: ListPartnersQuery) {
   };
 }
 
-export const findPartnerById = async (id: string) => {
+export const findPartnerById = async (id: string, isAdmin = true) => {
   const p = await prisma.partner.findUnique({
     where: { id },
-    include: {
-      mous: {
-        select: {
-          id: true,
-          title: true,
-          signedDate: true,
-          expiryDate: true,
-          status: true,
-          scope: true,
-          documentPath: true,
-        },
-      },
-    },
+    include: { mous: mouSelect(isAdmin) },
   });
   if (!p) return null;
   const { mous, ...partner } = p;

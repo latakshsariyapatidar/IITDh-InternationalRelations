@@ -20,3 +20,23 @@ export const loginLimiter = rateLimit({
     message: "Too many sign-in attempts. Please try again in a few minutes.",
   },
 });
+
+/**
+ * Refresh was unlimited. It is cheap per call, but an unbounded endpoint that
+ * accepts a secret and says whether it was valid is a place to guess, and a
+ * frontend stuck in a refresh loop should be throttled rather than served.
+ *
+ * Set well above what a working session needs: a 15-minute access token means
+ * roughly four refreshes an hour per tab.
+ */
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    status: "fail",
+    message: "Too many session refreshes. Please try again shortly.",
+  },
+});

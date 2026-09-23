@@ -1,4 +1,4 @@
-// Partners are shown grouped by country with a flag (Part 10). Flags are
+// Partners are shown grouped by country with a flag. Flags are
 // rendered from an ISO 3166-1 alpha-2 code, so derive one from the country name
 // the admin typed rather than making them look the code up.
 

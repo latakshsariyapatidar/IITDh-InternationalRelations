@@ -1,14 +1,13 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateFacultyInput,
   UpdateFacultyInput,
   ListFacultyQuery,
 } from "./faculty.schema.js";
 
-export async function findAllFaculty(query: ListFacultyQuery) {
-  const where = {
-    ...(query.isActive !== undefined && { isActive: query.isActive }),
-  };
+export async function findAllFaculty(query: ListFacultyQuery, isAdmin: boolean) {
+  const where = visibilityFlagWhere("isActive", isAdmin, query.isActive);
 
   const [faculty, total] = await Promise.all([
     prisma.faculty.findMany({

@@ -3,7 +3,7 @@ import { hyperlinkCell, type CellValue, type SheetSpec } from "../../shared/util
 
 // Reproduces the IRO's own international students database layout: the 22
 // columns of "SII-International admission" and "Internship Sem exch Program",
-// in her order and with her headings (including the two repeated
+// in the office's own column order and headings (including the two repeated
 // "issue date" / "expiry date" pairs — the first is the passport's, the second
 // the visa's). Document columns are appended after those, each a signed link so
 // a reviewer can open the file straight from the downloaded sheet.

@@ -14,7 +14,7 @@ export const listFAQs = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "FAQs fetched",
-        await service.getAll(req.query as unknown as ListFAQsQuery),
+        await service.getAll(req.query as unknown as ListFAQsQuery, Boolean(req.user)),
       ),
     );
 });
@@ -24,7 +24,7 @@ export const getFAQ = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "FAQ fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

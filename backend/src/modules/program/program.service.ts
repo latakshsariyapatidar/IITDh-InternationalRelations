@@ -1,16 +1,29 @@
 import * as repo from "./program.repository.js";
 import AppError from "../../shared/utils/appError.js";
+import { canSeeRecord } from "../../shared/utils/visibility.js";
 import type {
   CreateProgramInput,
   UpdateProgramInput,
   ListProgramsQuery,
 } from "./program.schema.js";
 
-export const getAll = (q: ListProgramsQuery) => repo.findAllPrograms(q);
+/**
+ * `isAdmin` comes from `optionalAuthenticate` on the route. It is the only
+ * thing that widens the result set beyond what is publicly visible, and it
+ * defaults to the safe side everywhere it is inferred.
+ */
+export const getAll = (q: ListProgramsQuery, isAdmin: boolean) =>
+  repo.findAllPrograms(q, isAdmin);
 
-export async function getById(id: string) {
+export async function getById(id: string, isAdmin = true) {
   const item = await repo.findProgramById(id);
-  if (!item) throw AppError.notFound("Program not found");
+
+  // A hidden row is a 404, not a 403: an anonymous caller has no business
+  // learning that the id exists.
+  if (!item || !canSeeRecord(item, "isActive", isAdmin)) {
+    throw AppError.notFound("Program not found");
+  }
+
   return item;
 }
 

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import path from "node:path";
 import { env } from "./config/env.js";
+import { prisma } from "./config/prisma.js";
 import errorHandler from "./shared/middleware/errorHandler.js";
 import AppError from "./shared/utils/appError.js";
 
@@ -62,8 +63,13 @@ app.use(
     origin: env.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-    exposedHeaders: ["Set-Cookie"],
+    // "Cookie" is not listed in allowedHeaders and "Set-Cookie" is not listed
+    // in exposedHeaders, because both are forbidden header names: the browser
+    // manages them itself and a page can neither set nor read them. Naming
+    // them here did nothing except suggest they were what made credentialed
+    // requests work. `credentials: true` is what does that.
+    allowedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 600,
   }),
 );
 
@@ -86,15 +92,55 @@ app.use(
 );
 
 // // ------- Static files — publicly uploaded images/documents ------------------------
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+//
+// These files are uploaded by admins and served straight back from this API's
+// origin, so they are treated as untrusted content that happens to live here:
+//
+//   nosniff        - the browser uses the declared type, and does not guess a
+//                    more dangerous one from the bytes.
+//   CSP sandbox    - anything script-capable that reaches this directory is
+//                    inert when opened directly.
+//   index: false   - no directory listings.
+//   dotfiles: deny - nothing beginning with "." is served at all.
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"), {
+    index: false,
+    dotfiles: "deny",
+    setHeaders: (res) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
+      );
+    },
+  }),
+);
 
-// // ------- Health check ------------------------
+// // ------- Health checks ------------------------
+//
+// Two endpoints on purpose. /api says the process is up and answering, which
+// is all it ever said. /healthz additionally proves the thing the process
+// exists to talk to is reachable, so an orchestrator stops sending traffic to
+// a container that is running but cannot serve a single request.
 app.get("/api", (_req: Request, res: Response) => {
   res.json({
     message: "IRO Backend API",
     status: "running",
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get("/healthz", (_req: Request, res: Response) => {
+  void prisma
+    .$queryRaw`SELECT 1`
+    .then(() => {
+      res.status(200).json({ status: "ok", database: "up" });
+    })
+    .catch((err: unknown) => {
+      console.error("[HEALTH] Database check failed:", err);
+      res.status(503).json({ status: "unavailable", database: "down" });
+    });
 });
 
 // // ------- Routes ------------------------

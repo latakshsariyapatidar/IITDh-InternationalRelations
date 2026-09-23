@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Reports are always bounded by a date range — the office asks for "from this
-// date to that date" and gets both an on-screen table and ma'am's spreadsheet.
+// date to that date" and gets both an on-screen table and the spreadsheet.
 
 const ORDERED_RANGE = {
   path: ["to"],

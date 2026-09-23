@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import type { Prisma } from "@prisma/client";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type { CreateMouInput, UpdateMouInput, ListMousQuery } from "./mou.schema.js";
 
 // `documentPath` never leaves the repository in a public shape — listings
@@ -15,13 +16,16 @@ const PUBLIC_SELECT = {
   scope: true,
   createdAt: true,
   updatedAt: true,
+  // Read so the service can decide whether an anonymous caller may see this
+  // row at all; admins also need it to drive the toggle in the admin panel.
+  isPublic: true,
 } satisfies Prisma.MouSelect;
 
-export async function findAllMous(query: ListMousQuery) {
+export async function findAllMous(query: ListMousQuery, isAdmin: boolean) {
   const where: Prisma.MouWhereInput = {
     ...(query.partnerId && { partnerId: query.partnerId }),
     ...(query.status && { status: query.status }),
-    ...(query.isPublic !== undefined && { isPublic: query.isPublic }),
+    ...visibilityFlagWhere("isPublic", isAdmin, query.isPublic),
     ...(query.expiringWithinDays !== undefined && {
       expiryDate: {
         gte: new Date(),
@@ -60,3 +64,13 @@ export const updateMou = (id: string, data: UpdateMouInput) =>
 export const setMouDocumentPath = (id: string, documentPath: string) =>
   prisma.mou.update({ where: { id }, data: { documentPath } });
 export const deleteMou = (id: string) => prisma.mou.delete({ where: { id } });
+
+/** Every MOU belonging to one partner, with the file each one owns. */
+export const findMousByPartner = (partnerId: string) =>
+  prisma.mou.findMany({
+    where: { partnerId },
+    select: { id: true, documentPath: true },
+  });
+
+export const deleteMousByPartner = (partnerId: string) =>
+  prisma.mou.deleteMany({ where: { partnerId } });

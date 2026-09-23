@@ -1,17 +1,29 @@
 import * as repo from "./partner.repository.js";
 import AppError from "../../shared/utils/appError.js";
 import { toCountryCode } from "../../shared/utils/country.js";
+import { canSeeRecord } from "../../shared/utils/visibility.js";
+import { removeAllForPartner } from "../mou/mou.service.js";
 import type {
   CreatePartnerInput,
   UpdatePartnerInput,
   ListPartnersQuery,
 } from "./partner.schema.js";
 
-export const getAll = (q: ListPartnersQuery) => repo.findAllPartners(q);
+/**
+ * `isAdmin` comes from `optionalAuthenticate` on the route and is the only
+ * thing that reveals deactivated partners.
+ */
+export const getAll = (q: ListPartnersQuery, isAdmin: boolean) =>
+  repo.findAllPartners(q, isAdmin);
 
-export async function getById(id: string) {
-  const item = await repo.findPartnerById(id);
-  if (!item) throw AppError.notFound("Partner not found");
+export async function getById(id: string, isAdmin = true) {
+  const item = await repo.findPartnerById(id, isAdmin);
+
+  // A deactivated partner is a 404 to the public, not a 403.
+  if (!item || !canSeeRecord(item, "isActive", isAdmin)) {
+    throw AppError.notFound("Partner not found");
+  }
+
   return item;
 }
 
@@ -40,5 +52,17 @@ export async function update(id: string, data: UpdatePartnerInput) {
 }
 export async function remove(id: string) {
   await getById(id);
+
+  // Explicit, in this order, because the Mou.partner relation is Restrict:
+  // the delete below fails outright while any MOU still references this row.
+  // That is deliberate — it is what forces the cascade through the MOU
+  // service, which deletes each signed PDF as it goes.
+  //
+  // Outbound applications are Restrict too but are NOT cleaned up here: an
+  // application is a student's record, not the partner's, so deleting a
+  // partner that has any is refused with a 409 rather than quietly destroying
+  // them.
+  await removeAllForPartner(id);
+
   return repo.deletePartner(id);
 }

@@ -30,9 +30,13 @@ interface EnvironmentVariables {
   // Public HTTP origin of this API. Signed document links written into exported
   // spreadsheets are absolute, so they need the address a browser can reach.
   PUBLIC_API_BASE_URL: string;
-  EXPORT_LINK_TTL_DAYS: number;
 
-  // Reminder email (Part 8). All optional — with no SMTP host configured the
+  // How long a document link inside an exported spreadsheet keeps working.
+  // In HOURS, not days: the link is a bearer credential for a passport scan
+  // that travels by email, so its lifetime is the whole of its security.
+  EXPORT_LINK_TTL_HOURS: number;
+
+  // Reminder email. All optional — with no SMTP host configured the
   // expiry scan still records notifications, it just cannot send the digest.
   SMTP_HOST?: string;
   SMTP_PORT: number;
@@ -173,16 +177,53 @@ function getNodeEnv(): NodeEnv {
 
 const MIN_SECRET_LENGTH = 32;
 
-// Values shipped in .env.example. Fine while developing; a production process
-// holding one of these is running with a publicly known key.
-const PLACEHOLDER_SECRETS = new Set([
-  "some-long-random-secret-string",
-  "changeme_in_production",
-]);
+/**
+ * Every secret-shaped string that is published somewhere public, and so is not
+ * a secret no matter how long it is.
+ *
+ * The length check alone was not enough, and the gap was not hypothetical: the
+ * committed docker-compose.yml carries
+ * `JWT_SECRET=${JWT_SECRET:-supersecret_jwt_key_...}` as a *fallback*, so any
+ * deploy that forgot to export the real value came up silently signing tokens
+ * with a key printed in a public GitHub repository — and it passed the
+ * 32-character minimum comfortably. The .env.example placeholder is 33
+ * characters and passed too.
+ *
+ * Compared case-insensitively, since a fallback that differs only in case is
+ * no less public.
+ */
+const PLACEHOLDER_SECRETS = new Set(
+  [
+    // .env.example
+    "some-long-random-secret-string",
+    "changeme_in_production",
+    "replace-me-openssl-rand-base64-48",
+    "choose-a-strong-password-here",
+    // docker-compose.yml fallbacks
+    "supersecret_jwt_key_that_is_at_least_32_characters_long_12345",
+    "Admin@12345678",
+    // Common stand-ins people reach for
+    "changeme",
+    "change-me",
+    "secret",
+    "password",
+    "your-secret-key",
+    "development-secret",
+  ].map((value) => value.toLowerCase()),
+);
+
+/**
+ * Rejects a string with almost no variety in it — "aaaa...", "12341234...",
+ * "xxxxxxxx". Long enough to pass the length check, trivial to guess.
+ */
+function looksLowEntropy(value: string): boolean {
+  return new Set(value).size < 8;
+}
 
 /**
  * A signing key that is actually secret: long enough to resist offline
- * guessing, and not the value copied out of the example file.
+ * guessing, not a value published in this repository, and not a keyboard
+ * pattern.
  */
 function getSecret(key: string): string {
   const value = getReqString(key);
@@ -195,10 +236,18 @@ function getSecret(key: string): string {
     );
   }
 
-  if (PLACEHOLDER_SECRETS.has(value)) {
+  if (PLACEHOLDER_SECRETS.has(value.toLowerCase())) {
     throw new Error(
-      `[env] "${key}" is still the placeholder from .env.example. ` +
+      `[env] "${key}" is a placeholder value published in this repository ` +
+        "(.env.example or docker-compose.yml), so it is not secret.\n" +
         "Generate a real one with: openssl rand -base64 48",
+    );
+  }
+
+  if (looksLowEntropy(value)) {
+    throw new Error(
+      `[env] "${key}" is long but has almost no variety in it, so it is ` +
+        "cheap to guess.\nGenerate a real one with: openssl rand -base64 48",
     );
   }
 
@@ -223,6 +272,65 @@ if (COOKIE_SAMESITE === "none" && !COOKIE_SECURE) {
 
 const JWT_SECRET = getSecret("JWT_SECRET");
 
+/**
+ * Export-link lifetime, in hours.
+ *
+ * It used to be EXPORT_LINK_TTL_DAYS, defaulting to 30. A spreadsheet of
+ * inbound applicants is emailed around the office; each row carries an
+ * absolute, signed URL to that applicant's passport copy, and anyone holding
+ * the sheet — or any mailbox it was forwarded to, or any backup of one — could
+ * open those documents for a month with no sign-in. Two days is long enough
+ * for an office to work through a sheet.
+ *
+ * The old variable is still read so an existing deployment does not silently
+ * change behaviour on upgrade, and either way the value is capped: nothing
+ * here should hand out a month-long credential.
+ */
+const MAX_EXPORT_LINK_TTL_HOURS = 24 * 7;
+
+function getExportLinkTtlHours(): number {
+  const legacyDays = getOptString("EXPORT_LINK_TTL_DAYS");
+  const requested =
+    legacyDays !== undefined
+      ? getOptNum("EXPORT_LINK_TTL_DAYS", 2) * 24
+      : getOptNum("EXPORT_LINK_TTL_HOURS", 48);
+
+  if (requested < 1) {
+    throw new Error('[env] "EXPORT_LINK_TTL_HOURS" must be at least 1 hour.');
+  }
+
+  if (requested > MAX_EXPORT_LINK_TTL_HOURS) {
+    console.warn(
+      `[env] Export link lifetime of ${requested}h exceeds the ` +
+        `${MAX_EXPORT_LINK_TTL_HOURS}h ceiling and has been capped. These links ` +
+        "open applicant passport scans with no sign-in, so they are kept short.",
+    );
+    return MAX_EXPORT_LINK_TTL_HOURS;
+  }
+
+  if (legacyDays !== undefined) {
+    console.warn(
+      "[env] EXPORT_LINK_TTL_DAYS is deprecated; use EXPORT_LINK_TTL_HOURS.",
+    );
+  }
+
+  return requested;
+}
+
+const EXPORT_LINK_TTL_HOURS = getExportLinkTtlHours();
+
+const EXPORT_LINK_SECRET = getOptString("EXPORT_LINK_SECRET");
+
+// Falling back to JWT_SECRET keeps existing deployments working, but it means
+// one leaked value forges both sessions and document links, and rotating
+// either breaks the other.
+if (!EXPORT_LINK_SECRET && NODE_ENV === "production") {
+  console.warn(
+    "[env] EXPORT_LINK_SECRET is unset, so document links are signed with " +
+      "JWT_SECRET. Set a separate value: openssl rand -base64 48",
+  );
+}
+
 export const env: Readonly<EnvironmentVariables> = Object.freeze({
   NODE_ENV,
   PORT,
@@ -235,14 +343,12 @@ export const env: Readonly<EnvironmentVariables> = Object.freeze({
   COOKIE_SAMESITE,
   COOKIE_SECURE,
 
-  // Falls back to JWT_SECRET so existing deployments keep working; set it
-  // explicitly to decouple the two.
-  EXPORT_LINK_SECRET: getOptString("EXPORT_LINK_SECRET") ?? JWT_SECRET,
+  EXPORT_LINK_SECRET: EXPORT_LINK_SECRET ?? JWT_SECRET,
 
   PUBLIC_API_BASE_URL: (
     getOptString("PUBLIC_API_BASE_URL") ?? `http://localhost:${PORT}`
   ).replace(/\/+$/, ""),
-  EXPORT_LINK_TTL_DAYS: getOptNum("EXPORT_LINK_TTL_DAYS", 30),
+  EXPORT_LINK_TTL_HOURS: EXPORT_LINK_TTL_HOURS,
 
   SMTP_HOST: getOptString("SMTP_HOST"),
   SMTP_PORT: getOptNum("SMTP_PORT", 587),

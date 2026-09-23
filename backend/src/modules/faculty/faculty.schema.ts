@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { httpUrl, normaliseUrlInput, partialForUpdate, queryBoolean } from "../../shared/utils/zodHelpers.js";
 
 export const createFacultySchema = z.object({
   name: z.string().trim().min(1).max(200),
-  redirectUrl: z.string().trim().url("Must be a valid URL").max(500),
+  // httpUrl restricts the scheme to http(s). z.string().url() accepts
+  // "javascript:" and "data:", and this value is followed as a link.
+  redirectUrl: z.preprocess(normaliseUrlInput, httpUrl()),
   // Doubles as the faculty-portal allowlist: a Google sign-in with this
   // address gets a faculty token instead of a student one. Must be an
   // institute address, since sign-in is restricted to that domain anyway.
@@ -20,7 +23,10 @@ export const createFacultySchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const updateFacultySchema = createFacultySchema.partial().extend({
+// partialForUpdate, not .partial(): .partial() leaves each field's
+// .default() in place, so a PATCH naming one key silently rewrote every
+// other column with its default. See shared/utils/zodHelpers.ts.
+export const updateFacultySchema = partialForUpdate(createFacultySchema).extend({
   // Explicit null revokes portal access without deleting the directory entry.
   email: createFacultySchema.shape.email.nullable().optional(),
 });
@@ -29,10 +35,7 @@ export const facultyIdSchema = z.object({ id: z.string().uuid() });
 export const listFacultySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
-  isActive: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  isActive: queryBoolean(),
 });
 
 export type CreateFacultyInput = z.infer<typeof createFacultySchema>;

@@ -14,7 +14,7 @@ export const listContacts = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Contacts fetched",
-        await service.getAll(req.query as unknown as ListContactsQuery),
+        await service.getAll(req.query as unknown as ListContactsQuery, Boolean(req.user)),
       ),
     );
 });
@@ -25,7 +25,7 @@ export const getContact = catchAsync(async (req: Request, res: Response) => {
     .json(
       successResponse(
         "Contact fetched",
-        await service.getById(req.params.id as string),
+        await service.getById(req.params.id as string, Boolean(req.user)),
       ),
     );
 });

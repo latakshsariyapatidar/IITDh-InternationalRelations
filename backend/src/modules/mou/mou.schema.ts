@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  calendarDate,
+  clearableCalendarDate,
+  partialForUpdate,
+  queryBoolean,
+} from "../../shared/utils/zodHelpers.js";
 
 const MouStatusEnum = z.enum(["ACTIVE", "EXPIRED", "RENEWED", "TERMINATED"]);
 
@@ -8,14 +14,17 @@ const MouStatusEnum = z.enum(["ACTIVE", "EXPIRED", "RENEWED", "TERMINATED"]);
 export const createMouSchema = z.object({
   partnerId: z.string().uuid("Invalid partner"),
   title: z.string().trim().min(1).max(300),
-  signedDate: z.coerce.date(),
-  expiryDate: z.coerce.date().optional(),
+  signedDate: calendarDate(),
+  expiryDate: clearableCalendarDate(),
   status: MouStatusEnum.default("ACTIVE"),
   scope: z.string().trim().optional(),
   isPublic: z.boolean().default(true),
 });
 
-export const updateMouSchema = createMouSchema.partial();
+// partialForUpdate, not .partial(): .partial() leaves each field's
+// .default() in place, so a PATCH naming one key silently rewrote every
+// other column with its default. See shared/utils/zodHelpers.ts.
+export const updateMouSchema = partialForUpdate(createMouSchema);
 export const mouIdSchema = z.object({ id: z.string().uuid("Invalid ID") });
 
 export const listMousSchema = z.object({
@@ -24,10 +33,7 @@ export const listMousSchema = z.object({
   partnerId: z.string().uuid().optional(),
   status: MouStatusEnum.optional(),
   expiringWithinDays: z.coerce.number().int().positive().optional(),
-  isPublic: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  isPublic: queryBoolean(),
 });
 
 export type CreateMouInput = z.infer<typeof createMouSchema>;

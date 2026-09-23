@@ -20,8 +20,15 @@ export async function findPortalFacultyByEmail(email: string) {
   });
 }
 
-export async function storeStudentRefreshToken(studentId: string, tokenHash: string, expiresAt: Date) {
-  return prisma.studentRefreshToken.create({ data: { studentId, tokenHash, expiresAt } });
+export async function storeStudentRefreshToken(
+  studentId: string,
+  tokenHash: string,
+  expiresAt: Date,
+  familyId?: string,
+) {
+  return prisma.studentRefreshToken.create({
+    data: { studentId, tokenHash, expiresAt, ...(familyId && { familyId }) },
+  });
 }
 
 export async function findStudentRefreshTokenByHash(tokenHash: string) {
@@ -31,6 +38,38 @@ export async function findStudentRefreshTokenByHash(tokenHash: string) {
   });
 }
 
+/**
+ * Same single-statement claim as the admin side — see the long note on
+ * `claimRefreshToken` in modules/auth/auth.repository.ts. Exactly one
+ * concurrent caller can observe `count === 1`.
+ */
+export async function claimStudentRefreshToken(tokenHash: string, now: Date) {
+  const { count } = await prisma.studentRefreshToken.updateMany({
+    where: { tokenHash, revokedAt: null, expiresAt: { gt: now } },
+    data: { revokedAt: now },
+  });
+
+  return count === 1;
+}
+
+export async function revokeStudentTokenFamily(familyId: string) {
+  return prisma.studentRefreshToken.deleteMany({ where: { familyId } });
+}
+
 export async function deleteStudentRefreshToken(tokenHash: string) {
-  return prisma.studentRefreshToken.delete({ where: { tokenHash } });
+  return prisma.studentRefreshToken.deleteMany({ where: { tokenHash } });
+}
+
+/** Nightly cleanup of rows that can no longer authenticate anyone. */
+export async function deleteSpentStudentRefreshTokens(revokedBefore: Date) {
+  const now = new Date();
+
+  const [expired, revoked] = await Promise.all([
+    prisma.studentRefreshToken.deleteMany({ where: { expiresAt: { lt: now } } }),
+    prisma.studentRefreshToken.deleteMany({
+      where: { revokedAt: { lt: revokedBefore } },
+    }),
+  ]);
+
+  return expired.count + revoked.count;
 }

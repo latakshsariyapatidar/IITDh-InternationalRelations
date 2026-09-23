@@ -3,6 +3,7 @@ import catchAsync from "../../shared/utils/catchAsync.js";
 import { successResponse } from "../../shared/utils/apiResponse.js";
 import { sendWorkbook, timestampedFilename } from "../../shared/utils/xlsx.js";
 import { sendPrivateDocument } from "../../shared/utils/sendPrivateDocument.js";
+import { recordDocumentAccess } from "../../shared/utils/documentAccessLog.js";
 import * as service from "./application.service.js";
 import type {
   CreateApplicationInput,
@@ -68,5 +69,14 @@ export const exportApplications = catchAsync(async (req: Request, res: Response)
 export const downloadApplicationDocument = catchAsync(async (req: Request, res: Response) => {
   const field = req.params.field as DocumentField;
   const absolutePath = await service.getDocumentAbsolutePath(req.params.id as string, field);
+
+  // One row per successful download. Admin sessions and signed links from
+  // exported spreadsheets both land here, and the log distinguishes them.
+  recordDocumentAccess(req, {
+    scope: "applications",
+    recordId: req.params.id as string,
+    field,
+  });
+
   sendPrivateDocument(res, absolutePath, `${req.params.id}-${field}`);
 });

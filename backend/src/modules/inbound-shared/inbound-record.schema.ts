@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { calendarDate } from "../../shared/utils/zodHelpers.js";
 
 // The office record: columns the IRO fills in after a student applies — roll
 // number, FRRO forms, visa dates, faculty advisor, exit date. Deliberately not
@@ -13,15 +14,15 @@ export const inboundRecordSchema = z.object({
   instituteEmail: z.string().trim().email("Must be a valid email").max(255).nullish(),
   sponsoringAgency: z.string().trim().max(300).nullish(),
   yearOfJoining: z.string().trim().max(20).nullish(),
-  dateOfJoining: z.coerce.date().nullish(),
-  exitDate: z.coerce.date().nullish(),
+  dateOfJoining: calendarDate().nullish(),
+  exitDate: calendarDate().nullish(),
   facultyAdvisor: z.string().trim().max(200).nullish(),
   citizenshipNo: z.string().trim().max(100).nullish(),
-  passportIssueDate: z.coerce.date().nullish(),
+  passportIssueDate: calendarDate().nullish(),
   passportPlaceOfIssue: z.string().trim().max(200).nullish(),
   visaDetails: z.string().trim().max(200).nullish(),
-  visaIssueDate: z.coerce.date().nullish(),
-  visaExpiryDate: z.coerce.date().nullish(),
+  visaIssueDate: calendarDate().nullish(),
+  visaExpiryDate: calendarDate().nullish(),
   visaPlaceOfIssue: z.string().trim().max(200).nullish(),
   sForm: z.string().trim().max(100).nullish(),
   cForm: z.string().trim().max(100).nullish(),

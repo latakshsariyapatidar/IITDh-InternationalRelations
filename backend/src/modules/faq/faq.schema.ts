@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { partialForUpdate, queryBoolean } from "../../shared/utils/zodHelpers.js";
 
 export const createFAQSchema = z.object({
   question: z.string().trim().min(1).max(500),
@@ -7,15 +8,15 @@ export const createFAQSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const updateFAQSchema = createFAQSchema.partial();
+// partialForUpdate, not .partial(): .partial() leaves each field's
+// .default() in place, so a PATCH naming one key silently rewrote every
+// other column with its default. See shared/utils/zodHelpers.ts.
+export const updateFAQSchema = partialForUpdate(createFAQSchema);
 export const faqIdSchema = z.object({ id: z.string().uuid() });
 export const listFAQsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
-  isActive: z.preprocess(
-    (v) => (v === "true" ? true : v === "false" ? false : v),
-    z.boolean().optional(),
-  ),
+  isActive: queryBoolean(),
 });
 
 export type CreateFAQInput = z.infer<typeof createFAQSchema>;

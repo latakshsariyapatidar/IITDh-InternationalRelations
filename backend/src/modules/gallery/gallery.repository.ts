@@ -1,14 +1,17 @@
 import { prisma } from "../../config/prisma.js";
+import { visibilityFlagWhere } from "../../shared/utils/visibility.js";
 import type {
   CreateGalleryImageInput,
   UpdateGalleryImageInput,
   ListGalleryQuery,
 } from "./gallery.schema.js";
 
-export async function findAllImages(query: ListGalleryQuery) {
+export async function findAllImages(query: ListGalleryQuery, isAdmin: boolean) {
   const where = {
     ...(query.category && { category: query.category }),
-    ...(query.isPublic !== undefined && { isPublic: query.isPublic }),
+    // Not a caller-supplied filter: anonymous callers are pinned to public
+    // images and cannot widen the set by dropping the query parameter.
+    ...visibilityFlagWhere("isPublic", isAdmin, query.isPublic),
   };
 
   const [images, total] = await Promise.all([

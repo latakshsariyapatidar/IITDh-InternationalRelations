@@ -15,12 +15,6 @@ export const listVisitors = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json(successResponse("Visitors fetched", result));
 });
 
-export const listPublicVisitors = catchAsync(async (_req: Request, res: Response) => {
-  const visitors = await service.getPublicVisitors();
-  res.status(200).json(successResponse("Public visits fetched", { visitors }));
-});
-
-
 export const getVisitor = catchAsync(async (req: Request, res: Response) => {
   const item = await service.getById(req.params.id as string);
   res.status(200).json(successResponse("Visitor fetched", item));
