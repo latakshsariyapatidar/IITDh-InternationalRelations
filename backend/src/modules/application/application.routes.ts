@@ -2,6 +2,7 @@ import { Router } from "express";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
 import optionalAuthenticate from "../../shared/middleware/optionalAuthenticate.js";
+import verifyUploadContents from "../../shared/middleware/verifyUploadContents.js";
 import { allowAdminOrSignedLink } from "../inbound-shared/inbound-documents.js";
 import { applicationSubmitLimiter } from "./application.rateLimit.js";
 import { applicationDocumentUpload } from "./application.storage.js";
@@ -23,6 +24,7 @@ router.post(
   "/",
   applicationSubmitLimiter,
   applicationDocumentUpload,
+  verifyUploadContents,
   validate({ body: createApplicationSchema }),
   ctrl.createApplication,
 );

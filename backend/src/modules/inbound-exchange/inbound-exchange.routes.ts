@@ -2,6 +2,7 @@ import { Router } from "express";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
 import optionalAuthenticate from "../../shared/middleware/optionalAuthenticate.js";
+import verifyUploadContents from "../../shared/middleware/verifyUploadContents.js";
 import { allowAdminOrSignedLink } from "../inbound-shared/inbound-documents.js";
 import { exchangeSubmitLimiter } from "./inbound-exchange.rateLimit.js";
 import { exchangeDocumentUpload } from "./inbound-exchange.storage.js";
@@ -25,6 +26,7 @@ router.post(
   "/",
   exchangeSubmitLimiter,
   exchangeDocumentUpload,
+  verifyUploadContents,
   validate({ body: createExchangeApplicationSchema }),
   ctrl.createExchangeApplication,
 );

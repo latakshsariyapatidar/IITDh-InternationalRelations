@@ -3,6 +3,7 @@ import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
 import authenticateStudent from "../../shared/middleware/authenticateStudent.js";
 import optionalAuthenticate from "../../shared/middleware/optionalAuthenticate.js";
+import verifyUploadContents from "../../shared/middleware/verifyUploadContents.js";
 import { allowAdminOrSignedLink } from "../inbound-shared/inbound-documents.js";
 import { outboundDocumentUpload } from "./outbound-application.storage.js";
 import {
@@ -22,6 +23,7 @@ router.post(
   "/",
   authenticateStudent,
   outboundDocumentUpload,
+  verifyUploadContents,
   validate({ body: createOutboundApplicationSchema }),
   ctrl.createOutboundApplication,
 );

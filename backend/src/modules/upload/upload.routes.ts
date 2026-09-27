@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
+import verifyUploadContents from "../../shared/middleware/verifyUploadContents.js";
 import { imageUpload, documentUpload } from "./upload.middleware.js";
 import {
   IMAGE_FOLDERS,
@@ -49,6 +50,7 @@ router.post(
   authenticate,
   validate({ params: imageFolderParamSchema }),
   imageUpload.single("file"),
+  verifyUploadContents,
   ctrl.uploadImage,
 );
 
@@ -57,6 +59,7 @@ router.post(
   authenticate,
   validate({ params: documentFolderParamSchema }),
   documentUpload.single("file"),
+  verifyUploadContents,
   ctrl.uploadDocument,
 );
 

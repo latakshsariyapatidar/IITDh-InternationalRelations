@@ -16,7 +16,7 @@ export const getAll = (q: ListFacultyQuery, isAdmin: boolean) =>
   repo.findAllFaculty(q, isAdmin);
 
 export async function getById(id: string, isAdmin = true) {
-  const item = await repo.findFacultyById(id);
+  const item = await repo.findFacultyById(id, isAdmin);
 
   // A hidden row is a 404, not a 403: an anonymous caller has no business
   // learning that the id exists.

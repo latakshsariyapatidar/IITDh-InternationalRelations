@@ -3,6 +3,7 @@ import validate from "../../shared/middleware/validate.js";
 import authenticate from "../../shared/middleware/authenticate.js";
 import optionalAuthenticate from "../../shared/middleware/optionalAuthenticate.js";
 import authenticateIitdh from "../../shared/middleware/authenticateIitdh.js";
+import verifyUploadContents from "../../shared/middleware/verifyUploadContents.js";
 import cacheControl from "../../shared/middleware/cache.js";
 import { mouDocumentUpload } from "./mou.storage.js";
 import { createMouSchema, updateMouSchema, mouIdSchema, listMousSchema } from "./mou.schema.js";
@@ -35,6 +36,7 @@ router.post(
   authenticate,
   validate({ params: mouIdSchema }),
   mouDocumentUpload,
+  verifyUploadContents,
   ctrl.uploadMouDocument,
 );
 router.delete("/:id", authenticate, validate({ params: mouIdSchema }), ctrl.deleteMou);
