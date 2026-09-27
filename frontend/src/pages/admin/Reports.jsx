@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { formatDay } from '../../utils/formatDay';
 
 export default function Reports() {
   const [from, setFrom] = useState('');
@@ -183,7 +184,7 @@ export default function Reports() {
                         </TableCell>
                         <TableCell>{row.facultyAdvisor || '—'}</TableCell>
                         <TableCell className="text-xs text-gray-600">
-                          {row.stayFrom ? new Date(row.stayFrom).toLocaleDateString() : '—'} to {row.stayTo ? new Date(row.stayTo).toLocaleDateString() : '—'}
+                          {formatDay(row.stayFrom)} to {formatDay(row.stayTo)}
                         </TableCell>
                       </TableRow>
                     ))
@@ -220,8 +221,8 @@ export default function Reports() {
                         <TableCell>{row.hostName || '—'}</TableCell>
                         <TableCell className="text-sm max-w-xs truncate" title={row.purposeOfVisit}>{row.purposeOfVisit}</TableCell>
                         <TableCell className="text-xs text-gray-600">
-                          {row.visitFrom ? new Date(row.visitFrom).toLocaleDateString() : '—'}
-                          {row.visitTo ? ` to ${new Date(row.visitTo).toLocaleDateString()}` : ''}
+                          {formatDay(row.visitFrom)}
+                          {row.visitTo ? ` to ${formatDay(row.visitTo)}` : ''}
                         </TableCell>
                         <TableCell>
                           <span className={`px-2 py-0.5 rounded text-xs font-semibold ${

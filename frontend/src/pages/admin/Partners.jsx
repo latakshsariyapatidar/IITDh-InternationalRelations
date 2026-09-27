@@ -169,6 +169,8 @@ export default function Partners() {
             >
               <option value="UNIVERSITY">University</option>
               <option value="ORGANIZATION">Organization</option>
+              <option value="CONSORTIUM">Consortium</option>
+              <option value="NETWORK">Network</option>
             </select>
           </div>
           
@@ -199,7 +201,7 @@ export default function Partners() {
               <div className="flex-1">
                 <Input 
                   type="file" 
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer"
                   onChange={e => handleImageUpload(e.target.files[0])} 
                 />

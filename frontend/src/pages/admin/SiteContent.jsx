@@ -244,7 +244,7 @@ export default function SiteContent() {
                         <Label className="text-sm">Upload New Image</Label>
                         <Input 
                           type="file" 
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
                           className="cursor-pointer"
                           onChange={(e) => {
                             if (e.target.files && e.target.files[0]) {

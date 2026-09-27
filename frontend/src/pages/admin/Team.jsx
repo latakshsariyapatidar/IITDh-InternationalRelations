@@ -8,6 +8,20 @@ import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
+// Mirrors the backend's HTML sanitiser allow-list. Anything not offered here
+// would be silently stripped when the record is saved.
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ align: [] }],
+    ['blockquote', 'code-block', 'link'],
+    ['clean'],
+  ],
+};
+
 export default function Team() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,6 +171,7 @@ export default function Team() {
             <div className="bg-white">
               <ReactQuill 
                 theme="snow"
+                modules={QUILL_MODULES}
                 value={formData.responsibilities} 
                 onChange={(value) => setFormData({...formData, responsibilities: value})} 
                 placeholder="e.g. Managing international agreements and student mobility..."
@@ -171,7 +186,7 @@ export default function Team() {
               <div className="flex-1">
                 <Input 
                   type="file" 
-                  accept="image/*" 
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer"
                   onChange={e => handleImageUpload(e.target.files[0])} 
                 />

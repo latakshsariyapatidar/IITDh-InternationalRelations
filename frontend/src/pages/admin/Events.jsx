@@ -146,7 +146,7 @@ export default function Events() {
             <Label className="text-gray-700 font-semibold">Event Banner/Image</Label>
             <div className="flex items-start gap-4">
               <div className="flex-1">
-                <Input type="file" accept="image/*" className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer" onChange={e => handleImageUpload(e.target.files[0])} />
+                <Input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer" onChange={e => handleImageUpload(e.target.files[0])} />
               </div>
               {formData.imageUrl && (
                 <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">

@@ -128,7 +128,7 @@ export default function Downloads() {
           <div className="space-y-2 md:col-span-2">
             <Label className="text-gray-700 font-semibold">File Upload <span className="text-red-500">*</span></Label>
             <div className="flex items-center gap-4">
-              <Input type="file" accept=".pdf,.doc,.docx,image/*" className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer flex-1" onChange={e => handleFileUpload(e.target.files[0])} />
+              <Input type="file" accept=".pdf" className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer flex-1" onChange={e => handleFileUpload(e.target.files[0])} />
               {formData.fileUrl && <span className="text-xs text-brand-purple font-medium truncate w-32">File uploaded</span>}
             </div>
           </div>

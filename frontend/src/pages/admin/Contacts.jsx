@@ -105,6 +105,8 @@ export default function Contacts() {
               <option value="IRO_OFFICE">IRO Office</option>
               <option value="MOBILITY">Mobility</option>
               <option value="ADMISSION">Admission</option>
+              <option value="ADVISOR">Advisor</option>
+              <option value="ASSISTANT_REGISTRAR">Assistant Registrar</option>
             </select>
           </div>
           

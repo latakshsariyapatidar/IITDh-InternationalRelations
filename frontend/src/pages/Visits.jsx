@@ -12,9 +12,8 @@ export default function Visits() {
   useEffect(() => {
     const fetchVisits = async () => {
       try {
-        const [eventsRes, visitorsRes] = await Promise.allSettled([
+        const [eventsRes] = await Promise.allSettled([
           apiClient.get('/events?type=VISIT&limit=50'),
-          apiClient.get('/visitors/public')
         ]);
 
         const eventItems = (eventsRes.status === 'fulfilled' && eventsRes.value.data?.data?.events) 
@@ -30,23 +29,8 @@ export default function Visits() {
             })) 
           : [];
 
-        const visitorItems = (visitorsRes.status === 'fulfilled' && visitorsRes.value.data?.data?.visitors)
-          ? visitorsRes.value.data.data.visitors.map(v => ({
-              id: v.id,
-              type: 'visitor',
-              title: `${v.fullName}${v.designation ? ` (${v.designation})` : ''}`,
-              organisation: v.organisation,
-              country: v.country,
-              description: v.purposeOfVisit,
-              startDate: v.visitFrom,
-              endDate: v.visitTo,
-              location: v.hostName ? `Host: ${v.hostName}` : (v.hostDepartment ? `Dept: ${v.hostDepartment}` : 'IIT Dharwad Campus'),
-              isVerified: v.isVerified,
-            }))
-          : [];
-
         // Combine and sort by startDate descending
-        const combined = [...eventItems, ...visitorItems].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        const combined = [...eventItems].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
         setVisits(combined);
       } catch (err) {
         console.error('Failed to fetch visits', err);

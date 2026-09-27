@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Label } from '../../components/ui/label';
+import { formatDay } from '../../utils/formatDay';
 
 export default function Visitors() {
   const [data, setData] = useState([]);
@@ -117,8 +118,8 @@ export default function Visitors() {
                   <TableCell>{item.organisation || item.institution}</TableCell>
                   <TableCell>{item.country}</TableCell>
                   <TableCell>
-                    {item.visitFrom ? new Date(item.visitFrom).toLocaleDateString() : (item.visitDateStart ? new Date(item.visitDateStart).toLocaleDateString() : '')}
-                    {(item.visitTo || item.visitDateEnd) ? ` - ${new Date(item.visitTo || item.visitDateEnd).toLocaleDateString()}` : ''}
+                    {item.visitFrom ? formatDay(item.visitFrom) : ''}
+                    {item.visitTo ? ` - ${formatDay(item.visitTo)}` : ''}
                   </TableCell>
                   <TableCell>
                     {item.isVerified ? (
@@ -162,8 +163,8 @@ export default function Visitors() {
                 <div><span className="font-semibold">Host / Dept:</span> {selectedVisitor.hostName || 'N/A'}</div>
                 <div>
                   <span className="font-semibold">Visit Dates:</span>{' '}
-                  {selectedVisitor.visitFrom ? new Date(selectedVisitor.visitFrom).toLocaleDateString() : (selectedVisitor.visitDateStart ? new Date(selectedVisitor.visitDateStart).toLocaleDateString() : '')}
-                  {(selectedVisitor.visitTo || selectedVisitor.visitDateEnd) ? ` - ${new Date(selectedVisitor.visitTo || selectedVisitor.visitDateEnd).toLocaleDateString()}` : ''}
+                  {selectedVisitor.visitFrom ? formatDay(selectedVisitor.visitFrom) : ''}
+                  {selectedVisitor.visitTo ? ` - ${formatDay(selectedVisitor.visitTo)}` : ''}
                 </div>
               </div>
 

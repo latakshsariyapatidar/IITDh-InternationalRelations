@@ -17,6 +17,7 @@ import {
   RiRefreshLine
 } from '@remixicon/react'
 import apiClient from '../api/client'
+import { formatDay } from '../utils/formatDay';
 
 const countryCodeMap = {
   Australia: 'au',
@@ -733,11 +734,7 @@ export default function Partners() {
                                 <RiCalendarLine size={14} className="text-brand-marigold shrink-0" />
                                 <span>
                                   Signed:{' '}
-                                  {new Date(mou.signedDate).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                  })}
+                                  {formatDay(mou.signedDate, 'en-US')}
                                 </span>
                               </p>
                             )}
@@ -746,11 +743,7 @@ export default function Partners() {
                                 <RiCalendarLine size={14} className="text-brand-marigold shrink-0" />
                                 <span>
                                   Valid Until:{' '}
-                                  {new Date(expiryDate).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                  })}
+                                  {formatDay(expiryDate, 'en-US')}
                                 </span>
                               </p>
                             )}
