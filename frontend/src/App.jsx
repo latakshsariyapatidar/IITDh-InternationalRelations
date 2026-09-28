@@ -12,8 +12,11 @@ export default function App() {
     location.pathname.startsWith('/inbound-exchange/apply');
   const isStudent = location.pathname.startsWith('/students');
   const isFaculty = location.pathname.startsWith('/faculty-portal');
+  // Standalone page — no navbar/footer. URL is not linked anywhere on the
+  // public site; it is shared directly with visiting delegates.
+  const isDelegateForm = location.pathname.startsWith('/iro/delegate-registration');
 
-  if (isAdmin || isApply || isStudent || isFaculty) {
+  if (isAdmin || isApply || isStudent || isFaculty || isDelegateForm) {
     return <PageRoutes />;
   }
 

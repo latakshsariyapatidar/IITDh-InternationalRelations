@@ -16,17 +16,17 @@ export default function Visits() {
           apiClient.get('/events?type=VISIT&limit=50'),
         ]);
 
-        const eventItems = (eventsRes.status === 'fulfilled' && eventsRes.value.data?.data?.events) 
+        const eventItems = (eventsRes.status === 'fulfilled' && eventsRes.value.data?.data?.events)
           ? eventsRes.value.data.data.events.map(ev => ({
-              id: ev.id,
-              type: 'event',
-              title: ev.title,
-              description: ev.description,
-              startDate: ev.startDate,
-              endDate: ev.endDate,
-              location: ev.location,
-              imageUrl: ev.imageUrl,
-            })) 
+            id: ev.id,
+            type: 'event',
+            title: ev.title,
+            description: ev.description,
+            startDate: ev.startDate,
+            endDate: ev.endDate,
+            location: ev.location,
+            imageUrl: ev.imageUrl,
+          }))
           : [];
 
         // Combine and sort by startDate descending
@@ -64,9 +64,9 @@ export default function Visits() {
                 <div className="grid md:grid-cols-12 gap-6 items-center">
                   {visit.imageUrl && (
                     <div className="md:col-span-3 rounded-lg overflow-hidden aspect-video bg-neutral-canvas flex items-center justify-center">
-                      <img 
-                        src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${visit.imageUrl}`} 
-                        alt={visit.title} 
+                      <img
+                        src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${visit.imageUrl}`}
+                        alt={visit.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
@@ -77,7 +77,7 @@ export default function Visits() {
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-brand-purple mb-1">Dates</p>
                         <p className="font-semibold text-neutral-textDark mb-3">
-                          {new Date(visit.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} 
+                          {new Date(visit.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {visit.endDate && ` - ${new Date(visit.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                         </p>
 
@@ -117,26 +117,6 @@ export default function Visits() {
         )}
       </section>
 
-      {/* Faculty Delegation Hosting Guide Banner */}
-      <section className="bg-brand-purpleDark text-white py-12 border-y border-brand-marigold/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <span className="inline-block px-3 py-1 rounded-md bg-brand-marigold/20 text-brand-marigold text-xs font-bold uppercase tracking-wider mb-2">
-              Faculty Hosted Visits
-            </span>
-            <h3 className="text-2xl font-bold text-white mb-2">Hosting an International Guest or Delegation?</h3>
-            <p className="text-brand-purpleLight/85 text-sm max-w-2xl leading-relaxed">
-              Official academic visits to IIT Dharwad are hosted and coordinated by an IIT Dharwad faculty member. Faculty members can register visiting delegates, schedules, and itineraries directly through the Faculty Portal to request IRO campus clearance and hospitality.
-            </p>
-          </div>
-          <Link
-            to="/faculty-portal"
-            className="shrink-0 px-6 py-3 rounded-lg bg-brand-marigold text-brand-purpleDark font-bold text-sm hover:bg-brand-marigoldDark transition-colors shadow-md"
-          >
-            Faculty Portal Login →
-          </Link>
-        </div>
-      </section>
 
       {/* Visitor Information */}
       <section className="bg-neutral-canvas py-16">
@@ -165,52 +145,6 @@ export default function Visits() {
                 <li><strong>Currency:</strong> Indian Rupee (INR)</li>
                 <li><strong>Climate:</strong> Moderate, pleasant during Oct-Feb</li>
               </ul>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Visiting Process */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader
-            title="How Delegation Visits Are Organized"
-            subtitle="Campus visit protocol for international delegations and visiting scholars"
-          />
-          <div className="grid md:grid-cols-4 gap-6">
-            <Card className="text-center border border-brand-purpleLight/40 hover:shadow-md transition-shadow flex flex-col justify-between">
-              <div>
-                <div className="text-4xl font-bold text-brand-purple mb-3">1</div>
-                <h4 className="font-bold text-gray-900 mb-2">Connect with Host Faculty</h4>
-                <p className="text-sm text-gray-700">Visiting scholars and delegations coordinate with an IIT Dharwad faculty host or academic department to plan visit objectives.</p>
-              </div>
-            </Card>
-            <Card className="text-center border border-brand-purpleLight/40 hover:shadow-md transition-shadow flex flex-col justify-between">
-              <div>
-                <div className="text-4xl font-bold text-brand-purple mb-3">2</div>
-                <h4 className="font-bold text-gray-900 mb-2">Faculty Registers Delegation</h4>
-                <p className="text-sm text-gray-700 mb-3">The IITDH host faculty member logs in to the IRO Faculty Portal to officially submit delegate details, dates, and agenda.</p>
-              </div>
-              <Link 
-                to="/faculty-portal" 
-                className="text-xs font-semibold text-brand-purple hover:text-brand-purpleDark underline mt-2 inline-block"
-              >
-                Faculty Portal →
-              </Link>
-            </Card>
-            <Card className="text-center border border-brand-purpleLight/40 hover:shadow-md transition-shadow flex flex-col justify-between">
-              <div>
-                <div className="text-4xl font-bold text-brand-purple mb-3">3</div>
-                <h4 className="font-bold text-gray-900 mb-2">IRO Clearance & Logistics</h4>
-                <p className="text-sm text-gray-700">The International Relations Office reviews the itinerary, issues gate access passes, and coordinates campus guest house booking.</p>
-              </div>
-            </Card>
-            <Card className="text-center border border-brand-purpleLight/40 hover:shadow-md transition-shadow flex flex-col justify-between">
-              <div>
-                <div className="text-4xl font-bold text-brand-purple mb-3">4</div>
-                <h4 className="font-bold text-gray-900 mb-2">Campus Welcome & Activities</h4>
-                <p className="text-sm text-gray-700">The delegation arrives on campus for academic lectures, departmental lab visits, and collaborative MoU discussions.</p>
-              </div>
             </Card>
           </div>
         </div>

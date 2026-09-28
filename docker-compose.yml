@@ -36,7 +36,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@db:5432/${POSTGRES_DB:-iro_db}?schema=public
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env}
       - PORT=3000
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID must be set in .env}
     depends_on:
       db:
         condition: service_healthy
@@ -54,11 +54,21 @@ services:
       - PORT=3000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}@db:5432/${POSTGRES_DB:-iro_db}?schema=public
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env}
-      - CORS_ORIGIN=${CORS_ORIGIN:-https://international-relations.latakshsariya.co.in,http://localhost:8080,http://localhost}
+      # Separate secret for signed passport-scan download links.
+      # Falls back to JWT_SECRET in application code if unset, but must be
+      # explicitly provided here so links cannot be forged with the auth token.
+      - EXPORT_LINK_SECRET=${EXPORT_LINK_SECRET:?EXPORT_LINK_SECRET must be set in .env}
+      # CORS_ORIGIN must match your exact public domain (no trailing slash).
+      # Multiple origins: comma-separated, e.g. https://example.com,https://www.example.com
+      - CORS_ORIGIN=${CORS_ORIGIN:?CORS_ORIGIN must be set in .env}
       - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:?SEED_ADMIN_PASSWORD must be set in .env}
+      # TRUST_PROXY=1 is correct ONLY when nginx is the single reverse-proxy in
+      # front of this container. If a CDN or second load-balancer also sits
+      # upstream, increase this number or provide a trusted IP/CIDR range to
+      # prevent X-Forwarded-For spoofing that would collapse rate limits.
       - TRUST_PROXY=${TRUST_PROXY:-1}
-      - PUBLIC_API_BASE_URL=${PUBLIC_API_BASE_URL:-https://international-relations.latakshsariya.co.in}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com}
+      - PUBLIC_API_BASE_URL=${PUBLIC_API_BASE_URL:?PUBLIC_API_BASE_URL must be set in .env}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID must be set in .env}
       - COOKIE_SECURE=${COOKIE_SECURE:-true}
       - COOKIE_SAMESITE=${COOKIE_SAMESITE:-lax}
     depends_on:
@@ -74,6 +84,10 @@ services:
       start_period: 30s
     volumes:
       - ./backend/uploads:/app/uploads
+      # ⚠️  Passport scans (private-uploads) are stored unencrypted on the host
+      #     filesystem. Enforce a deletion policy (e.g. purge after 90 days post-
+      #     decision) and consider volume-level encryption (LUKS or cloud-provider
+      #     managed disk encryption). See security review finding #15.
       - ./backend/private-uploads:/app/private-uploads
     logging:
       driver: "json-file"

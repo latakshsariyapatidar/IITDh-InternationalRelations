@@ -116,7 +116,8 @@ export default function Announcements() {
               className="border-gray-300 focus-visible:ring-brand-purple"
               value={formData.title} 
               onChange={e => setFormData({...formData, title: e.target.value})} 
-              placeholder="Enter title" 
+              placeholder="Enter title"
+              maxLength={255}
             />
           </div>
           
@@ -125,6 +126,7 @@ export default function Announcements() {
             <textarea 
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" 
               rows="5"
+              maxLength={5000}
               value={formData.content} 
               onChange={e => setFormData({...formData, content: e.target.value})} 
               placeholder="Announcement details..."

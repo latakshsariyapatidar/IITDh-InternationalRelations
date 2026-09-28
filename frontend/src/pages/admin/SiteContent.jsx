@@ -200,6 +200,7 @@ export default function SiteContent() {
                   {field.type === 'TEXT' && (
                     <Input 
                       className="bg-white"
+                      maxLength={1000}
                       value={field.value || ''} 
                       onChange={(e) => handleValueChange(field.key, e.target.value)} 
                     />
@@ -218,6 +219,7 @@ export default function SiteContent() {
                     <div>
                       <textarea 
                         className="w-full min-h-[150px] p-3 border rounded-md focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none transition-all bg-white text-sm"
+                        maxLength={10000}
                         value={field.value || ''}
                         onChange={(e) => handleValueChange(field.key, e.target.value)}
                         placeholder="Enter text here..."

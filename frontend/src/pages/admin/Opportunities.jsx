@@ -144,7 +144,8 @@ export default function Opportunities() {
                 className="border-gray-300 focus-visible:ring-brand-purple"
                 value={formData.title} 
                 onChange={e => setFormData({...formData, title: e.target.value})} 
-                placeholder="Enter title" 
+                placeholder="Enter title"
+                maxLength={255}
               />
             </div>
 
@@ -153,6 +154,7 @@ export default function Opportunities() {
               <textarea 
                 className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" 
                 rows="4"
+                maxLength={5000}
                 value={formData.description} 
                 onChange={e => setFormData({...formData, description: e.target.value})} 
                 placeholder="Opportunity details..."
@@ -165,7 +167,8 @@ export default function Opportunities() {
                 className="border-gray-300 focus-visible:ring-brand-purple"
                 value={formData.externalUrl} 
                 onChange={e => setFormData({...formData, externalUrl: e.target.value})} 
-                placeholder="https://example.com/apply" 
+                placeholder="https://example.com/apply"
+                maxLength={2048}
               />
             </div>
 
@@ -185,7 +188,8 @@ export default function Opportunities() {
                 className="border-gray-300 focus-visible:ring-brand-purple"
                 value={formData.organisation} 
                 onChange={e => setFormData({...formData, organisation: e.target.value})} 
-                placeholder="e.g. DAAD, European Commission" 
+                placeholder="e.g. DAAD, European Commission"
+                maxLength={200}
               />
             </div>
 

@@ -98,13 +98,15 @@ function shouldIgnoreLink(event, anchor) {
     return true
   }
 
-  // Disable transitions for admin and full-screen application portal routes
+  // Disable transitions for admin, full-screen application portal routes,
+  // and the standalone delegate registration form
   if (
     href.includes('/admin') ||
     href.includes('/apply') ||
     href.includes('/inbound-exchange/apply') ||
     href.includes('/international-admissions/apply') ||
-    href.includes('/international-mobility/apply')
+    href.includes('/international-mobility/apply') ||
+    href.includes('/iro/')
   ) {
     return true
   }
@@ -269,14 +271,9 @@ export default function PageRoutes() {
           <Route path="/search" element={<Search />} />
 
           <Route path="/opportunities" element={<Opportunities />} />
-          <Route 
-            path="/visitors/register" 
-            element={
-              <FacultyProtectedRoute>
-                <VisitorsForm />
-              </FacultyProtectedRoute>
-            } 
-          />
+          {/* Delegate Registration — public, standalone, not linked from the main site.
+               Share this URL directly with visiting delegations. */}
+          <Route path="/iro/delegate-registration" element={<VisitorsForm />} />
 
           {/* Student Routes */}
           <Route path="/students" element={<Landing />} />
