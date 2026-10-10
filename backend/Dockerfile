@@ -43,9 +43,11 @@ RUN apk add --no-cache openssl netcat-openbsd \
 COPY --from=builder /app/dist           ./dist
 COPY --from=builder /app/node_modules   ./node_modules
 COPY --from=builder /app/package.json   ./package.json
-# Prisma schema + generated client (needed for migrations at entrypoint + runtime queries)
+# Prisma schema (needed for migrations at entrypoint)
+# Note: the generated Prisma client lives inside node_modules/@prisma/client
+# (no custom output path in schema.prisma), so it is already covered by the
+# node_modules copy above. There is no /app/generated directory.
 COPY --from=builder /app/prisma         ./prisma
-COPY --from=builder /app/generated      ./generated
 
 # Persistent upload directories with correct ownership
 RUN mkdir -p /app/uploads /app/private-uploads \
