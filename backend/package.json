@@ -11,7 +11,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "db:migrate": "prisma migrate dev --config src/config/prisma.config.ts",
-    "db:deploy": "prisma migrate deploy --config src/config/prisma.config.ts",
+    "db:deploy": "prisma migrate deploy --config dist/config/prisma.config.js",
     "db:generate": "prisma generate --config src/config/prisma.config.ts",
     "db:validate": "prisma validate --config src/config/prisma.config.ts",
     "db:reset": "prisma migrate reset --config src/config/prisma.config.ts",
