@@ -15,6 +15,12 @@ RUN npm ci
 
 # Copy source and compile
 COPY . .
+# prisma generate reads the schema file only — it never connects to the database.
+# The custom prisma.config.ts calls env("DATABASE_URL") which must resolve at
+# config-parse time even though no connection is made. Provide a dummy value
+# here so the build succeeds; the real URL is injected at runtime via docker-compose.
+ARG DATABASE_URL=postgresql://build:build@localhost:5432/build
+ENV DATABASE_URL=${DATABASE_URL}
 RUN npm run db:generate
 RUN npm run build
 
