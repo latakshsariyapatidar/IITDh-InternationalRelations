@@ -16,7 +16,7 @@
     "db:validate": "prisma validate --config src/config/prisma.config.ts",
     "db:reset": "prisma migrate reset --config src/config/prisma.config.ts",
     "db:studio": "prisma studio --config src/config/prisma.config.ts",
-    "seed": "tsx src/scripts/seed.ts",
+    "seed": "node dist/scripts/seed.js",
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
