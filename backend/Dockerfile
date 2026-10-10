@@ -39,21 +39,22 @@ RUN apk add --no-cache openssl netcat-openbsd \
     && addgroup -S appgroup \
     && adduser  -S appuser -G appgroup
 
-# Copy only what is needed at runtime
-COPY --from=builder /app/dist           ./dist
-COPY --from=builder /app/node_modules   ./node_modules
-COPY --from=builder /app/package.json   ./package.json
-# Prisma schema (needed for migrations at entrypoint)
-# Note: the generated Prisma client lives inside node_modules/@prisma/client
-# (no custom output path in schema.prisma), so it is already covered by the
-# node_modules copy above. There is no /app/generated directory.
-COPY --from=builder /app/prisma         ./prisma
+# Copy only what is needed at runtime.
+# --chown applies ownership at copy time (part of the layer write) which is
+# essentially free. A post-copy "chown -R /app" would traverse every file in
+# node_modules — tens of thousands of stat+chown syscalls — and takes minutes.
+COPY --from=builder --chown=appuser:appgroup /app/dist         ./dist
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/package.json ./package.json
+# Prisma schema (needed for migrations at entrypoint).
+# The generated client lives inside node_modules/@prisma/client — already above.
+COPY --from=builder --chown=appuser:appgroup /app/prisma       ./prisma
 
-# Persistent upload directories with correct ownership
+# Create upload directories and chown only those two empty dirs (not node_modules).
 RUN mkdir -p /app/uploads /app/private-uploads \
-    && chown -R appuser:appgroup /app
+    && chown appuser:appgroup /app/uploads /app/private-uploads
 
-COPY entrypoint.sh /app/entrypoint.sh
+COPY --chown=appuser:appgroup entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh \
     && chown appuser:appgroup /app/entrypoint.sh
 
