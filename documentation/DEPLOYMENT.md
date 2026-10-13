@@ -52,8 +52,8 @@ sudo usermod -aG docker $USER
    - `JWT_SECRET`: Paste the generated base64 secret.
    - `EXPORT_LINK_SECRET`: Paste a second unique base64 secret.
    - `SEED_ADMIN_PASSWORD`: Strong password for the default administrator account.
-   - `PUBLIC_API_BASE_URL`: Public domain URL (e.g. `https://iro.iitdh.ac.in`).
-   - `CORS_ORIGIN`: Permitted origins (e.g. `https://iro.iitdh.ac.in`).
+   - `PUBLIC_API_BASE_URL`: Public domain URL (e.g. `https://ir.iitdh.ac.in`).
+   - `CORS_ORIGIN`: Permitted origins (e.g. `https://ir.iitdh.ac.in`).
    - `TRUST_PROXY`: Set to `1` (indicates one reverse proxy sitting in front).
    - `COOKIE_SECURE`: Set to `true` (enforces HTTPS cookie transmission).
 
@@ -109,7 +109,7 @@ To serve the application securely over HTTPS on port 443, configure Nginx on the
    ```nginx
    server {
        listen 80;
-       server_name iro.iitdh.ac.in;
+       server_name ir.iitdh.ac.in;
 
        # Max upload size (transcripts, portfolios, signed agreements)
        client_max_body_size 50M;
@@ -136,7 +136,7 @@ To serve the application securely over HTTPS on port 443, configure Nginx on the
 
    # Obtain SSL certificate
    sudo apt install -y certbot python3-certbot-nginx
-   sudo certbot --nginx -d iro.iitdh.ac.in
+   sudo certbot --nginx -d ir.iitdh.ac.in
    ```
 
 ---

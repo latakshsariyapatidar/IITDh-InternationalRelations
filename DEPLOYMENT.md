@@ -57,8 +57,8 @@ openssl rand -base64 24
 ### 4. Set your domain in `.env`
 
 ```dotenv
-PUBLIC_API_BASE_URL=https://iro.iitdh.ac.in
-CORS_ORIGIN=https://iro.iitdh.ac.in
+PUBLIC_API_BASE_URL=https://ir.iitdh.ac.in
+CORS_ORIGIN=https://ir.iitdh.ac.in
 GOOGLE_CLIENT_ID=<your-google-oauth-client-id>
 ```
 
@@ -106,7 +106,7 @@ sudo apt install nginx certbot python3-certbot-nginx -y
 # /etc/nginx/sites-available/iro
 server {
     listen 80;
-    server_name iro.iitdh.ac.in;
+    server_name ir.iitdh.ac.in;
 
     location / {
         proxy_pass         http://127.0.0.1:8080;
@@ -127,7 +127,7 @@ sudo ln -s /etc/nginx/sites-available/iro /etc/nginx/sites-enabled/iro
 sudo nginx -t && sudo systemctl reload nginx
 
 # Obtain TLS certificate
-sudo certbot --nginx -d iro.iitdh.ac.in
+sudo certbot --nginx -d ir.iitdh.ac.in
 ```
 
 Certbot will auto-renew via a systemd timer. After TLS is enabled, set in `.env`:
@@ -217,7 +217,7 @@ Schedule both via cron and copy to off-server storage (S3, rsync, etc.).
 The form for registering visiting delegations is available at:
 
 ```
-https://your-domain.example.com/iro/delegate-registration
+https://ir.iitdh.ac.in/iro/delegate-registration
 ```
 
 **This URL is intentionally not linked anywhere on the public website.**  

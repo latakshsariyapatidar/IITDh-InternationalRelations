@@ -16,8 +16,8 @@ import type { SignOptions, VerifyOptions } from "jsonwebtoken";
 // make that boundary explicit rather than incidental.
 
 export const JWT_ALGORITHM = "HS256" as const;
-export const JWT_ISSUER = "iro.iitdh.ac.in";
-export const JWT_AUDIENCE = "iro-api";
+export const JWT_ISSUER = "ir.iitdh.ac.in";
+export const JWT_AUDIENCE = "ir-api";
 
 /** Access-token lifetime. Short because it cannot be revoked once issued. */
 export const ACCESS_TOKEN_TTL = "15m";
