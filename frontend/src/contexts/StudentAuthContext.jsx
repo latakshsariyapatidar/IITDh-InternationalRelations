@@ -63,7 +63,7 @@ export const StudentAuthProvider = ({ children }) => {
 
   return (
     <StudentAuthContext.Provider value={value}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "355857964889-4carkip2drm07698r2gchihhsmt43312.apps.googleusercontent.com"}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "40123449743-ger1qs5gjvdip8ba9f0vu152n1q8f2ol.apps.googleusercontent.com"}>
         {children}
       </GoogleOAuthProvider>
     </StudentAuthContext.Provider>
