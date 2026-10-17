@@ -66,6 +66,7 @@ export default function Downloads() {
       <HeroSection
         title="Downloads"
         subtitle="Essential resources and documents"
+        backgroundImage="/institute/institute6.webp"
       />
 
       {loading ? (

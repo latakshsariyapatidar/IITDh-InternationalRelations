@@ -8,6 +8,7 @@ export default function Visa() {
       <HeroSection
         title="Visa & Immigration"
         subtitle="Information for international students and visitors"
+        backgroundImage="/institute/Institute5.jpg"
       />
 
       <section className="max-w-7xl mx-auto px-4 py-16">

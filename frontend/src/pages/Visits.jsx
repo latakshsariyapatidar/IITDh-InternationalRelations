@@ -46,6 +46,7 @@ export default function Visits() {
       <HeroSection
         title="Visits"
         subtitle="Hosted delegations and collaborative missions"
+        backgroundImage="/institute/institute8.webp"
       />
 
       {/* Upcoming Visits */}

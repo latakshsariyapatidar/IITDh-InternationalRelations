@@ -170,6 +170,7 @@ export default function Search() {
       <HeroSection
         title="Search"
         subtitle="Find pages, resources, and contacts across the International Relations site"
+        backgroundImage="/institute/Institute2.jpg"
       />
 
       <section className="max-w-5xl mx-auto px-4 py-16">

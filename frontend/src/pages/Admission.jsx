@@ -27,6 +27,7 @@ export default function Admission() {
       <HeroSection
         title="International Admissions"
         subtitle="Your pathway to world-class degree education at IIT Dharwad"
+        backgroundImage="/institute/Institute2.jpg"
         cta={{ label: 'Apply Online for Degree Programs', to: '/international-admissions/apply' }}
       />
 

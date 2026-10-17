@@ -13,6 +13,7 @@ export default function Collaboration() {
       <HeroSection
         title="International Mobility"
         subtitle="Global opportunities for students, faculty, and institutions"
+        backgroundImage="/institute/Institute3.jpg"
         cta={{ label: 'Explore Programs', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
       />
 

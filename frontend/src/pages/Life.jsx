@@ -9,6 +9,7 @@ export default function Life() {
       <HeroSection
         title="Life at IIT Dharwad"
         subtitle="Experience vibrant campus life in scenic Dharwad"
+        backgroundImage="/institute/institute7.webp"
       />
 
       {/* About Dharwad and Karnataka */}

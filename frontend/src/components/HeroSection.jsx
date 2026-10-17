@@ -1,22 +1,53 @@
+import { useLocation } from 'react-router-dom'
 import CTAButton from './ui/CTAButton'
 
+// Mapping routes to specific high-res institute campus photos
+// Note the exact casing and extensions: Institute1-5 are .jpg (capital I), institute6-10 are .webp (lowercase i)
+const ROUTE_IMAGE_MAP = {
+  '/about': '/institute/Institute1.jpg',
+  '/international-admissions': '/institute/Institute2.jpg',
+  '/admission': '/institute/Institute2.jpg',
+  '/international-mobility': '/institute/Institute3.jpg',
+  '/collaboration': '/institute/Institute3.jpg',
+  '/partners': '/institute/Institute4.jpg',
+  '/visa': '/institute/Institute5.jpg',
+  '/downloads': '/institute/institute6.webp',
+  '/life': '/institute/institute7.webp',
+  '/visits': '/institute/institute8.webp',
+  '/gallery': '/institute/institute9.webp',
+  '/opportunities': '/institute/institute10.webp',
+  '/contact': '/institute/Institute1.jpg',
+  '/search': '/institute/Institute2.jpg',
+}
+
+const DEFAULT_IMAGE = '/institute/Institute1.jpg'
+
 export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
+  const location = useLocation()
+  const currentPath = location?.pathname || ''
+  const finalBgImage = backgroundImage || ROUTE_IMAGE_MAP[currentPath] || DEFAULT_IMAGE
+
   return (
-    <div
-      className="relative min-h-[50vh] md:min-h-[calc(100vh-140px)] bg-brand-purpleDark overflow-hidden flex items-center"
-      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-brand-purple/85 mix-blend-multiply"></div>
+    <div className="relative min-h-[50vh] md:min-h-[calc(100vh-140px)] bg-brand-purpleDark overflow-hidden flex items-center">
+      {/* Background Institute Photo */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
+        style={{ backgroundImage: `url(${finalBgImage})` }}
+      />
+
+      {/* Brand Color & High-Contrast Overlays to ensure text is crystal clear */}
+      <div className="absolute inset-0 bg-brand-purpleDark/75 mix-blend-multiply pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-brand-purpleDark/80 to-brand-purpleDark/60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 flex flex-col items-start text-left">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white mb-6 leading-tight animate-fadeUp">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-6 leading-tight animate-fadeUp drop-shadow-md">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-lg md:text-xl text-brand-purpleLight font-light max-w-2xl mb-10 animate-fadeUp d1">
+            <p className="text-lg md:text-xl text-white/95 md:text-brand-purpleLight font-normal max-w-2xl mb-10 animate-fadeUp d1 leading-relaxed drop-shadow-sm">
               {subtitle}
             </p>
           )}
@@ -36,4 +67,3 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
     </div>
   )
 }
-

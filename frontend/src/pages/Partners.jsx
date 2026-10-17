@@ -238,6 +238,7 @@ export default function Partners() {
       <HeroSection
         title="Global Partners & Collaborations"
         subtitle="A vibrant worldwide network of partner universities, research consortia, and bilateral agreements connecting IIT Dharwad to the world"
+        backgroundImage="/institute/Institute4.jpg"
         cta={{
           label: 'Explore Active MOUs',
           onClick: () => {

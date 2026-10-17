@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import apiClient from '../api/client';
 import { useStudentAuth } from '../contexts/StudentAuthContext';
-import { Button } from '../components/ui/button';
+import HeroSection from '../components/HeroSection';
+import SectionHeader from '../components/ui/SectionHeader';
 import { 
   RiSearchLine, 
   RiCloseLine, 
@@ -149,38 +150,49 @@ export default function Opportunities() {
   };
 
   return (
-    <div className="py-16 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Page Header */}
-        <div className="text-center max-w-3xl mx-auto mb-5">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Opportunities
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            Explore international scholarships, research fellowships, semester exchanges, and collaborative grants curated by the International Relations Office.
-          </p>
-        </div>
+    <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
+      {/* Hero Header */}
+      <HeroSection
+        title="Opportunities"
+        subtitle="Explore international scholarships, research fellowships, semester exchanges, and collaborative grants curated by the International Relations Office."
+        backgroundImage="/institute/institute10.webp"
+        cta={{
+          label: 'Explore Opportunities',
+          onClick: () => {
+            const el = document.getElementById('opportunities-feed');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          },
+        }}
+      />
+
+      {/* Main Content Area */}
+      <section id="opportunities-feed" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <SectionHeader
+          title="Global Opportunities & Calls"
+          subtitle="Discover and filter through scholarships, fellowships, and academic exchanges available for students and faculty"
+          badge={<RiSparklingLine size={18} />}
+          badgeText="Active Opportunities"
+        />
 
         {/* Search and Filters Bar */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200/80 mb-10 space-y-5">
-          
+        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-brand-purpleLight/60 mb-10 space-y-5">
           {/* Top Row: Search Input & Audience Selector */}
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search Input */}
             <div className="relative flex-1">
-              <RiSearchLine size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <RiSearchLine size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-purple/50 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search opportunities by title, organisation, country, or keyword..."
-                className="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple transition-all"
+                className="w-full pl-11 pr-10 py-3 rounded-xl border border-brand-purpleLight/70 bg-brand-cream/20 text-sm text-brand-purpleDark placeholder:text-brand-purpleDark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-purple/50 hover:text-brand-purple p-1 cursor-pointer transition-colors"
+                  aria-label="Clear search"
                 >
                   <RiCloseLine size={18} />
                 </button>
@@ -188,15 +200,15 @@ export default function Opportunities() {
             </div>
 
             {/* Audience Filter Pills */}
-            <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl self-start md:self-auto shrink-0">
+            <div className="flex items-center gap-1.5 bg-brand-cream/70 p-1.5 rounded-xl border border-brand-purpleLight/40 self-start md:self-auto shrink-0">
               {AUDIENCES.map((aud) => (
                 <button
                   key={aud.id}
                   onClick={() => setSelectedAudience(aud.id)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     selectedAudience === aud.id
-                      ? 'bg-white text-brand-purple shadow-xs font-bold'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-brand-purple text-white shadow-xs font-bold'
+                      : 'text-brand-purpleDark/75 hover:text-brand-purpleDark hover:bg-white/60'
                   }`}
                 >
                   {aud.label}
@@ -207,8 +219,8 @@ export default function Opportunities() {
 
           {/* Bottom Row: Category Filter Tags */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="text-gray-400 flex items-center gap-1 font-semibold shrink-0 mr-1">
-              <RiFilter3Line size={14} /> Filter:
+            <span className="text-brand-purpleDark/60 flex items-center gap-1 font-semibold shrink-0 mr-1">
+              <RiFilter3Line size={14} className="text-brand-purple" /> Filter:
             </span>
             {CATEGORIES.map((cat) => {
               const isSelected = selectedCategory === cat.id;
@@ -216,10 +228,10 @@ export default function Opportunities() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`shrink-0 px-3.5 py-1.5 rounded-full font-medium transition-all ${
+                  className={`shrink-0 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-brand-purple text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                      : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/40 hover:text-brand-purpleDark border border-brand-purpleLight/40'
                   }`}
                 >
                   {cat.label}
@@ -230,13 +242,13 @@ export default function Opportunities() {
 
           {/* Active Filter Status & Reset */}
           {(searchQuery || selectedCategory !== 'ALL' || selectedAudience !== 'ALL') && (
-            <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-xs text-gray-500">
+            <div className="flex items-center justify-between pt-3 border-t border-brand-purpleLight/30 text-xs text-brand-purpleDark/75">
               <span>
                 Showing <strong>{filteredOpportunities.length}</strong> matching result{filteredOpportunities.length === 1 ? '' : 's'}
               </span>
               <button
                 onClick={clearAllFilters}
-                className="text-brand-purple hover:underline font-semibold"
+                className="text-brand-purple hover:text-brand-purpleHover hover:underline font-bold cursor-pointer transition-colors"
               >
                 Clear all filters
               </button>
@@ -248,66 +260,67 @@ export default function Opportunities() {
         {loading ? (
           <div className="flex flex-col justify-center items-center py-24">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-purple"></div>
-            <p className="text-sm text-gray-500 mt-4 font-medium">Loading opportunities...</p>
+            <p className="text-sm text-brand-purpleDark/70 mt-4 font-medium">Loading opportunities...</p>
           </div>
         ) : filteredOpportunities.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-xs max-w-xl mx-auto p-8">
-            <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-16 bg-white rounded-2xl border border-brand-purpleLight/60 shadow-xs max-w-xl mx-auto p-8 sm:p-10">
+            <div className="w-16 h-16 bg-brand-purpleLight/30 text-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
               <RiSearchLine size={28} />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Opportunities Found</h3>
-            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-              We couldn't find any opportunities matching your current search or filter criteria. Try adjusting your search terms or view all postings.
+            <h3 className="text-xl sm:text-2xl font-bold text-brand-purpleDark mb-2">No Opportunities Found</h3>
+            <p className="text-brand-purpleDark/70 text-sm mb-6 leading-relaxed">
+              We couldn't find any opportunities matching your current search or filter criteria. Try adjusting your search terms or clear filters to view all postings.
             </p>
-            <Button onClick={clearAllFilters} variant="outline" className="text-brand-purple border-brand-purple/40">
+            <button
+              onClick={clearAllFilters}
+              className="bg-brand-purple text-white hover:bg-brand-purpleHover font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors cursor-pointer shadow-xs"
+            >
               Reset Filters
-            </Button>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredOpportunities.map((opp) => {
               const deadline = opp.applicationDeadline || opp.visibleUntil;
-              const hasExternalLink = opp.externalUrl || opp.url;
 
               return (
                 <div
                   key={opp.id}
                   onClick={() => setSelectedOpp(opp)}
-                  className="bg-white rounded-2xl border border-gray-200 hover:border-brand-purple/60 hover:shadow-lg transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+                  className="bg-white rounded-2xl border border-brand-purpleLight/60 hover:border-brand-purple hover:shadow-lg transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
                 >
-
                   <div>
                     {/* Badges */}
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-purple/10 text-brand-purple">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-purpleLight/40 text-brand-purpleDark">
                         {formatCategory(opp.category)}
                       </span>
                       {opp.audience && opp.audience !== 'BOTH' && (
-                        <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <RiUserLine size={12} />
+                        <span className="text-[11px] font-semibold text-brand-purpleDark/80 bg-brand-cream border border-brand-purpleLight/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <RiUserLine size={12} className="text-brand-purple" />
                           {formatAudience(opp.audience)}
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-brand-purple transition-colors line-clamp-2 leading-snug mb-2">
+                    <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors line-clamp-2 leading-snug mb-2">
                       {opp.title}
                     </h3>
 
                     {/* Organisation & Country */}
                     {(opp.organisation || opp.country) && (
-                      <p className="text-xs text-gray-500 font-medium flex items-center gap-1.5 mb-3">
+                      <p className="text-xs text-brand-purpleDark/70 font-medium flex items-center gap-1.5 mb-3">
                         {opp.organisation && (
                           <span className="flex items-center gap-1 truncate">
-                            <RiBuildingLine size={13} className="shrink-0 text-gray-400" />
+                            <RiBuildingLine size={13} className="shrink-0 text-brand-purple/70" />
                             {opp.organisation}
                           </span>
                         )}
                         {opp.organisation && opp.country && <span>•</span>}
                         {opp.country && (
                           <span className="flex items-center gap-1 shrink-0">
-                            <RiMapPinLine size={13} className="text-gray-400" />
+                            <RiMapPinLine size={13} className="text-brand-purple/70" />
                             {opp.country}
                           </span>
                         )}
@@ -315,21 +328,21 @@ export default function Opportunities() {
                     )}
 
                     {/* Description preview */}
-                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-6">
+                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-6 font-normal">
                       {opp.description || 'No description provided.'}
                     </p>
                   </div>
 
                   {/* Card Bottom / Footer */}
-                  <div className="pt-4 border-t border-gray-100 space-y-3">
+                  <div className="pt-4 border-t border-brand-purpleLight/30 space-y-3">
                     {deadline && (
-                      <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md w-fit">
-                        <RiCalendarLine size={13} />
+                      <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-md w-fit font-medium">
+                        <RiCalendarLine size={13} className="text-amber-700" />
                         <span>Deadline: {new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-xs font-semibold text-brand-purple group-hover:text-brand-purpleDark pt-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-brand-purple group-hover:text-brand-purpleHover pt-1">
                       <span>Click to view details</span>
                       <RiArrowRightLine size={15} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -339,8 +352,7 @@ export default function Opportunities() {
             })}
           </div>
         )}
-
-      </div>
+      </section>
 
       {/* FULL DETAILS MODAL */}
       {selectedOpp && (
@@ -353,14 +365,14 @@ export default function Opportunities() {
 
           {/* Modal Card */}
           <div 
-            className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-gray-100 z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+            className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-brand-purpleLight/60 z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-6 sm:p-8 border-b border-gray-100 relative bg-linear-to-b from-gray-50/80 to-white">
+            <div className="p-6 sm:p-8 border-b border-brand-purpleLight/40 relative bg-gradient-to-b from-brand-cream/30 to-white">
               <button
                 onClick={() => setSelectedOpp(null)}
-                className="absolute top-6 right-6 p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                className="absolute top-6 right-6 p-2 rounded-full bg-brand-purpleLight/20 text-brand-purpleDark hover:bg-brand-purpleLight/40 transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
                 <RiCloseLine size={20} />
@@ -370,17 +382,17 @@ export default function Opportunities() {
                 <span className="text-xs font-bold px-3 py-1 rounded-md bg-brand-purple text-white">
                   {formatCategory(selectedOpp.category)}
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-marigold/20 text-brand-purpleDark">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-cream text-brand-purpleDark border border-brand-purpleLight/40">
                   Audience: {formatAudience(selectedOpp.audience || 'BOTH')}
                 </span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-brand-purpleDark leading-tight">
                 {selectedOpp.title}
               </h2>
 
               {(selectedOpp.organisation || selectedOpp.country) && (
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-3">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-brand-purpleDark/80 mt-3">
                   {selectedOpp.organisation && (
                     <span className="flex items-center gap-1.5 font-medium">
                       <RiBuildingLine size={16} className="text-brand-purple" />
@@ -422,7 +434,7 @@ export default function Opportunities() {
 
               {/* Description */}
               <div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">
+                <h4 className="text-sm font-bold text-brand-purpleDark uppercase tracking-wider mb-2">
                   About This Opportunity
                 </h4>
                 <div className="text-gray-700 text-base leading-relaxed whitespace-pre-line space-y-4">
@@ -432,13 +444,13 @@ export default function Opportunities() {
 
               {/* Attachment if present */}
               {selectedOpp.attachmentUrl && (
-                <div className="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div className="p-4 rounded-xl border border-brand-purpleLight/50 bg-brand-cream/20 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-brand-purple/10 text-brand-purple">
+                    <div className="p-2 rounded-lg bg-brand-purpleLight/30 text-brand-purple">
                       <RiAttachmentLine size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">Official Notice / Brochure</p>
+                      <p className="text-sm font-semibold text-brand-purpleDark">Official Notice / Brochure</p>
                       <p className="text-xs text-gray-500">Download attached documentation</p>
                     </div>
                   </div>
@@ -455,21 +467,20 @@ export default function Opportunities() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <Button
-                variant="outline"
+            <div className="p-6 bg-brand-cream/30 border-t border-brand-purpleLight/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
                 onClick={() => setSelectedOpp(null)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-brand-purpleLight/70 text-brand-purpleDark font-semibold text-sm hover:bg-white transition-colors cursor-pointer"
               >
                 Close Details
-              </Button>
+              </button>
 
               {(selectedOpp.externalUrl || selectedOpp.url) && (
                 <a
                   href={selectedOpp.externalUrl || selectedOpp.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-purple text-white font-semibold text-sm hover:bg-brand-purpleDark shadow-sm transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-purple text-white font-semibold text-sm hover:bg-brand-purpleHover shadow-sm transition-all"
                 >
                   <span>Apply on Official Website</span>
                   <RiExternalLinkLine size={16} />
@@ -479,7 +490,6 @@ export default function Opportunities() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -35,6 +35,7 @@ export default function About() {
       <HeroSection
         title="About Us"
         subtitle="International Collaborations and International Academic Programs"
+        backgroundImage="/institute/Institute1.jpg"
         cta={{ label: 'Learn More', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
       />
 

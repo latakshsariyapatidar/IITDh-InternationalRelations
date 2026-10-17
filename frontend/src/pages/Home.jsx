@@ -10,6 +10,11 @@ export default function Home() {
     "/institute/Institute3.jpg",
     "/institute/Institute4.jpg",
     "/institute/Institute5.jpg",
+    "/institute/institute6.webp",
+    "/institute/institute7.webp",
+    "/institute/institute8.webp",
+    "/institute/institute9.webp",
+    "/institute/institute10.webp",
   ];
   const [activeSlide, setActiveSlide] = useState(0);
   const [events, setEvents] = useState([]);
