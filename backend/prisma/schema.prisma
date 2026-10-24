@@ -140,6 +140,12 @@ model Faculty {
   name        String @db.VarChar(200)
   redirectUrl String @db.VarChar(500)
 
+  // Shown on the About page's faculty cards. All optional: a card without a
+  // photo falls back to the name's initial.
+  photoUrl    String? @db.VarChar(500)
+  designation String? @db.VarChar(200)
+  department  String? @db.VarChar(200)
+
   // This directory doubles as the faculty-portal allowlist: a Google
   // sign-in whose verified @iitdh.ac.in address matches an active row here gets
   // a faculty token instead of a student one.

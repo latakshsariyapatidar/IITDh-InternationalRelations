@@ -16,7 +16,9 @@ export default function Faculty() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', redirectUrl: '', isPortalEnabled: 'true', isActive: 'true' });
+  const [formData, setFormData] = useState({ name: '', designation: '', department: '', photoUrl: '', email: '', redirectUrl: '', isPortalEnabled: 'true', isActive: 'true' });
+  // The photo currently stored on the record being edited.
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
@@ -37,7 +39,8 @@ export default function Faculty() {
 
   const openCreate = () => {
     setCurrentId(null);
-    setFormData({ name: '', email: '', redirectUrl: '', isPortalEnabled: 'true', isActive: 'true' });
+    setFormData({ name: '', designation: '', department: '', photoUrl: '', email: '', redirectUrl: '', isPortalEnabled: 'true', isActive: 'true' });
+    setSavedPhotoUrl('');
     setIsFormOpen(true);
   };
 
@@ -45,12 +48,53 @@ export default function Faculty() {
     setCurrentId(item.id);
     setFormData({
       name: item.name || '',
+      designation: item.designation || '',
+      department: item.department || '',
+      photoUrl: item.photoUrl || '',
       email: item.email || '',
       redirectUrl: item.redirectUrl || '',
       isPortalEnabled: item.isPortalEnabled !== false ? 'true' : 'false',
       isActive: item.isActive ? 'true' : 'false',
     });
+    setSavedPhotoUrl(item.photoUrl || '');
     setIsFormOpen(true);
+  };
+
+  // A photo this form uploaded but hasn't saved is referenced by nothing, so it
+  // can be deleted straight away. The saved photo is deleted only after Save
+  // succeeds, so cancelling never leaves the record pointing at a missing file.
+  const discardUnsavedPhoto = async (url) => {
+    if (!url || url === savedPhotoUrl || !url.startsWith('/uploads')) return;
+    try {
+      await apiClient.delete(`/uploads?url=${encodeURIComponent(url)}`);
+    } catch (err) {
+      console.error('Failed to delete unsaved photo', err);
+    }
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/uploads/image/faculty', fd);
+      const newUrl = res.data?.data?.url;
+      await discardUnsavedPhoto(formData.photoUrl);
+      setFormData(prev => ({ ...prev, photoUrl: newUrl }));
+    } catch (err) {
+      console.error(err);
+      alert('Photo upload failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    await discardUnsavedPhoto(formData.photoUrl);
+    setFormData(prev => ({ ...prev, photoUrl: '' }));
+  };
+
+  const handleCancel = async () => {
+    await discardUnsavedPhoto(formData.photoUrl);
+    setIsFormOpen(false);
   };
 
   const handleDelete = async (id) => {
@@ -82,6 +126,9 @@ export default function Faculty() {
     try {
       const payload = {
         name: formData.name.trim(),
+        designation: formData.designation.trim() || null,
+        department: formData.department.trim() || null,
+        photoUrl: formData.photoUrl || null,
         redirectUrl: formData.redirectUrl.trim(),
         email: formData.email && formData.email.trim() ? formData.email.trim().toLowerCase() : null,
         isPortalEnabled: formData.isPortalEnabled === 'true',
@@ -89,6 +136,13 @@ export default function Faculty() {
       };
       if (currentId) await apiClient.patch(`/faculty/${currentId}`, payload);
       else await apiClient.post('/faculty', payload);
+      if (savedPhotoUrl && savedPhotoUrl !== formData.photoUrl && savedPhotoUrl.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(savedPhotoUrl)}`);
+        } catch (err) {
+          console.error('Failed to delete replaced photo', err);
+        }
+      }
       setIsFormOpen(false);
       fetchData();
     } catch (err) {
@@ -105,19 +159,43 @@ export default function Faculty() {
         title={currentId ? 'Edit Faculty Details' : 'Add New Faculty'}
         subtitle="Manage details and portal login permissions for this faculty member."
         stepName="Faculty Info"
-        onCancel={() => setIsFormOpen(false)}
+        onCancel={handleCancel}
         onSave={handleSave}
         loading={saveLoading}
       >
         <div className="space-y-5 max-w-2xl">
           <div className="space-y-2">
             <Label className="text-gray-700 font-semibold">Name <span className="text-red-500">*</span></Label>
-            <Input 
+            <Input
               className="border-gray-300 focus-visible:ring-brand-purple"
-              value={formData.name} 
-              onChange={e => setFormData({...formData, name: e.target.value})} 
-              placeholder="Prof. Jane Doe" 
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              placeholder="Prof. Jane Doe"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-semibold">Designation</Label>
+              <Input
+                className="border-gray-300 focus-visible:ring-brand-purple"
+                maxLength={200}
+                value={formData.designation}
+                onChange={e => setFormData({...formData, designation: e.target.value})}
+                placeholder="Associate Professor"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-semibold">Department</Label>
+              <Input
+                className="border-gray-300 focus-visible:ring-brand-purple"
+                maxLength={200}
+                value={formData.department}
+                onChange={e => setFormData({...formData, department: e.target.value})}
+                placeholder="Computer Science and Engineering"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -141,8 +219,31 @@ export default function Faculty() {
               className="border-gray-300 focus-visible:ring-brand-purple"
               value={formData.redirectUrl} 
               onChange={e => setFormData({...formData, redirectUrl: e.target.value})} 
-              placeholder="https://www.iitdh.ac.in/faculty/..." 
+              placeholder="https://www.iitdh.ac.in/faculty/..."
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-700 font-semibold">Photo</Label>
+            <div className="flex items-start gap-4">
+              <div className="flex-1 space-y-2">
+                <Input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer"
+                  onChange={e => handleImageUpload(e.target.files[0])}
+                />
+                <p className="text-xs text-gray-500">Shown on the faculty card on the public About page. JPEG, PNG, WEBP or GIF, up to 10 MB.</p>
+              </div>
+              {formData.photoUrl && (
+                <div className="shrink-0 flex flex-col items-center gap-1">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-200 bg-white">
+                    <img src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${formData.photoUrl}`} className="w-full h-full object-cover" alt="Preview"/>
+                  </div>
+                  <button type="button" onClick={handleRemovePhoto} className="text-xs text-red-600 hover:underline">Remove photo</button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,7 +307,30 @@ export default function Faculty() {
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-gray-500">No faculty found.</TableCell></TableRow>
             ) : data.map(item => (
                 <TableRow key={item.id} className="hover:bg-gray-50/50">
-                  <TableCell className="font-medium text-gray-900">{item.name}</TableCell>
+                  <TableCell className="font-medium text-gray-900">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-white flex items-center justify-center shrink-0">
+                        {item.photoUrl ? (
+                          <img
+                            src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${item.photoUrl}`}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {e.target.style.display='none'}}
+                          />
+                        ) : (
+                          <span className="text-gray-400 font-bold text-xs">{item.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div>
+                        <div>{item.name}</div>
+                        {(item.designation || item.department) && (
+                          <div className="text-xs font-normal text-gray-500">
+                            {[item.designation, item.department].filter(Boolean).join(' · ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {item.email ? (
                       <span className="text-xs font-mono bg-purple-50 text-brand-purpleDark px-2 py-1 rounded border border-purple-100">

@@ -26,6 +26,10 @@ const PUBLIC_SELECT = {
   id: true,
   name: true,
   redirectUrl: true,
+  // The About page's faculty cards render these three.
+  photoUrl: true,
+  designation: true,
+  department: true,
   // Rendered as a mailto link on the public About page, so it stays public.
   email: true,
   // Read by canSeeRecord() and by the About page's own filter.

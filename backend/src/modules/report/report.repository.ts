@@ -20,13 +20,28 @@ const REPORT_STATUSES = [
   "WAITLISTED",
 ] as const;
 
+// The range arrives as calendar days at UTC midnight (the report form sends
+// "YYYY-MM-DD"). Against a DATE column that compares as the day itself, but
+// `submittedAt` is an instant, and `lte` midnight drops everything submitted
+// later on the last day. The office works in Asia/Kolkata (UTC+05:30, no
+// daylight saving), so that day ends at the next midnight there.
+const OFFICE_UTC_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+const startOfNextOfficeDay = (day: Date): Date =>
+  new Date(
+    Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate() + 1) -
+      OFFICE_UTC_OFFSET_MS,
+  );
+
 export const findAdmissionsInRange = ({ from, to }: DateRange) =>
   prisma.studentApplication.findMany({
     where: {
       status: { in: [...REPORT_STATUSES] },
       // Started on or before `to` — the office date if recorded, else the
-      // submission date.
-      OR: [{ dateOfJoining: { lte: to } }, { dateOfJoining: null, submittedAt: { lte: to } }],
+      // submission date, which counts if it fell anywhere on that day.
+      OR: [
+        { dateOfJoining: { lte: to } },
+        { dateOfJoining: null, submittedAt: { lt: startOfNextOfficeDay(to) } },
+      ],
       // Had not already left before `from`; a missing exit date means still here.
       AND: [{ OR: [{ exitDate: { gte: from } }, { exitDate: null }] }],
     } satisfies Prisma.StudentApplicationWhereInput,

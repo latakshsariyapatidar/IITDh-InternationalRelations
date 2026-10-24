@@ -1,11 +1,23 @@
 import { z } from "zod";
-import { httpUrl, normaliseUrlInput, partialForUpdate, queryBoolean } from "../../shared/utils/zodHelpers.js";
+import {
+  clearableHttpUrlOrPath,
+  httpUrl,
+  normaliseUrlInput,
+  partialForUpdate,
+  queryBoolean,
+} from "../../shared/utils/zodHelpers.js";
 
 export const createFacultySchema = z.object({
   name: z.string().trim().min(1).max(200),
   // httpUrl restricts the scheme to http(s). z.string().url() accepts
   // "javascript:" and "data:", and this value is followed as a link.
   redirectUrl: z.preprocess(normaliseUrlInput, httpUrl()),
+  // Shown on the About page's faculty cards. A photo uploaded through
+  // POST /uploads/image/faculty arrives as "/uploads/faculty/<file>", so the
+  // path form is accepted alongside an external link.
+  photoUrl: clearableHttpUrlOrPath(),
+  designation: z.string().trim().max(200).nullish(),
+  department: z.string().trim().max(200).nullish(),
   // Doubles as the faculty-portal allowlist: a Google sign-in with this
   // address gets a faculty token instead of a student one. Must be an
   // institute address, since sign-in is restricted to that domain anyway.

@@ -138,8 +138,8 @@ export default function About() {
                     )}
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-sm text-brand-purple font-semibold mb-2">{member.designation}</p>
-                  <p className="text-xs text-gray-500 mb-4">{member.department}</p>
+                  {member.designation && <p className="text-sm text-brand-purple font-semibold mb-2">{member.designation}</p>}
+                  {member.department && <p className="text-xs text-gray-500 mb-4">{member.department}</p>}
                   {member.email && (
                     <a href={`mailto:${member.email}`} className="text-sm text-blue-600 hover:underline mt-auto inline-block">
                       {member.email}

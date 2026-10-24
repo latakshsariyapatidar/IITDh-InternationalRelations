@@ -232,9 +232,18 @@ List query: `page`, `limit` (max 100, default 50), `type`, `isActive`.
 
 ### Faculty — `/api/v1/faculty`
 ```ts
-{ name: string, redirectUrl: string (URL), isActive?: boolean }
+{
+  name: string,
+  redirectUrl: string (URL),
+  photoUrl?: string | null (URL or "/uploads/faculty/<file>" from POST /uploads/image/faculty),
+  designation?: string | null (max 200),
+  department?: string | null (max 200),
+  email?: string (@iitdh.ac.in; null on update revokes portal access),
+  isPortalEnabled?: boolean,
+  isActive?: boolean
+}
 ```
-**Design note:** unlike a typical "faculty profile" model, this backend deliberately stores only a name and an external redirect link — no designation, department, email, bio, or photo fields exist. A faculty card in the UI is a name + a link that sends the visitor to an external profile page (e.g. the institute's own faculty directory), not an in-house detail page. Don't build a faculty detail page expecting bio/photo/department fields — they don't exist.
+**Design note:** a faculty card in the UI shows the name, photo, designation, department and email, and links to an external profile page (`redirectUrl`, e.g. the institute's own faculty directory), not an in-house detail page. There is no bio field. `photoUrl`, `designation` and `department` are optional; send `null` to clear one. `isPortalEnabled` is returned to admins only.
 List query: `page`, `limit` (max 100, default 50), `isActive`.
 
 ### IRO Team — `/api/v1/team`
