@@ -20,7 +20,10 @@ export const createEventSchema = z.object({
   startDate: z.coerce.date({
     message: "Start date is required and must be a valid date",
   }),
-  endDate: z.coerce.date().optional(),
+  // nullish, not optional: coercion runs new Date(null), which is 1970-01-01,
+  // so a null sent to clear the end date was stored as that. nullish returns
+  // null before coercion sees it.
+  endDate: z.coerce.date().nullish(),
   location: z.string().trim().max(300).optional(),
   // httpUrlOrPath, not a regex. The old check was /^(https?:\/\/|\/)/, which
   // accepts "//evil.example/x": the alternation's bare "/" matches the first

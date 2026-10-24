@@ -19,7 +19,10 @@ export const createGalleryImageSchema = z.object({
   imageUrl: httpUrlOrPath(),
   caption: z.string().trim().max(300).optional(),
   category: GalleryCategory.default("OTHER"),
-  takenAt: z.coerce.date().optional(),
+  // nullish, not optional: coercion runs new Date(null), which is 1970-01-01,
+  // so a null sent to clear the date was stored as that. nullish returns null
+  // before coercion sees it.
+  takenAt: z.coerce.date().nullish(),
   isPublic: z.boolean().default(true),
 });
 

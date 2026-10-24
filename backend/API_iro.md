@@ -268,7 +268,7 @@ Sorted by `order` ascending (not creation date, not alphabetical) — lower numb
 ```ts
 { title: string, imageUrl: string (URL), caption?: string,
   category?: "CAMPUS" | "EVENTS" | "STUDENT_LIFE" | "COLLABORATIONS" | "OTHER" (default OTHER),
-  takenAt?: string (ISO date), isPublic?: boolean }
+  takenAt?: string | null (ISO date; null clears it), isPublic?: boolean }
 ```
 List query: `page`, `limit` (max 50, default 20), `category`, `isPublic`.
 
@@ -285,12 +285,12 @@ List query: `page`, `limit` (max 50, default 20), `category`, `isPublic`.
 { name: string, level: "UNDERGRADUATE" | "POSTGRADUATE" | "PHD",
   redirectUrl: string (URL), isActive?: boolean }
 ```
-**Same design as Faculty**: no department/duration/description fields — a program card is a name + level badge + an external link. List query: `page`, `limit` (max 100, default 50), `level`, `isActive`.
+**By design** there are no department/duration/description fields — a program card is a name + level badge + an external link. List query: `page`, `limit` (max 100, default 50), `level`, `isActive`.
 
 ### Events — `/api/v1/events`
 ```ts
 { title: string, description?: string, startDate: string (ISO date, required),
-  endDate?: string (ISO date), location?: string, imageUrl?: string (URL),
+  endDate?: string | null (ISO date; null clears it), location?: string, imageUrl?: string (URL),
   type?: "VISIT" | "CONFERENCE" | "WORKSHOP" | "EXCHANGE" | "OTHER" (default OTHER),
   isPublic?: boolean }
 ```
