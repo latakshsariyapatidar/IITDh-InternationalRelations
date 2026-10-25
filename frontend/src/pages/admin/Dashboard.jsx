@@ -32,26 +32,49 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Inbound Degree */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Applications</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending Degree Applications</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pendingApplications || 0}</div>
-            <p className="text-xs text-muted-foreground">Inbound foreign applications</p>
+            <p className="text-xs text-muted-foreground">Inbound degree applications</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Degree Applications</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalApplications || 0}</div>
-            <p className="text-xs text-muted-foreground">Inbound foreign applications</p>
+            <p className="text-xs text-muted-foreground">Inbound degree applications</p>
           </CardContent>
         </Card>
 
+        {/* Inbound Exchange (moved next to degree applications) */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Exchange</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.pendingExchangeApplications || 0}</div>
+            <p className="text-xs text-muted-foreground">Inbound exchange applications</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Exchange</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalExchangeApplications || 0}</div>
+            <p className="text-xs text-muted-foreground">Inbound exchange applications</p>
+          </CardContent>
+        </Card>
+
+        {/* Outbound Applications */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Outbound</CardTitle>
@@ -114,24 +137,6 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.galleryImages || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Exchange</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingExchangeApplications || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Exchange</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalExchangeApplications || 0}</div>
           </CardContent>
         </Card>
 

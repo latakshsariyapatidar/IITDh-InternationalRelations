@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import apiClient from "../api/client";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
+import { resolveMediaUrl } from "../utils/media";
 
 export default function Home() {
   const slideshowImages = [
@@ -28,25 +29,44 @@ export default function Home() {
     ));
   };
 
+  const formatEventDate = (startDate, endDate) => {
+    if (!startDate) return '';
+    const start = new Date(startDate);
+    const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (!endDate) return startStr;
+    const end = new Date(endDate);
+    const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (startStr === endStr) return startStr;
+    return `${startStr} – ${endStr}`;
+  };
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % slideshowImages.length);
     }, 5000);
-    
-    // Fetch upcoming events and testimonials
-    const fetchHomeData = async () => {
+
+    // 1.10 Load independent requests separately so one failure doesn't blank the other
+    // 1.5 Ask only for public content
+    const fetchEvents = async () => {
       try {
-        const eventsRes = await apiClient.get('/events?upcoming=true&limit=3');
+        const eventsRes = await apiClient.get('/events?upcoming=true&isPublic=true&limit=3');
         setEvents(eventsRes.data?.data?.events || []);
-        
-        const testRes = await apiClient.get('/testimonials?limit=6');
-        setTestimonials(testRes.data?.data?.testimonials || []);
       } catch (error) {
-        console.error('Failed to load home data', error);
+        console.error('Failed to load home events', error);
       }
     };
-    
-    fetchHomeData();
+
+    const fetchTestimonials = async () => {
+      try {
+        const testRes = await apiClient.get('/testimonials?isActive=true&limit=6');
+        setTestimonials(testRes.data?.data?.testimonials || []);
+      } catch (error) {
+        console.error('Failed to load home testimonials', error);
+      }
+    };
+
+    fetchEvents();
+    fetchTestimonials();
 
     return () => clearInterval(intervalId);
   }, [slideshowImages.length]);
@@ -58,9 +78,8 @@ export default function Home() {
           {slideshowImages.map((image, index) => (
             <div
               key={image}
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-                index === activeSlide ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === activeSlide ? "opacity-100" : "opacity-0"
+                }`}
               style={{ backgroundImage: `url(${image})` }}
             />
           ))}
@@ -107,7 +126,7 @@ export default function Home() {
               {getContent("home.stats.stat3Number", "2016")}
             </h3>
             <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              {getContent("home.stats.stat3Label", "Est. (Mentored by IIT Bombay)")}
+              {getContent("home.stats.stat3Label", "Established")}
             </p>
           </div>
         </div>
@@ -135,7 +154,7 @@ export default function Home() {
 
               <div>
                 <p className="text-sm text-brand-marigoldDark font-semibold mb-4">
-                  {getContent("home.leadership.directorName", "Prof. Venkappayya R. Desai")}<br/>
+                  {getContent("home.leadership.directorName", "Prof. Venkappayya R. Desai")}<br />
                   {getContent("home.leadership.directorTitle", "Director, IIT Dharwad")}
                 </p>
                 <div className="text-neutral-textDark/80 text-sm leading-relaxed space-y-4">
@@ -161,7 +180,7 @@ export default function Home() {
             </div>
             {events.length > 0 && (
               <Link to="/visits" className="text-brand-marigoldDark font-semibold hover:underline mt-4 md:mt-0">
-                View all events →
+                View All Events & Delegations →
               </Link>
             )}
           </div>
@@ -172,28 +191,33 @@ export default function Home() {
                 <div key={event.id} className="bg-white rounded-2xl border border-brand-purpleLight/60 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
                   {event.imageUrl ? (
                     <div className="aspect-video w-full overflow-hidden bg-brand-purpleLight/30 relative">
-                      <img 
-                        src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${event.imageUrl}`} 
-                        alt={event.title} 
+                      <img
+                        src={resolveMediaUrl(event.imageUrl)}
+                        alt={event.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
-                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-brand-purple font-bold text-sm shadow-sm">
-                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
+                        {formatEventDate(event.startDate, event.endDate)}
                       </div>
                     </div>
                   ) : (
                     <div className="p-4 bg-brand-purpleLight/30 border-b border-brand-purpleLight/50">
-                      <div className="bg-white inline-block px-3 py-1 rounded-md text-brand-purple font-bold text-sm shadow-sm">
-                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <div className="bg-white inline-block px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
+                        {formatEventDate(event.startDate, event.endDate)}
                       </div>
                     </div>
                   )}
                   <div className="p-6 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-marigold/20 text-brand-marigoldDark">
                         {event.type}
                       </span>
+                      {event.location && (
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          📍 {event.location}
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-xl font-bold text-brand-purpleDark mb-2 group-hover:text-brand-marigoldDark transition-colors">
                       {event.title}
@@ -230,13 +254,13 @@ export default function Home() {
               </h2>
               <div className="w-24 h-1 bg-brand-marigold mx-auto"></div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {testimonials.map((item) => (
                 <div key={item.id} className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/10 flex flex-col">
                   <div className="text-brand-marigold mb-6">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M14.017 21L16.41 14.5916C16.6146 13.9712 16.7169 13.661 16.7169 13.3444C16.7169 12.0163 15.6543 10.9392 14.3435 10.9392C13.8824 10.9392 13.5684 11.0825 13.2625 11.3693C13.0645 11.5549 12.9238 11.8398 12.9238 12.1818C12.9238 12.6074 13.1166 12.8777 13.4357 13.1557C13.7909 13.465 14.1292 13.7548 14.1292 14.3981C14.1292 14.6547 14.0321 14.9312 13.8296 15.3456L11.5 21H14.017ZM7.01696 21L9.41014 14.5916C9.61461 13.9712 9.71686 13.661 9.71686 13.3444C9.71686 12.0163 8.65429 10.9392 7.34352 10.9392C6.88243 10.9392 6.56837 11.0825 6.26249 11.3693C6.06448 11.5549 5.92375 11.8398 5.92375 12.1818C5.92375 12.6074 6.11656 12.8777 6.43575 13.1557C6.79089 13.465 7.12918 13.7548 7.12918 14.3981C7.12918 14.6547 7.03208 14.9312 6.82959 15.3456L4.5 21H7.01696Z"/>
+                      <path d="M14.017 21L16.41 14.5916C16.6146 13.9712 16.7169 13.661 16.7169 13.3444C16.7169 12.0163 15.6543 10.9392 14.3435 10.9392C13.8824 10.9392 13.5684 11.0825 13.2625 11.3693C13.0645 11.5549 12.9238 11.8398 12.9238 12.1818C12.9238 12.6074 13.1166 12.8777 13.4357 13.1557C13.7909 13.465 14.1292 13.7548 14.1292 14.3981C14.1292 14.6547 14.0321 14.9312 13.8296 15.3456L11.5 21H14.017ZM7.01696 21L9.41014 14.5916C9.61461 13.9712 9.71686 13.661 9.71686 13.3444C9.71686 12.0163 8.65429 10.9392 7.34352 10.9392C6.88243 10.9392 6.56837 11.0825 6.26249 11.3693C6.06448 11.5549 5.92375 11.8398 5.92375 12.1818C5.92375 12.6074 6.11656 12.8777 6.43575 13.1557C6.79089 13.465 7.12918 13.7548 7.12918 14.3981C7.12918 14.6547 7.03208 14.9312 6.82959 15.3456L4.5 21H7.01696Z" />
                     </svg>
                   </div>
                   <p className="text-white/90 mb-8 italic flex-1">
@@ -245,8 +269,8 @@ export default function Home() {
                   <div className="flex items-center gap-4 mt-auto">
                     {item.photoUrl ? (
                       <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-brand-marigold">
-                        <img 
-                          src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${item.photoUrl}`} 
+                        <img
+                          src={resolveMediaUrl(item.photoUrl)}
                           alt={item.name}
                           className="w-full h-full object-cover"
                           onError={(e) => { e.target.style.display = 'none'; }}

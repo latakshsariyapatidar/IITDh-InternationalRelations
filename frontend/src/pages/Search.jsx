@@ -76,7 +76,7 @@ const quickLinks = [
   },
   {
     title: 'Faculty Research Profiles',
-    path: '/downloads',
+    path: '/about#faculty',
     description: 'Directory of IITDH faculty research profiles.',
     keywords: ['faculty', 'research'],
   },

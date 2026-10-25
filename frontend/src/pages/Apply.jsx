@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { compressDocument, formatBytes } from '../utils/fileCompressor';
+import { extractValidationErrors } from '../utils/formErrors';
 
 const STEPS = [
   "Personal Details",
@@ -13,19 +14,34 @@ const STEPS = [
   "Documents"
 ];
 
+const STEP_FIELD_MAP = {
+  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate'],
+  1: ['email', 'phone', 'currentAddress', 'emergencyContactName', 'emergencyContactRelation', 'emergencyContactPhone'],
+  2: ['programLevel', 'programLevelOther', 'programAppliedFor', 'intendedIntake', 'highestQualification', 'previousInstitution', 'previousGradeOrGPA', 'englishTestType', 'englishTestScore'],
+  3: ['requiresVisaSponsorship', 'visaCategory'],
+  4: ['passportCopy', 'photo', 'academicTranscripts', 'englishTestScoreCard', 'statementOfPurpose', 'financialProof', 'recommendationLetter']
+};
+
 export default function Apply() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [referenceId, setReferenceId] = useState(null);
   
   const [currentStep, setCurrentStep] = useState(0);
+  const [programs, setPrograms] = useState([]);
+  const [isCustomProgram, setIsCustomProgram] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', dateOfBirth: '', gender: 'PREFER_NOT_TO_SAY',
     nationality: '', countryOfResidence: '', passportNumber: '', passportExpiryDate: '',
     email: '', phone: '', currentAddress: '', emergencyContactName: '',
     emergencyContactRelation: '', emergencyContactPhone: '',
-    programLevel: 'BACHELORS', programAppliedFor: '', intendedIntake: '',
+    // 4.1: Must be UNDERGRADUATE, POSTGRADUATE, PHD, or OTHER
+    programLevel: 'UNDERGRADUATE',
+    programLevelOther: '',
+    programAppliedFor: '', intendedIntake: '',
     highestQualification: '', previousInstitution: '', previousGradeOrGPA: '',
     englishTestType: 'NOT_APPLICABLE', englishTestScore: '', visaCategory: '',
     requiresVisaSponsorship: 'true',
@@ -35,9 +51,30 @@ export default function Apply() {
   const [compressing, setCompressing] = useState({});
   const [compressionStats, setCompressionStats] = useState({});
 
+  useEffect(() => {
+    // 4.3 Populate programs catalogue for dropdown
+    const fetchPrograms = async () => {
+      try {
+        const res = await apiClient.get('/programs?isActive=true&limit=100');
+        const list = res.data?.data?.programs || [];
+        setPrograms(list);
+      } catch (err) {
+        console.warn('Could not load programs catalogue:', err);
+      }
+    };
+    fetchPrograms();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -76,12 +113,6 @@ export default function Apply() {
     }
   };
 
-  const validateStep = () => {
-    // Basic validation just relying on HTML5 required attributes for now, 
-    // handled by form onSubmit for next steps.
-    return true; 
-  };
-
   const handleNext = (e) => {
     e.preventDefault();
     if (currentStep < STEPS.length - 1) {
@@ -104,12 +135,19 @@ export default function Apply() {
 
     setLoading(true);
     setError(null);
+    setFieldErrors({});
     setSuccess(false);
 
     try {
       const payload = new FormData();
       Object.keys(formData).forEach(key => {
-        payload.append(key, formData[key]);
+        // If programLevel is not OTHER, do not submit programLevelOther
+        if (key === 'programLevelOther' && formData.programLevel !== 'OTHER') {
+          return;
+        }
+        if (formData[key] !== undefined && formData[key] !== '') {
+          payload.append(key, formData[key]);
+        }
       });
 
       // Ensure any pending file compression completes before payload creation
@@ -122,17 +160,41 @@ export default function Apply() {
         }
       }
 
-      await apiClient.post('/applications', payload, {
+      const res = await apiClient.post('/applications', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      const ref = res.data?.data?.referenceId || res.data?.data?.id || 'SUBMITTED';
+      setReferenceId(ref);
       setSuccess(true);
     } catch (err) {
-      console.error(err);
+      console.error('Application submission error:', err);
+      // 1.8: Backend allows 5 MB for application documents
       if (err.response?.status === 413) {
-        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 2MB.');
+        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 5MB.');
+        return;
+      }
+
+      // 4.2 & 1.3: Parse validation errors and jump back to the step that has the bad field
+      const { fieldErrors: extractedFields, errorList, generalMessage } = extractValidationErrors(err);
+      setFieldErrors(extractedFields);
+
+      let targetStep = -1;
+      if (errorList.length > 0) {
+        const firstBadField = errorList[0].field;
+        for (let stepIdx = 0; stepIdx < STEPS.length; stepIdx++) {
+          if (STEP_FIELD_MAP[stepIdx]?.includes(firstBadField)) {
+            targetStep = stepIdx;
+            break;
+          }
+        }
+      }
+
+      if (targetStep >= 0 && targetStep !== currentStep) {
+        setCurrentStep(targetStep);
+        setError(`Please check Step ${targetStep + 1} (${STEPS[targetStep]}): ${errorList[0].message}`);
       } else {
-        setError(err.response?.data?.message || 'An error occurred while submitting your application.');
+        setError(generalMessage);
       }
     } finally {
       setLoading(false);
@@ -142,21 +204,31 @@ export default function Apply() {
   if (success) {
     return (
       <div className="h-screen w-screen bg-brand-purpleDark flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
+        <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
             <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Admissions Application Submitted!</h2>
-          <p className="text-gray-600 text-base leading-relaxed">
-            Thank you for applying for degree studies at IIT Dharwad. Your application has been received and is currently under review by the International Relations Office.
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Application Submitted!</h2>
+          <p className="text-gray-600 text-sm leading-relaxed">
+            Thank you for applying for degree studies at IIT Dharwad. Your application has been successfully submitted and forwarded to the International Relations Office.
           </p>
+
+          {/* 1.13: Show Reference ID */}
+          {referenceId && (
+            <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
+              <p className="text-xs uppercase font-bold tracking-wider text-gray-500 mb-1">Application Reference Number</p>
+              <p className="font-mono text-lg font-bold text-brand-purple select-all">{referenceId}</p>
+              <p className="text-[11px] text-gray-500 mt-1">Please quote this reference ID in all future correspondence.</p>
+            </div>
+          )}
+
           <div className="space-y-3 pt-2">
-            <Button onClick={() => window.location.href = '/international-admissions'} className="w-full bg-brand-purple hover:bg-brand-purpleDark">
+            <Button onClick={() => window.location.href = '/international-admissions'} className="w-full bg-brand-purple hover:bg-brand-purpleDark cursor-pointer">
               Return to International Admissions
             </Button>
-            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full">
+            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full cursor-pointer">
               Return to Home
             </Button>
           </div>
@@ -207,7 +279,7 @@ export default function Apply() {
               const isPast = idx < currentStep;
 
               return (
-                <div key={step} className="flex items-center gap-4">
+                <div key={step} className="flex items-center gap-4 cursor-pointer" onClick={() => setCurrentStep(idx)}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300
                     ${isActive ? 'bg-brand-marigold text-brand-purpleDark' : 
                       isPast ? 'bg-brand-purple text-white' : 'bg-brand-purple/40 text-brand-purpleLight/40'}`}>
@@ -260,15 +332,18 @@ export default function Apply() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
                     <Label>First Name <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="firstName" value={formData.firstName} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} name="firstName" value={formData.firstName} onChange={handleInputChange} className={fieldErrors.firstName ? 'border-red-500' : ''} />
+                    {fieldErrors.firstName && <p className="text-xs text-red-500">{fieldErrors.firstName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Last Name <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="lastName" value={formData.lastName} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} name="lastName" value={formData.lastName} onChange={handleInputChange} className={fieldErrors.lastName ? 'border-red-500' : ''} />
+                    {fieldErrors.lastName && <p className="text-xs text-red-500">{fieldErrors.lastName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Date of Birth <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} className={fieldErrors.dateOfBirth ? 'border-red-500' : ''} />
+                    {fieldErrors.dateOfBirth && <p className="text-xs text-red-500">{fieldErrors.dateOfBirth}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Gender</Label>
@@ -281,19 +356,23 @@ export default function Apply() {
                   </div>
                   <div className="space-y-2">
                     <Label>Nationality <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="nationality" value={formData.nationality} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} name="nationality" value={formData.nationality} onChange={handleInputChange} className={fieldErrors.nationality ? 'border-red-500' : ''} />
+                    {fieldErrors.nationality && <p className="text-xs text-red-500">{fieldErrors.nationality}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Country of Residence <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="countryOfResidence" value={formData.countryOfResidence} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} name="countryOfResidence" value={formData.countryOfResidence} onChange={handleInputChange} className={fieldErrors.countryOfResidence ? 'border-red-500' : ''} />
+                    {fieldErrors.countryOfResidence && <p className="text-xs text-red-500">{fieldErrors.countryOfResidence}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Passport Number <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} className={fieldErrors.passportNumber ? 'border-red-500' : ''} />
+                    {fieldErrors.passportNumber && <p className="text-xs text-red-500">{fieldErrors.passportNumber}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Passport Expiry Date <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} type="date" name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} />
+                    <Input required={currentStep === 0} type="date" name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} className={fieldErrors.passportExpiryDate ? 'border-red-500' : ''} />
+                    {fieldErrors.passportExpiryDate && <p className="text-xs text-red-500">{fieldErrors.passportExpiryDate}</p>}
                   </div>
                 </div>
               </div>
@@ -303,27 +382,33 @@ export default function Apply() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
                     <Label>Email Address <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} type="email" name="email" value={formData.email} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} type="email" name="email" value={formData.email} onChange={handleInputChange} className={fieldErrors.email ? 'border-red-500' : ''} />
+                    {fieldErrors.email && <p className="text-xs text-red-500">{fieldErrors.email}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Phone Number <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="phone" value={formData.phone} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} name="phone" value={formData.phone} onChange={handleInputChange} className={fieldErrors.phone ? 'border-red-500' : ''} />
+                    {fieldErrors.phone && <p className="text-xs text-red-500">{fieldErrors.phone}</p>}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Current Residential Address <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} className={fieldErrors.currentAddress ? 'border-red-500' : ''} />
+                    {fieldErrors.currentAddress && <p className="text-xs text-red-500">{fieldErrors.currentAddress}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Emergency Contact Name <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="emergencyContactName" value={formData.emergencyContactName} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} name="emergencyContactName" value={formData.emergencyContactName} onChange={handleInputChange} className={fieldErrors.emergencyContactName ? 'border-red-500' : ''} />
+                    {fieldErrors.emergencyContactName && <p className="text-xs text-red-500">{fieldErrors.emergencyContactName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Emergency Contact Relation <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleInputChange} className={fieldErrors.emergencyContactRelation ? 'border-red-500' : ''} />
+                    {fieldErrors.emergencyContactRelation && <p className="text-xs text-red-500">{fieldErrors.emergencyContactRelation}</p>}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Emergency Contact Phone <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 1} name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} />
+                    <Input required={currentStep === 1} name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} className={fieldErrors.emergencyContactPhone ? 'border-red-500' : ''} />
+                    {fieldErrors.emergencyContactPhone && <p className="text-xs text-red-500">{fieldErrors.emergencyContactPhone}</p>}
                   </div>
                 </div>
               </div>
@@ -333,32 +418,97 @@ export default function Apply() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
                     <Label>Program Level <span className="text-red-500">*</span></Label>
-                    <select required={currentStep === 2} name="programLevel" value={formData.programLevel} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                      <option value="BACHELORS">Bachelors</option>
-                      <option value="MASTERS">Masters</option>
-                      <option value="PHD">PhD</option>
-                      <option value="POSTDOC">Postdoc</option>
+                    {/* 4.1: Proper enum options matching backend schema */}
+                    <select
+                      required={currentStep === 2}
+                      name="programLevel"
+                      value={formData.programLevel}
+                      onChange={handleInputChange}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="UNDERGRADUATE">Bachelors (Undergraduate)</option>
+                      <option value="POSTGRADUATE">Masters (Postgraduate)</option>
+                      <option value="PHD">PhD (Doctoral)</option>
+                      <option value="OTHER">Other (please specify)</option>
                     </select>
+                    {fieldErrors.programLevel && <p className="text-xs text-red-500">{fieldErrors.programLevel}</p>}
                   </div>
+
+                  {formData.programLevel === 'OTHER' && (
+                    <div className="space-y-2">
+                      <Label>Specify Program Level <span className="text-red-500">*</span></Label>
+                      <Input
+                        required={currentStep === 2 && formData.programLevel === 'OTHER'}
+                        name="programLevelOther"
+                        value={formData.programLevelOther}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Postdoctoral Fellow / Special Diploma"
+                        className={fieldErrors.programLevelOther ? 'border-red-500' : ''}
+                      />
+                      {fieldErrors.programLevelOther && <p className="text-xs text-red-500">{fieldErrors.programLevelOther}</p>}
+                    </div>
+                  )}
+
                   <div className="space-y-2">
-                    <Label>Program Applied For <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="programAppliedFor" value={formData.programAppliedFor} onChange={handleInputChange} placeholder="e.g. Computer Science" />
+                    <div className="flex items-center justify-between">
+                      <Label>Program Applied For <span className="text-red-500">*</span></Label>
+                      {programs.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomProgram(prev => !prev)}
+                          className="text-[11px] text-brand-purple hover:underline"
+                        >
+                          {isCustomProgram ? 'Select from list' : 'Type custom'}
+                        </button>
+                      )}
+                    </div>
+                    {programs.length > 0 && !isCustomProgram ? (
+                      <select
+                        required={currentStep === 2}
+                        name="programAppliedFor"
+                        value={formData.programAppliedFor}
+                        onChange={handleInputChange}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="">Select a Program</option>
+                        {programs.map(p => (
+                          <option key={p.id} value={p.name}>
+                            {p.name} ({p.level || p.department})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <Input
+                        required={currentStep === 2}
+                        name="programAppliedFor"
+                        value={formData.programAppliedFor}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Computer Science & Engineering"
+                        className={fieldErrors.programAppliedFor ? 'border-red-500' : ''}
+                      />
+                    )}
+                    {fieldErrors.programAppliedFor && <p className="text-xs text-red-500">{fieldErrors.programAppliedFor}</p>}
                   </div>
+
                   <div className="space-y-2">
                     <Label>Intended Intake <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="intendedIntake" value={formData.intendedIntake} onChange={handleInputChange} placeholder="e.g. Fall 2026" />
+                    <Input required={currentStep === 2} name="intendedIntake" value={formData.intendedIntake} onChange={handleInputChange} placeholder="e.g. Autumn 2026" className={fieldErrors.intendedIntake ? 'border-red-500' : ''} />
+                    {fieldErrors.intendedIntake && <p className="text-xs text-red-500">{fieldErrors.intendedIntake}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Highest Qualification <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="highestQualification" value={formData.highestQualification} onChange={handleInputChange} />
+                    <Input required={currentStep === 2} name="highestQualification" value={formData.highestQualification} onChange={handleInputChange} className={fieldErrors.highestQualification ? 'border-red-500' : ''} />
+                    {fieldErrors.highestQualification && <p className="text-xs text-red-500">{fieldErrors.highestQualification}</p>}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Previous Institution <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="previousInstitution" value={formData.previousInstitution} onChange={handleInputChange} />
+                    <Input required={currentStep === 2} name="previousInstitution" value={formData.previousInstitution} onChange={handleInputChange} className={fieldErrors.previousInstitution ? 'border-red-500' : ''} />
+                    {fieldErrors.previousInstitution && <p className="text-xs text-red-500">{fieldErrors.previousInstitution}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Previous Grade / GPA <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} name="previousGradeOrGPA" value={formData.previousGradeOrGPA} onChange={handleInputChange} />
+                    <Input required={currentStep === 2} name="previousGradeOrGPA" value={formData.previousGradeOrGPA} onChange={handleInputChange} className={fieldErrors.previousGradeOrGPA ? 'border-red-500' : ''} />
+                    {fieldErrors.previousGradeOrGPA && <p className="text-xs text-red-500">{fieldErrors.previousGradeOrGPA}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>English Test Type</Label>
@@ -398,21 +548,29 @@ export default function Apply() {
 
               {/* STEP 5: Documents */}
               <div className={currentStep === 4 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
+                <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-gray-700">
+                  <p className="font-semibold text-brand-purple">Document Upload Guidelines:</p>
+                  <p>Maximum size: 5 MB per document. Accepted formats: PDF, JPEG, PNG.</p>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
                     <Label>Passport Copy <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 4} type="file" name="passportCopy" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    <Input required={currentStep === 4 && !files.passportCopy} type="file" name="passportCopy" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
                     {renderFileBadge('passportCopy')}
+                    {fieldErrors.passportCopy && <p className="text-xs text-red-500">{fieldErrors.passportCopy}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Photo <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 4} type="file" name="photo" accept=".jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    <Input required={currentStep === 4 && !files.photo} type="file" name="photo" accept=".jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
                     {renderFileBadge('photo')}
+                    {fieldErrors.photo && <p className="text-xs text-red-500">{fieldErrors.photo}</p>}
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Academic Transcripts <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 4} type="file" name="academicTranscripts" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
+                    <Input required={currentStep === 4 && !files.academicTranscripts} type="file" name="academicTranscripts" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
                     {renderFileBadge('academicTranscripts')}
+                    {fieldErrors.academicTranscripts && <p className="text-xs text-red-500">{fieldErrors.academicTranscripts}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>English Test Score Card</Label>
@@ -433,12 +591,13 @@ export default function Apply() {
                     <Label>Recommendation Letter</Label>
                     <Input type="file" name="recommendationLetter" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
                     {renderFileBadge('recommendationLetter')}
+                  </div>
                 </div>
+              </div>
+
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
           {/* Bottom Action Bar */}
           <div className="shrink-0 border-t bg-gray-50/50 p-6 md:px-16 flex items-center justify-between">
@@ -447,7 +606,7 @@ export default function Apply() {
               variant="outline" 
               onClick={handlePrev} 
               disabled={currentStep === 0 || loading}
-              className="w-32"
+              className="w-32 cursor-pointer"
             >
               Previous
             </Button>
@@ -455,7 +614,7 @@ export default function Apply() {
             <Button 
               type="submit" 
               disabled={loading}
-              className="w-32 bg-brand-purple hover:bg-brand-purpleDark"
+              className="w-32 bg-brand-purple hover:bg-brand-purpleDark cursor-pointer"
             >
               {loading ? 'Processing...' : currentStep === STEPS.length - 1 ? 'Submit' : 'Next'}
             </Button>

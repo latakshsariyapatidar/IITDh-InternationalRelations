@@ -22,10 +22,11 @@ const ROUTE_IMAGE_MAP = {
 
 const DEFAULT_IMAGE = '/institute/Institute1.jpg'
 
-export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
+export default function HeroSection({ title, subtitle, backgroundImage, cta, secondButton, secondaryCta }) {
   const location = useLocation()
   const currentPath = location?.pathname || ''
   const finalBgImage = backgroundImage || ROUTE_IMAGE_MAP[currentPath] || DEFAULT_IMAGE
+  const altButton = secondButton || secondaryCta
 
   return (
     <div className="relative min-h-[50vh] md:min-h-[calc(100vh-140px)] bg-brand-purpleDark overflow-hidden flex items-center">
@@ -51,15 +52,26 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta }) {
               {subtitle}
             </p>
           )}
-          {cta && (
-            <div className="animate-fadeUp d2">
-              <CTAButton
-                label={cta.label}
-                onClick={cta.onClick}
-                to={cta.to}
-                variant="primary"
-                size="lg"
-              />
+          {(cta || altButton) && (
+            <div className="flex flex-wrap items-center gap-4 animate-fadeUp d2">
+              {cta && (
+                <CTAButton
+                  label={cta.label}
+                  onClick={cta.onClick}
+                  to={cta.to}
+                  variant="primary"
+                  size="lg"
+                />
+              )}
+              {altButton && (
+                <CTAButton
+                  label={altButton.label}
+                  onClick={altButton.onClick}
+                  to={altButton.to}
+                  variant="secondary"
+                  size="lg"
+                />
+              )}
             </div>
           )}
         </div>

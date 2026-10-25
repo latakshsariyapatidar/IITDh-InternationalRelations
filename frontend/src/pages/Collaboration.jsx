@@ -96,12 +96,12 @@ export default function Collaboration() {
       </section>
 
       {/* Faculty Funding */}
-      <section className="bg-brand-purpleDark py-16">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-brand-marigold text-xs font-bold tracking-widest uppercase mb-3">Funding</p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">IITDH Faculty: International Funding</h2>
-            <p className="text-gray-100 max-w-2xl mx-auto">Government and institutional resources for collaboration</p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-brand-purpleDark mb-4">IITDH Faculty: International Funding</h2>
+            <p className="text-gray-700 max-w-2xl mx-auto">Government and institutional resources for collaboration</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -124,49 +124,7 @@ export default function Collaboration() {
       </section>
 
       {/* Inbound Mobility & Exchange CTA */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="bg-brand-purpleDark rounded-2xl p-8 md:p-12 text-white relative overflow-hidden shadow-xl">
-          <div className="relative z-10 max-w-3xl">
-            <span className="text-brand-marigold text-xs font-bold uppercase tracking-widest mb-2 block">
-              Non-Degree Mobility & Exchange
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Apply for Inbound Exchange & Mobility
-            </h2>
-            <p className="text-gray-200 text-base mb-8 leading-relaxed">
-              Are you an international student seeking a semester exchange, research internship, or short-term academic stay at IIT Dharwad? Apply through our dedicated inbound mobility portal.
-            </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <CTAButton 
-                label="Apply for Inbound Exchange" 
-                to="/international-mobility/apply" 
-                variant="primary" 
-                size="lg" 
-              />
-              <CTAButton 
-                label="Explore Partner Universities" 
-                to="/partners" 
-                variant="outline" 
-                size="lg" 
-                className="text-white border-white hover:bg-white hover:text-brand-purpleDark"
-              />
-            </div>
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <p className="text-sm text-gray-300">
-                Looking for full-time degree-granting programs (B.Tech, M.Tech, M.Sc, MS, Ph.D.)?{' '}
-                <a 
-                  href="/international-admissions" 
-                  className="text-brand-marigold hover:underline font-semibold"
-                >
-                  Visit International Admissions &rarr;
-                </a>
-              </p>
-            </div>
-          </div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-brand-marigold/10 rounded-full blur-2xl pointer-events-none" />
-        </div>
-      </section>
+
     </div>
   )
 }

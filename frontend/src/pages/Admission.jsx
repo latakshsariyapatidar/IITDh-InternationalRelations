@@ -1,26 +1,46 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
 import apiClient from '../api/client'
-import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine } from '@remixicon/react'
+import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine, RiBookOpenLine, RiExchangeFundsLine, RiArrowRightLine } from '@remixicon/react'
 
 export default function Admission() {
   const [faqs, setFaqs] = useState([])
+  const [programs, setPrograms] = useState([])
+  const [loadingPrograms, setLoadingPrograms] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const faqRes = await apiClient.get('/faqs?limit=20')
+        const faqRes = await apiClient.get('/faqs?limit=100&isActive=true')
         setFaqs(faqRes.data?.data?.faqs || [])
       } catch (err) {
-        console.error("Failed to load admission data", err)
+        console.error("Failed to load admission faqs", err)
+      }
+    }
+    const fetchPrograms = async () => {
+      try {
+        const progRes = await apiClient.get('/programs?limit=100&isActive=true')
+        setPrograms(progRes.data?.data?.programs || [])
+      } catch (err) {
+        console.error("Failed to load programs", err)
+      } finally {
+        setLoadingPrograms(false)
       }
     }
     fetchData()
+    fetchPrograms()
   }, [])
+
+  const programsByLevel = {
+    UNDERGRADUATE: programs.filter(p => p.level === 'UNDERGRADUATE'),
+    POSTGRADUATE: programs.filter(p => p.level === 'POSTGRADUATE'),
+    PHD: programs.filter(p => p.level === 'PHD'),
+  }
 
   return (
     <div>
@@ -29,7 +49,59 @@ export default function Admission() {
         subtitle="Your pathway to world-class degree education at IIT Dharwad"
         backgroundImage="/institute/Institute2.jpg"
         cta={{ label: 'Apply Online for Degree Programs', to: '/international-admissions/apply' }}
+        secondButton={{ label: 'Inbound Exchange — Apply Here', to: '/international-mobility/apply' }}
       />
+
+      {/* Which application is for me? Block */}
+      <section className="bg-brand-purple/5 border-y border-brand-purple/10 py-10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <span className="text-xs font-semibold tracking-wider uppercase text-brand-purple bg-brand-purple/10 px-3 py-1 rounded-full">
+              Guide
+            </span>
+            <h2 className="text-2xl font-bold text-gray-900 mt-2">Which application is for me?</h2>
+            <p className="text-gray-600 text-sm mt-1">Select the correct application route based on your intended period and type of study.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-brand-purple transition-colors">
+              <div>
+                <div className="flex items-center gap-3 mb-3 text-brand-purple">
+                  <RiGraduationCapLine size={28} />
+                  <h3 className="text-lg font-bold text-gray-900">Full-Time Degree Programs</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  For international applicants seeking a full-time graduating degree: <strong>B.Tech, M.Tech, M.Sc, MS, or Ph.D.</strong> at IIT Dharwad.
+                </p>
+              </div>
+              <Link
+                to="/international-admissions/apply"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-brand-purple text-white text-sm font-medium hover:bg-brand-purpleDark transition-colors"
+              >
+                Apply for Degree Program <RiArrowRightLine size={16} />
+              </Link>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-brand-marigold transition-colors">
+              <div>
+                <div className="flex items-center gap-3 mb-3 text-brand-marigold">
+                  <RiExchangeFundsLine size={28} />
+                  <h3 className="text-lg font-bold text-gray-900">Inbound Exchange & Mobility</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  For international students visiting for a <strong>semester exchange, research internship, summer program, or visiting student</strong> status.
+                </p>
+              </div>
+              <Link
+                to="/international-mobility/apply"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                Apply for Inbound Exchange <RiArrowRightLine size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
@@ -137,7 +209,113 @@ export default function Admission() {
         </div>
       </section>
 
-      <section className="bg-neutral-canvas py-16">
+      {/* Programs Catalogue (3.10) */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <SectionHeader
+          title="Academic Programs Catalogue"
+          subtitle="Explore academic degree offerings open to international candidates"
+          badge={<RiBookOpenLine size={24} />}
+        />
+        {loadingPrograms ? (
+          <div className="text-center py-8 text-gray-500">Loading programs catalogue...</div>
+        ) : programs.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No programs listed currently.</div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Undergraduate */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                <h3 className="font-bold text-gray-900 text-lg">Undergraduate</h3>
+                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                  {programsByLevel.UNDERGRADUATE.length}
+                </span>
+              </div>
+              {programsByLevel.UNDERGRADUATE.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">No undergraduate programs listed.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {programsByLevel.UNDERGRADUATE.map((p) => (
+                    <li key={p.id}>
+                      <a
+                        href={p.redirectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
+                      >
+                        <span>{p.name}</span>
+                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Postgraduate */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                <h3 className="font-bold text-gray-900 text-lg">Postgraduate</h3>
+                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-700">
+                  {programsByLevel.POSTGRADUATE.length}
+                </span>
+              </div>
+              {programsByLevel.POSTGRADUATE.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">No postgraduate programs listed.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {programsByLevel.POSTGRADUATE.map((p) => (
+                    <li key={p.id}>
+                      <a
+                        href={p.redirectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
+                      >
+                        <span>{p.name}</span>
+                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* PhD */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <h3 className="font-bold text-gray-900 text-lg">Doctoral (Ph.D.)</h3>
+                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700">
+                  {programsByLevel.PHD.length}
+                </span>
+              </div>
+              {programsByLevel.PHD.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">No doctoral programs listed.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {programsByLevel.PHD.map((p) => (
+                    <li key={p.id}>
+                      <a
+                        href={p.redirectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
+                      >
+                        <span>{p.name}</span>
+                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section id="faqs" className="bg-neutral-canvas py-16">
         <div className="max-w-3xl mx-auto px-4">
           <SectionHeader
             title="Frequently Asked Questions"

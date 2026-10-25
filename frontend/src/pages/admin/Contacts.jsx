@@ -59,17 +59,22 @@ export default function Contacts() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete contact');
+      alert(err.response?.data?.message || 'Failed to delete contact');
     }
   };
 
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      const payload = { ...formData, isActive: formData.isActive === 'true' };
-      if (!payload.name) delete payload.name;
-      if (!payload.phone) delete payload.phone;
-      if (!payload.address) delete payload.address;
+      const payload = {
+        type: formData.type,
+        title: formData.title.trim(),
+        email: formData.email.trim(),
+        name: formData.name?.trim() ? formData.name.trim() : null,
+        phone: formData.phone?.trim() ? formData.phone.trim() : null,
+        address: formData.address?.trim() ? formData.address.trim() : null,
+        isActive: formData.isActive === 'true'
+      };
 
       if (currentId) await apiClient.patch(`/contacts/${currentId}`, payload);
       else await apiClient.post('/contacts', payload);

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { resolveMediaUrl } from '../../utils/media';
 
 // Mirrors the backend's HTML sanitiser allow-list. Anything not offered here
 // would be silently stripped when the record is saved.
@@ -32,6 +33,11 @@ export default function Team() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
+  
+  // Safe image upload replacement tracking (1.6)
+  const [initialPhotoUrl, setInitialPhotoUrl] = useState('');
+  const [newlyUploadedPhoto, setNewlyUploadedPhoto] = useState('');
+
   const [formData, setFormData] = useState({ name: '', role: '', year: '', photoUrl: '', email: '', responsibilities: '', isActive: 'true' });
 
   const fetchData = async () => {
@@ -43,7 +49,7 @@ export default function Team() {
       setTotalPages(Math.ceil(total / limit) || 1);
     } catch (err) {
       console.error(err);
-      alert('Failed to load team');
+      alert('Failed to load team: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -53,12 +59,16 @@ export default function Team() {
 
   const openCreate = () => {
     setCurrentId(null);
+    setInitialPhotoUrl('');
+    setNewlyUploadedPhoto('');
     setFormData({ name: '', role: '', year: '', photoUrl: '', email: '', responsibilities: '', isActive: 'true' });
     setIsFormOpen(true);
   };
 
   const openEdit = (item) => {
     setCurrentId(item.id);
+    setInitialPhotoUrl(item.photoUrl || '');
+    setNewlyUploadedPhoto('');
     setFormData({
       name: item.name,
       role: item.role,
@@ -71,6 +81,17 @@ export default function Team() {
     setIsFormOpen(true);
   };
 
+  const handleCancel = async () => {
+    if (newlyUploadedPhoto && newlyUploadedPhoto.startsWith('/uploads')) {
+      try {
+        await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedPhoto)}`);
+      } catch (e) {
+        console.error('Failed to clean up unsaved photo upload:', e);
+      }
+    }
+    setIsFormOpen(false);
+  };
+
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this team member?')) return;
     try {
@@ -78,7 +99,7 @@ export default function Team() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete team member');
+      alert(err.response?.data?.message || 'Failed to delete team member');
     }
   };
 
@@ -88,9 +109,8 @@ export default function Team() {
       const fd = new FormData(); fd.append('file', file);
       const res = await apiClient.post('/uploads/image/team', fd);
       const newUrl = res.data?.data?.url;
-      if (formData.photoUrl && formData.photoUrl.startsWith('/uploads')) {
-        try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.photoUrl)}`); } catch(e){}
-      }
+
+      setNewlyUploadedPhoto(newUrl);
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
     } catch (err) { alert('Image upload failed: ' + (err.response?.data?.message || err.message)); }
   };
@@ -98,13 +118,28 @@ export default function Team() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      const payload = { ...formData, isActive: formData.isActive === 'true' };
-      if (!payload.photoUrl) delete payload.photoUrl;
-      if (!payload.email) delete payload.email;
-      if (!payload.responsibilities || payload.responsibilities === '<p><br></p>') delete payload.responsibilities;
+      const payload = {
+        name: formData.name.trim(),
+        role: formData.role.trim(),
+        year: formData.year.trim(),
+        photoUrl: formData.photoUrl || null,
+        email: formData.email?.trim() ? formData.email.trim() : '',
+        responsibilities: (!formData.responsibilities || formData.responsibilities === '<p><br></p>') ? '' : formData.responsibilities,
+        isActive: formData.isActive === 'true'
+      };
 
       if (currentId) await apiClient.patch(`/team/${currentId}`, payload);
       else await apiClient.post('/team', payload);
+
+      // Clean up old replaced photo upon success
+      if (newlyUploadedPhoto && initialPhotoUrl && initialPhotoUrl !== newlyUploadedPhoto && initialPhotoUrl.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(initialPhotoUrl)}`);
+        } catch (e) {
+          console.error('Failed to delete old replaced team photo:', e);
+        }
+      }
+
       setIsFormOpen(false);
       fetchData();
     } catch (err) { 
@@ -120,7 +155,7 @@ export default function Team() {
         title={currentId ? 'Edit Team Member' : 'Add New Member'}
         subtitle="Provide the details for this team member."
         stepName="Member Info"
-        onCancel={() => setIsFormOpen(false)}
+        onCancel={handleCancel}
         onSave={handleSave}
         loading={saveLoading}
       >
@@ -193,7 +228,7 @@ export default function Team() {
               </div>
               {formData.photoUrl && (
                 <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center p-2">
-                  <img src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${formData.photoUrl}`} className="w-full h-full object-cover rounded-md" alt="Preview"/>
+                  <img src={resolveMediaUrl(formData.photoUrl)} className="w-full h-full object-cover rounded-md" alt="Preview"/>
                 </div>
               )}
             </div>
@@ -235,13 +270,13 @@ export default function Team() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? <TableRow><TableCell colSpan={5} className="text-center py-8 text-gray-500">Loading team...</TableCell></TableRow> : data.map(item => (
+            {loading ? <TableRow><TableCell colSpan={6} className="text-center py-8 text-gray-500">Loading team...</TableCell></TableRow> : data.map(item => (
                 <TableRow key={item.id} className="hover:bg-gray-50/50">
                   <TableCell className="font-medium flex items-center gap-3 text-gray-900">
                     <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-white flex items-center justify-center shrink-0">
                       {item.photoUrl ? (
                         <img 
-                          src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${item.photoUrl}`} 
+                          src={resolveMediaUrl(item.photoUrl)} 
                           alt="" 
                           className="w-full h-full object-cover"
                           onError={(e) => {e.target.style.display='none'}}

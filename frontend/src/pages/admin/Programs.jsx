@@ -12,6 +12,9 @@ export default function Programs() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 50;
+
+  // Level filter (5.48)
+  const [levelFilter, setLevelFilter] = useState('');
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -22,19 +25,22 @@ export default function Programs() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get(`/programs?page=${page}&limit=${limit}`);
+      let url = `/programs?page=${page}&limit=${limit}`;
+      if (levelFilter) url += `&level=${levelFilter}`;
+
+      const res = await apiClient.get(url);
       setData(res.data?.data?.programs || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
     } catch (err) {
       console.error(err);
-      alert('Failed to load programs');
+      alert('Failed to load programs: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, [page]);
+  useEffect(() => { fetchData(); }, [page, levelFilter]);
 
   const openCreate = () => {
     setCurrentId(null);
@@ -60,7 +66,7 @@ export default function Programs() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete program');
+      alert(err.response?.data?.message || 'Failed to delete program');
     }
   };
 
@@ -143,9 +149,47 @@ export default function Programs() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Programs Management</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Programs Management</h2>
+          <p className="text-sm text-gray-500">Manage academic degree programs catalogue</p>
+        </div>
         <Button onClick={openCreate} className="bg-brand-purple hover:bg-brand-purpleDark">Add Program</Button>
+      </div>
+
+      {/* Filter by Level (5.48) */}
+      <div className="flex flex-wrap gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm items-center">
+        <div className="w-56">
+          <Label className="text-xs font-semibold text-gray-500 mb-1 block">Filter by Level</Label>
+          <select
+            className="w-full text-sm border border-gray-300 rounded-md p-2"
+            value={levelFilter}
+            onChange={(e) => {
+              setLevelFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Levels</option>
+            <option value="UNDERGRADUATE">Undergraduate</option>
+            <option value="POSTGRADUATE">Postgraduate</option>
+            <option value="PHD">PhD</option>
+          </select>
+        </div>
+
+        {levelFilter && (
+          <div className="self-end pb-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setLevelFilter('');
+                setPage(1);
+              }}
+            >
+              Clear Filter
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white border rounded-xl shadow-sm overflow-hidden">

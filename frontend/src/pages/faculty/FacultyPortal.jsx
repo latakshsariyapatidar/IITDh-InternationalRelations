@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { useStudentAuth } from '../../contexts/StudentAuthContext';
 import { Button } from '../../components/ui/button';
+import { resolveMediaUrl } from '../../utils/media';
 import {
   Mail,
   ExternalLink,
@@ -13,7 +14,12 @@ import {
   Users,
   ArrowRight,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  MapPin,
+  Building,
+  Paperclip,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 
 export default function FacultyPortal() {
@@ -21,7 +27,8 @@ export default function FacultyPortal() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(facultyProfile || null);
   const [opportunities, setOpportunities] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingOpps, setLoadingOpps] = useState(true);
+  const [oppsError, setOppsError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [expandedOppIds, setExpandedOppIds] = useState(new Set());
 
@@ -37,21 +44,35 @@ export default function FacultyPortal() {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const profileRes = await apiClient.get('/faculty-portal/me');
-        setProfile(profileRes.data?.data?.profile || profileRes.data?.data);
+  const fetchProfile = async () => {
+    try {
+      const profileRes = await apiClient.get('/faculty-portal/me');
+      setProfile(profileRes.data?.data?.profile || profileRes.data?.data);
+    } catch (err) {
+      console.warn('Could not load faculty profile:', err);
+    }
+  };
 
-        const oppsRes = await apiClient.get('/faculty-portal/opportunities');
-        setOpportunities(oppsRes.data?.data?.opportunities || oppsRes.data?.data || []);
-      } catch (err) {
-        console.error('Failed to load faculty portal data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+  const fetchOpportunities = async () => {
+    setLoadingOpps(true);
+    setOppsError(null);
+    try {
+      // 4.12: Pass limit=50
+      const oppsRes = await apiClient.get('/faculty-portal/opportunities?limit=50');
+      setOpportunities(oppsRes.data?.data?.opportunities || oppsRes.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load faculty opportunities:', err);
+      // 1.9 Show actual error state instead of assuming "no opportunities"
+      setOppsError(err.response?.data?.message || 'Unable to load opportunities at this time. Please retry.');
+    } finally {
+      setLoadingOpps(false);
+    }
+  };
+
+  // 1.10 Load independent requests separately
+  useEffect(() => {
+    fetchProfile();
+    fetchOpportunities();
   }, []);
 
   const handleLogout = async () => {
@@ -98,125 +119,112 @@ export default function FacultyPortal() {
                 <h1 className="font-bold text-base sm:text-xl tracking-tight text-white leading-tight">
                   Faculty Portal
                 </h1>
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider bg-brand-marigold/20 text-brand-marigold px-2 py-0.5 rounded-full border border-brand-marigold/30 hidden xs:inline-block">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-marigold text-brand-purpleDark">
                   IIT Dharwad
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-brand-purpleLight/80 hidden md:block">
+              <p className="text-[11px] sm:text-xs text-brand-purpleLight/80">
                 International Relations Office
               </p>
             </div>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Logout */}
+          {/* User actions */}
+          <div className="flex items-center gap-3">
+            {profile && (
+              <div className="hidden md:flex flex-col text-right">
+                <span className="text-xs font-semibold text-white">
+                  {profile.name || profile.email}
+                </span>
+                <span className="text-[10px] text-brand-purpleLight/80">
+                  {profile.department || 'Faculty Member'}
+                </span>
+              </div>
+            )}
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="text-white/80 hover:text-white hover:bg-white/15 gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3"
+              className="text-xs border-brand-purpleLight/30 text-white bg-transparent hover:bg-white/10 hover:text-white flex items-center gap-1.5 cursor-pointer"
             >
-              <LogOut size={15} />
+              <LogOut size={14} />
               <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-
-        {/* Profile Details Banner - Solid Color, No Gradients */}
-        <section className="rounded-2xl bg-brand-purpleDark text-white p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Welcome, {profile?.name || 'Professor'}
-              </h2>
-            </div>
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        {/* Welcome Banner */}
+        <section className="bg-gradient-to-r from-brand-purpleDark to-brand-purple rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
+          <div className="relative z-10 max-w-3xl space-y-2">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-brand-marigold backdrop-blur-xs mb-1">
+              Faculty Hub
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Welcome{profile?.name ? `, ${profile.name}` : ''}
+            </h2>
+            <p className="text-brand-purpleLight/90 text-sm sm:text-base leading-relaxed">
+              Explore bilateral research grants, international mobility calls, and streamline foreign delegation registrations.
+            </p>
           </div>
-
-          {/* Profile Details Metadata Bar */}
-          <div className="mt-6 pt-6 border-t border-white/15 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
-            <div className="flex items-center gap-2.5 bg-white/10 px-3.5 py-2.5 rounded-xl border border-white/10 text-white/90">
-              <Mail size={16} className="text-brand-marigold shrink-0" />
-              <div className="truncate">
-                <span className="text-[10px] text-brand-purpleLight/70 block uppercase font-bold tracking-wider">Institute Email</span>
-                <span className="font-medium truncate block">{profile?.email || 'No email specified'}</span>
-              </div>
-            </div>
-
-            {profile?.redirectUrl ? (
-              <a
-                href={profile.redirectUrl.startsWith('http') ? profile.redirectUrl : `https://${profile.redirectUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const targetUrl = profile.redirectUrl.startsWith('http') ? profile.redirectUrl : `https://${profile.redirectUrl}`;
-                  window.open(targetUrl, '_blank', 'noopener,noreferrer');
-                }}
-                className="flex items-center justify-between gap-2.5 bg-white/10 hover:bg-white/20 transition-colors px-3.5 py-2.5 rounded-xl border border-white/10 text-white/90 group cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <Globe size={16} className="text-brand-marigold shrink-0" />
-                  <div className="truncate">
-                    <span className="text-[10px] text-brand-purpleLight/70 block uppercase font-bold tracking-wider">Faculty Webpage</span>
-                    <span className="font-medium truncate block text-white group-hover:underline">Visit Official Profile</span>
-                  </div>
-                </div>
-                <ExternalLink size={14} className="text-white/60 group-hover:text-white shrink-0" />
-              </a>
-            ) : (
-              <div className="flex items-center gap-2.5 bg-white/10 px-3.5 py-2.5 rounded-xl border border-white/10 text-white/90">
-                <Globe size={16} className="text-brand-marigold shrink-0" />
-                <div>
-                  <span className="text-[10px] text-brand-purpleLight/70 block uppercase font-bold tracking-wider">Webpage</span>
-                  <span className="text-white/70 italic text-xs">No link attached</span>
-                </div>
-              </div>
-            )}
-          </div>
+          <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 w-64 h-64 bg-brand-marigold/10 rounded-full blur-3xl pointer-events-none" />
         </section>
 
-        {/* Opportunities Section */}
-        <section className="space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200">
+        {/* Opportunities Feed */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/80 pb-4">
             <div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-                Opportunities & Calls for Faculty
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-purple/10 text-brand-purpleDark font-semibold">
-                  {filteredOpportunities.length}
-                </span>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">
+                International Calls & Opportunities
               </h3>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Bilateral research initiatives, faculty mobility schemes, and global academic conferences.
+              <p className="text-xs sm:text-sm text-gray-500">
+                Grants, research calls, and fellowships open to IIT Dharwad faculty and scholars.
               </p>
             </div>
 
             {/* Category Filter Pills */}
-            {categories.length > 2 && (
-              <div className="flex items-center gap-1.5 flex-wrap">
+            {categories.length > 1 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                 {categories.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${selectedCategory === cat
-                      ? 'bg-brand-purpleDark text-white shadow-sm'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                      }`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      selectedCategory === cat
+                        ? 'bg-brand-purple text-white shadow-xs'
+                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    }`}
                   >
-                    {cat}
+                    {cat === 'ALL' ? 'All Calls' : cat}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {loading ? (
-            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-brand-purple border-t-transparent mb-3"></div>
+          {/* 1.9 Error Banner */}
+          {oppsError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between text-red-700 text-sm">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={18} className="text-red-500 shrink-0" />
+                <span>{oppsError}</span>
+              </div>
+              <button
+                onClick={fetchOpportunities}
+                className="flex items-center gap-1 font-bold text-brand-purple hover:underline cursor-pointer"
+              >
+                <RefreshCw size={15} />
+                Retry
+              </button>
+            </div>
+          )}
+
+          {loadingOpps ? (
+            <div className="py-20 text-center space-y-3">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-purple border-t-transparent" />
               <p className="text-sm text-gray-500 font-medium">Loading opportunities feed...</p>
             </div>
           ) : filteredOpportunities.length === 0 ? (
@@ -234,10 +242,21 @@ export default function FacultyPortal() {
               {filteredOpportunities.map((opp) => {
                 const isExpanded = expandedOppIds.has(opp.id);
                 const isLong = (opp.description?.length || 0) > 160;
-                const rawUrl = opp.externalUrl || opp.attachmentUrl || opp.url;
-                const destinationUrl = rawUrl
-                  ? (/^https?:\/\//i.test(rawUrl.trim()) ? rawUrl.trim() : `https://${rawUrl.trim()}`)
+                
+                // 4.14: Separate external URL from uploaded attachment
+                const externalDestination = opp.externalUrl || opp.url;
+                const formattedExternalUrl = externalDestination
+                  ? (/^https?:\/\//i.test(externalDestination.trim()) ? externalDestination.trim() : `https://${externalDestination.trim()}`)
                   : null;
+
+                const attachmentDestination = opp.attachmentUrl ? resolveMediaUrl(opp.attachmentUrl) : null;
+
+                // 4.13: Target audience label
+                const audienceLabel = opp.audience === 'BOTH'
+                  ? 'Target: Students & Faculty'
+                  : opp.audience === 'STUDENT'
+                  ? 'Target: Students'
+                  : 'Target: Faculty';
 
                 return (
                   <div
@@ -251,8 +270,9 @@ export default function FacultyPortal() {
                         <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border uppercase tracking-wider ${getCategoryBadgeColor(opp.category)}`}>
                           {opp.category || 'General'}
                         </span>
-                        <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                          Target: Faculty
+                        {/* 4.13 Display real audience target */}
+                        <span className="text-[10px] font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                          {audienceLabel}
                         </span>
                       </div>
 
@@ -260,6 +280,25 @@ export default function FacultyPortal() {
                       <h4 className="text-lg font-bold text-gray-900 group-hover:text-brand-purple transition-colors leading-snug">
                         {opp.title}
                       </h4>
+
+                      {/* 4.15 Show Organisation & Country */}
+                      {(opp.organisation || opp.country) && (
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 font-medium">
+                          {opp.organisation && (
+                            <span className="flex items-center gap-1 truncate max-w-[180px]">
+                              <Building size={13} className="text-brand-purple shrink-0" />
+                              {opp.organisation}
+                            </span>
+                          )}
+                          {opp.organisation && opp.country && <span>•</span>}
+                          {opp.country && (
+                            <span className="flex items-center gap-1 shrink-0">
+                              <MapPin size={13} className="text-brand-purple shrink-0" />
+                              {opp.country}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
                       {/* Description with Expand/Collapse */}
                       <div>
@@ -273,7 +312,7 @@ export default function FacultyPortal() {
                               e.stopPropagation();
                               toggleExpandOpp(opp.id);
                             }}
-                            className="text-xs font-semibold text-brand-purple hover:text-brand-purpleDark hover:underline inline-flex items-center gap-1 mt-2"
+                            className="text-xs font-semibold text-brand-purple hover:text-brand-purpleDark hover:underline inline-flex items-center gap-1 mt-2 cursor-pointer"
                           >
                             {isExpanded ? (
                               <>
@@ -291,33 +330,49 @@ export default function FacultyPortal() {
                       </div>
                     </div>
 
-                    {/* Card Footer Action */}
-                    <div className="pt-5 mt-5 border-t border-gray-100 flex items-center justify-between gap-2">
-                      {opp.applicationDeadline || opp.deadline ? (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Calendar size={13} />
-                          {new Date(opp.applicationDeadline || opp.deadline).toLocaleDateString()}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400">Open Call</span>
-                      )}
+                    {/* Card Footer Actions */}
+                    <div className="pt-5 mt-5 border-t border-gray-100 flex flex-col gap-2.5">
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        {opp.applicationDeadline || opp.deadline ? (
+                          <span className="flex items-center gap-1 text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
+                            <Calendar size={13} />
+                            Deadline: {new Date(opp.applicationDeadline || opp.deadline).toLocaleDateString()}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">Open Call</span>
+                        )}
+                      </div>
 
-                      {destinationUrl ? (
-                        <a
-                          href={destinationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-purple hover:bg-brand-purpleDark text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-                        >
-                          <span>Open Opportunity</span>
-                          <ExternalLink size={13} />
-                        </a>
-                      ) : (
-                        <span className="text-xs text-gray-400 font-medium">Contact IRO for details</span>
-                      )}
+                      <div className="flex items-center justify-between gap-2 pt-1">
+                        {/* 4.14 Show attachment separately from external link */}
+                        {attachmentDestination && (
+                          <a
+                            href={attachmentDestination}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-brand-purple hover:underline"
+                          >
+                            <Paperclip size={13} />
+                            <span>Download PDF</span>
+                          </a>
+                        )}
+
+                        {formattedExternalUrl ? (
+                          <a
+                            href={formattedExternalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-purple hover:bg-brand-purpleDark text-white text-xs font-semibold shadow-xs transition-colors ml-auto cursor-pointer"
+                          >
+                            <span>Open Call</span>
+                            <ExternalLink size={13} />
+                          </a>
+                        ) : !attachmentDestination ? (
+                          <span className="text-xs text-gray-400 font-medium">Contact IRO for details</span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 );
@@ -338,8 +393,9 @@ export default function FacultyPortal() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* 4.15 Point MOUs & Agreements at the Partners MOU section */}
             <Link
-              to="/international-mobility"
+              to="/partners#active-mous-section"
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
@@ -350,17 +406,18 @@ export default function FacultyPortal() {
                   International MOUs & Agreements
                 </h4>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Learn how to initiate and formalize academic or research agreements with foreign partner institutions.
+                  Browse ratified bilateral institutional MOUs and access authorized agreement documents.
                 </p>
               </div>
               <div className="pt-4 mt-4 border-t border-gray-100 flex items-center gap-1 text-xs font-semibold text-brand-purple">
-                <span>View Guidelines</span>
+                <span>Browse MOUs</span>
                 <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
+            {/* 4.11 Link to /iro/delegate-registration instead of 404 */}
             <Link
-              to="/visitors/register"
+              to="/iro/delegate-registration"
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
@@ -381,33 +438,29 @@ export default function FacultyPortal() {
             </Link>
 
             <a
-              href="mailto:iro@iitdh.ac.in?subject=Faculty%20Mobility%20Query"
+              href="mailto:iro@iitdh.ac.in?subject=Faculty%20International%20Collaboration%20Inquiry"
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
                   <Mail size={20} />
                 </div>
-                <h4 className="font-bold text-sm text-gray-900 group-hover:text-amber-600 transition-colors">
-                  Contact IRO Secretariat
+                <h4 className="font-bold text-sm text-gray-900 group-hover:text-brand-purple transition-colors">
+                  Contact Office of International Relations
                 </h4>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Direct support for faculty mobility visas, foreign research clearances, and travel grants.
+                  Need help negotiating agreements, drafting joint proposals, or visa paperwork for overseas visits?
                 </p>
               </div>
-              <div className="pt-4 mt-4 border-t border-gray-100 flex items-center gap-1 text-xs font-semibold text-amber-600">
-                <span>Email iro@iitdh.ac.in</span>
+              <div className="pt-4 mt-4 border-t border-gray-100 flex items-center gap-1 text-xs font-semibold text-brand-purple">
+                <span>iro@iitdh.ac.in</span>
                 <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </a>
           </div>
         </section>
-      </main>
 
-      {/* Footer */}
-      <footer className="mt-12 py-6 border-t border-gray-200 bg-white text-center text-xs text-gray-400">
-        <p>© {new Date().getFullYear()} Office of International Relations • Indian Institute of Technology Dharwad</p>
-      </footer>
+      </main>
     </div>
   );
 }

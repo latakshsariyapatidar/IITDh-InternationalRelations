@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient, { setAccessToken } from '../api/client';
+import apiClient, { setCampusAccessToken } from '../api/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const StudentAuthContext = createContext();
@@ -13,7 +13,7 @@ export const StudentAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const login = (token, userRole, profile) => {
-    setAccessToken(token);
+    setCampusAccessToken(token);
     setIsStudentAuthenticated(true);
     setRole(userRole);
     setFacultyProfile(profile);
@@ -25,7 +25,7 @@ export const StudentAuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      setAccessToken(null);
+      setCampusAccessToken(null);
       setIsStudentAuthenticated(false);
       setRole(null);
       setFacultyProfile(null);
@@ -50,6 +50,17 @@ export const StudentAuthProvider = ({ children }) => {
     };
 
     checkAuth();
+
+    const handleCampusSessionExpired = () => {
+      setIsStudentAuthenticated(false);
+      setRole(null);
+      setFacultyProfile(null);
+    };
+
+    window.addEventListener('campus-session-expired', handleCampusSessionExpired);
+    return () => {
+      window.removeEventListener('campus-session-expired', handleCampusSessionExpired);
+    };
   }, []);
 
   const value = {

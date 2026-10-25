@@ -4,7 +4,36 @@ import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import { RiBuilding2Line, RiMapPinLine, RiTimeLine, RiPhoneLine, RiMailLine, RiContactsBook2Line, RiMailSendLine, RiMapPin2Line } from '@remixicon/react'
 
+import { useState, useEffect } from 'react'
+import apiClient from '../api/client'
+
+const FALLBACK_CONTACTS = [
+  { name: 'Dr. Sagnik Sen', title: 'Chairperson, International Relations Office', email: 'chairperson.iro@iitdh.ac.in', phone: '', address: '' },
+  { name: 'Ms. Kavitha G R', title: 'Advisor, International Relations', email: 'advisor.iro@iitdh.ac.in', phone: '+91 9444536574', address: '' },
+  { name: 'Mr. Arun Verma', title: 'Assistant Registrar', email: 'office.iro@iitdh.ac.in', phone: '(+91)8193814275 / 7017304843', address: '' },
+  { name: '', title: 'Inbound Coordinator', email: 'inbound.iro@iitdh.ac.in', phone: '9444536574', address: '' }
+]
+
 export default function Contact() {
+  const [contacts, setContacts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const res = await apiClient.get('/contacts?isActive=true')
+        const fetched = res.data?.data?.contacts || res.data?.data || []
+        setContacts(fetched.length > 0 ? fetched : FALLBACK_CONTACTS)
+      } catch (err) {
+        console.error('Failed to load contacts from API, falling back', err)
+        setContacts(FALLBACK_CONTACTS)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchContacts()
+  }, [])
+
   return (
     <div>
       <HeroSection
@@ -21,23 +50,46 @@ export default function Contact() {
           subtitle="Reach out to the right person for your needs"
           badge={<RiContactsBook2Line size={24} />}
         />
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {[
-            { name: 'Dr. Sagnik Sen', role: 'Chairperson, International Relations Office', email: 'chairperson.iro@iitdh.ac.in', phone: '' },
-            { name: 'Ms. Kavitha G R', role: 'Advisor, International Relations', email: 'advisor.iro@iitdh.ac.in', phone: '+91 9444536574' },
-            { name: 'Mr. Arun Verma', role: 'Assistant Registrar', email: 'office.iro@iitdh.ac.in', phone: '(+91)8193814275 / 7017304843' },
-            { name: 'Inbound Coordinator', role: 'Inbound Coordinator', email: 'inbound.iro@iitdh.ac.in', phone: '9444536574' }
-          ].map((contact, idx) => (
-            <Card key={idx} variant="light" border>
-              <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
-              <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.role}</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-semibold text-brand-purple">Email:</span> <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.email}</a></p>
-                {contact.phone && <p><span className="font-semibold text-brand-purple">Phone:</span> <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{contact.phone}</a></p>}
-              </div>
-            </Card>
-          ))}
-        </div>
+        {loading ? (
+          <div className="py-12 text-center text-gray-500 text-sm">Loading contacts...</div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {contacts.map((contact, idx) => (
+              <Card key={contact.id || idx} variant="light" border className="bg-white">
+                {contact.name && (
+                  <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
+                )}
+                {contact.title && (
+                  <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.title}</p>
+                )}
+                <div className="space-y-2 text-sm">
+                  {contact.email && (
+                    <p>
+                      <span className="font-semibold text-brand-purple">Email:</span>{' '}
+                      <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">
+                        {contact.email}
+                      </a>
+                    </p>
+                  )}
+                  {contact.phone && (
+                    <p>
+                      <span className="font-semibold text-brand-purple">Phone:</span>{' '}
+                      <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">
+                        {contact.phone}
+                      </a>
+                    </p>
+                  )}
+                  {contact.address && (
+                    <p>
+                      <span className="font-semibold text-brand-purple">Address:</span>{' '}
+                      <span className="text-gray-600">{contact.address}</span>
+                    </p>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Contact Email */}

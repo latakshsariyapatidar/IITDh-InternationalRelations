@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { compressDocument, formatBytes } from '../utils/fileCompressor';
+import { extractValidationErrors } from '../utils/formErrors';
 
 const STEPS = [
   "Personal Details",
@@ -12,6 +13,14 @@ const STEPS = [
   "Exchange & Stay Details",
   "Documents"
 ];
+
+const STEP_FIELD_MAP = {
+  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate'],
+  1: ['email', 'phone', 'currentAddress', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'],
+  2: ['homeUniversity', 'homeUniversityCountry', 'homeProgramOfStudy', 'programLevel', 'programLevelOther'],
+  3: ['exchangeType', 'exchangeTypeOther', 'proposedDepartment', 'proposedFacultyHost', 'intendedStayFrom', 'intendedStayTo', 'purposeOfVisit', 'visaCategory', 'requiresVisaSponsorship'],
+  4: ['passportCopy', 'photo', 'academicTranscripts', 'englishProficiencyProof', 'statementOfPurpose', 'homeUniversityNoc', 'recommendationLetter']
+};
 
 const STEP_DESCRIPTIONS = [
   "Please provide your personal and passport identification details.",
@@ -64,10 +73,19 @@ export default function InboundExchangeForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [referenceId, setReferenceId] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -174,17 +192,41 @@ export default function InboundExchangeForm() {
         }
       }
 
-      await apiClient.post('/inbound-exchange', payload, {
+      const res = await apiClient.post('/inbound-exchange', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      const ref = res.data?.data?.referenceId || res.data?.data?.id || 'SUBMITTED';
+      setReferenceId(ref);
       setSuccess(true);
     } catch (err) {
       console.error(err);
+      // 1.8 Backend allows 5 MB for application documents
       if (err.response?.status === 413) {
-        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 2MB.');
+        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 5MB.');
+        return;
+      }
+
+      // 1.3 & 4.2 Parse validation errors and jump back to the step that has the bad field
+      const { fieldErrors: extractedFields, errorList, generalMessage } = extractValidationErrors(err);
+      setFieldErrors(extractedFields);
+
+      let targetStep = -1;
+      if (errorList.length > 0) {
+        const firstBadField = errorList[0].field;
+        for (let s = 0; s < STEPS.length; s++) {
+          if (STEP_FIELD_MAP[s]?.includes(firstBadField)) {
+            targetStep = s;
+            break;
+          }
+        }
+      }
+
+      if (targetStep >= 0 && targetStep !== currentStep) {
+        setCurrentStep(targetStep);
+        setError(`Please check Step ${targetStep + 1} (${STEPS[targetStep]}): ${errorList[0].message}`);
       } else {
-        setError(err.response?.data?.message || 'An error occurred while submitting your exchange application.');
+        setError(generalMessage);
       }
     } finally {
       setLoading(false);
@@ -214,7 +256,7 @@ export default function InboundExchangeForm() {
 
   const renderFileInput = (name, label, required = false) => {
     return (
-      <div className="space-y-2 border border-dashed border-gray-300 p-4 rounded-xl hover:border-brand-purple transition-colors bg-gray-50/50">
+      <div className={`space-y-2 border border-dashed p-4 rounded-xl transition-colors bg-gray-50/50 ${fieldErrors[name] ? 'border-red-500 bg-red-50/20' : 'border-gray-300 hover:border-brand-purple'}`}>
         <Label className="flex justify-between items-center text-sm font-semibold text-gray-700">
           <span>{label} {required && <span className="text-red-500">*</span>}</span>
         </Label>
@@ -226,6 +268,7 @@ export default function InboundExchangeForm() {
           accept=".pdf,.jpg,.jpeg,.png"
           className="cursor-pointer bg-white file:bg-brand-purple file:text-white file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 file:text-xs hover:file:bg-brand-purpleDark"
         />
+        {fieldErrors[name] && <p className="text-xs text-red-500">{fieldErrors[name]}</p>}
         {renderFileBadge(name)}
       </div>
     );
@@ -234,21 +277,31 @@ export default function InboundExchangeForm() {
   if (success) {
     return (
       <div className="h-screen w-screen bg-brand-purpleDark flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
+        <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
             <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Exchange Application Submitted!</h2>
-          <p className="text-gray-600 text-base leading-relaxed">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Exchange Application Submitted!</h2>
+          <p className="text-gray-600 text-sm leading-relaxed">
             Thank you for applying for international mobility at IIT Dharwad. Your application has been received and is currently under review by the International Relations Office.
           </p>
+
+          {/* 1.13: Show Reference ID */}
+          {referenceId && (
+            <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
+              <p className="text-xs uppercase font-bold tracking-wider text-gray-500 mb-1">Application Reference Number</p>
+              <p className="font-mono text-lg font-bold text-brand-purple select-all">{referenceId}</p>
+              <p className="text-[11px] text-gray-500 mt-1">Please quote this reference ID in all future correspondence.</p>
+            </div>
+          )}
+
           <div className="space-y-3 pt-2">
-            <Button onClick={() => window.location.href = '/international-mobility'} className="w-full bg-brand-purple hover:bg-brand-purpleDark">
+            <Button onClick={() => window.location.href = '/international-mobility'} className="w-full bg-brand-purple hover:bg-brand-purpleDark cursor-pointer">
               Return to International Mobility
             </Button>
-            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full">
+            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full cursor-pointer">
               Return to Home
             </Button>
           </div>

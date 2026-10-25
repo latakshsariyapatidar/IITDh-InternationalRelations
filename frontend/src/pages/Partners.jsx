@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -93,19 +94,16 @@ export default function Partners() {
   const [showAllUniversities, setShowAllUniversities] = useState(false)
   const [downloadingId, setDownloadingId] = useState(null)
 
+  const [showSignInModal, setShowSignInModal] = useState(false)
+
   const fetchData = async () => {
     setLoading(true)
     setError(null)
     try {
+      // 1.9 Stop swallowing errors so error banner can appear
       const [partnersRes, mousRes] = await Promise.all([
-        apiClient.get('/partners?limit=100').catch((err) => {
-          console.warn('Failed to fetch partners:', err)
-          return { data: { data: { partners: [] } } }
-        }),
-        apiClient.get('/mous?isPublic=true&limit=100').catch((err) => {
-          console.warn('Failed to fetch mous:', err)
-          return { data: { data: { mous: [] } } }
-        }),
+        apiClient.get('/partners?limit=100'),
+        apiClient.get('/mous?isPublic=true&limit=100'),
       ])
 
       const fetchedPartners = partnersRes.data?.data?.partners || []
@@ -115,7 +113,7 @@ export default function Partners() {
       setMous(fetchedMous)
     } catch (err) {
       console.error('Error in fetching partner and MOU data:', err)
-      setError('Unable to load partner information at this time.')
+      setError('Unable to load partner and MOU information at this time. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -125,6 +123,7 @@ export default function Partners() {
     fetchData()
   }, [])
 
+  // 3.16 Show link to /students instead of a bare alert when sign-in needed
   const handleDownloadMou = async (mouId, partnerName) => {
     try {
       setDownloadingId(mouId)
@@ -140,7 +139,7 @@ export default function Partners() {
       window.URL.revokeObjectURL(url)
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
-        alert('Please sign in with your IIT Dharwad account to read and download the full signed MOU.')
+        setShowSignInModal(true)
       } else {
         alert('MOU document unavailable: ' + (err.response?.data?.message || err.message))
       }
@@ -321,7 +320,7 @@ export default function Partners() {
                 }`}
               >
                 <RiLinksLine size={16} />
-                Active MOUs ({mous.length})
+                Active MOUs ({mous.filter(m => m.status === 'ACTIVE').length})
               </button>
             </div>
 
@@ -442,7 +441,8 @@ export default function Partners() {
                   {displayedUniversities.map((uni) => {
                     const countryCode = resolveCountryCode(uni.country, uni.countryCode)
                     const linkedMous = partnerMouMap[uni.id] || uni.mous || []
-                    const activeMou = linkedMous.find((m) => m.status === 'ACTIVE') || linkedMous[0]
+                    const activeMou = linkedMous.find((m) => m.status === 'ACTIVE')
+                    const latestMou = activeMou || linkedMous[0]
 
                     return (
                       <Card
@@ -494,10 +494,20 @@ export default function Partners() {
 
                           {/* Champion Faculty if available */}
                           {uni.championName && (
-                            <p className="text-[11px] text-gray-500 mb-3 bg-purple-50/60 border border-purple-100 p-2 rounded-lg">
-                              <span className="font-semibold text-brand-purpleDark">IITDh Champion:</span> {uni.championName}
-                              {uni.championDesignation ? ` (${uni.championDesignation})` : ''}
-                            </p>
+                            <div className="text-[11px] text-gray-500 mb-3 bg-purple-50/60 border border-purple-100 p-2 rounded-lg">
+                              <p>
+                                <span className="font-semibold text-brand-purpleDark">IITDh Champion:</span> {uni.championName}
+                                {uni.championDesignation ? ` (${uni.championDesignation})` : ''}
+                              </p>
+                              {uni.championEmail && (
+                                <a
+                                  href={`mailto:${uni.championEmail}`}
+                                  className="text-brand-purple hover:underline text-[10px] break-all block mt-0.5"
+                                >
+                                  {uni.championEmail}
+                                </a>
+                              )}
+                            </div>
                           )}
                         </div>
 
@@ -512,6 +522,17 @@ export default function Partners() {
                               {activeMou.expiryDate && (
                                 <span className="text-[11px] text-gray-500">
                                   Valid to {new Date(activeMou.expiryDate).getFullYear()}
+                                </span>
+                              )}
+                            </div>
+                          ) : latestMou ? (
+                            <div className="flex items-center justify-between gap-2 text-xs">
+                              <span className="inline-flex items-center gap-1 text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full font-semibold">
+                                MOU ({latestMou.status || 'Pending'})
+                              </span>
+                              {latestMou.expiryDate && (
+                                <span className="text-[11px] text-gray-500">
+                                  Valid to {new Date(latestMou.expiryDate).getFullYear()}
                                 </span>
                               )}
                             </div>
@@ -534,15 +555,15 @@ export default function Partners() {
                               <span />
                             )}
 
-                            {activeMou?.hasDocument && (
+                            {(activeMou?.hasDocument || latestMou?.hasDocument) && (
                               <button
                                 type="button"
-                                disabled={downloadingId === activeMou.id}
-                                onClick={() => handleDownloadMou(activeMou.id, uni.name)}
+                                disabled={downloadingId === (activeMou?.id || latestMou?.id)}
+                                onClick={() => handleDownloadMou((activeMou || latestMou).id, uni.name)}
                                 className="text-brand-purple hover:underline flex items-center gap-1 cursor-pointer"
                               >
                                 <RiFileDownloadLine size={14} />
-                                {downloadingId === activeMou.id ? 'Downloading...' : 'View MOU'}
+                                {downloadingId === (activeMou?.id || latestMou?.id) ? 'Downloading...' : 'View MOU'}
                               </button>
                             )}
                           </div>
@@ -642,10 +663,63 @@ export default function Partners() {
                             )}
 
                             {org.championName && (
-                              <p className="text-[11px] text-gray-500 bg-gray-50 p-2 rounded-lg border border-gray-100 mt-2">
-                                <span className="font-semibold text-gray-700">Champion:</span> {org.championName}
-                              </p>
+                              <div className="text-[11px] text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100 mt-2">
+                                <p>
+                                  <span className="font-semibold text-gray-700">Champion:</span> {org.championName}
+                                  {org.championDesignation ? ` (${org.championDesignation})` : ''}
+                                </p>
+                                {org.championEmail && (
+                                  <a
+                                    href={`mailto:${org.championEmail}`}
+                                    className="text-brand-purple hover:underline text-[10px] break-all block mt-0.5"
+                                  >
+                                    {org.championEmail}
+                                  </a>
+                                )}
+                              </div>
                             )}
+
+                            {/* 3.15 Nested MOUs for organization cards */}
+                            {(() => {
+                              const orgMous = partnerMouMap[org.id] || org.mous || []
+                              if (orgMous.length === 0) return null
+                              return (
+                                <div className="mt-3 pt-3 border-t border-gray-100 text-xs">
+                                  <p className="font-semibold text-gray-700 mb-1.5 flex items-center justify-between">
+                                    <span>Agreements ({orgMous.length}):</span>
+                                  </p>
+                                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                                    {orgMous.map((m) => (
+                                      <div
+                                        key={m.id}
+                                        className="flex items-center justify-between text-[11px] bg-purple-50/40 p-1.5 rounded border border-purple-100/50"
+                                      >
+                                        <div className="truncate mr-2">
+                                          <span className="text-gray-700 font-medium block truncate" title={m.title || 'MOU'}>
+                                            {m.title || 'Bilateral MOU'}
+                                          </span>
+                                          {m.expiryDate && (
+                                            <span className="text-[10px] text-gray-400">
+                                              Until {new Date(m.expiryDate).getFullYear()}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {m.hasDocument && (
+                                          <button
+                                            type="button"
+                                            disabled={downloadingId === m.id}
+                                            onClick={() => handleDownloadMou(m.id, org.name)}
+                                            className="text-brand-purple font-semibold hover:underline shrink-0 text-[10px] cursor-pointer"
+                                          >
+                                            {downloadingId === m.id ? '...' : 'PDF'}
+                                          </button>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </div>
 
                           {org.website && (
@@ -692,6 +766,7 @@ export default function Partners() {
                     const country = mou.partner?.country || ''
                     const countryCode = resolveCountryCode(country, mou.partner?.countryCode)
                     const expiryDate = mou.expiryDate || mou.validUntil
+                    const isMouActive = mou.status === 'ACTIVE'
 
                     return (
                       <div
@@ -702,9 +777,16 @@ export default function Partners() {
                           {/* Header: Name and Globe icon */}
                           <div className="flex items-start justify-between gap-3 mb-3">
                             <div>
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">
+                              {/* 3.13 Show real MOU status */}
+                              <span
+                                className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 ${
+                                  isMouActive
+                                    ? 'text-emerald-700 bg-emerald-50'
+                                    : 'text-amber-800 bg-amber-50'
+                                }`}
+                              >
                                 <RiCheckDoubleLine size={13} />
-                                Active Agreement
+                                {mou.status ? `${mou.status} Agreement` : 'Active Agreement'}
                               </span>
                               <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors leading-snug">
                                 {partnerName}
@@ -853,6 +935,43 @@ export default function Partners() {
           </section>
         </>
       )}
+
+      {/* 3.16 Student / Faculty Authentication Required Modal */}
+      {showSignInModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center border border-gray-100">
+            <div className="w-12 h-12 rounded-full bg-purple-50 text-brand-purple flex items-center justify-center mx-auto mb-4">
+              <RiLinksLine size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Campus Authentication Required</h3>
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              Full bilateral MOU texts and legal documents are protected and available to verified IIT Dharwad students and faculty. Please sign in to download this agreement.
+            </p>
+            <div className="flex flex-col gap-2.5">
+              <Link
+                to="/students"
+                className="w-full py-2.5 px-4 bg-brand-purple text-white text-sm font-semibold rounded-xl hover:bg-brand-purpleDark transition-colors text-center shadow-xs"
+              >
+                Sign in to Student Portal
+              </Link>
+              <Link
+                to="/faculty-portal"
+                className="w-full py-2.5 px-4 bg-purple-50 text-brand-purple text-sm font-semibold rounded-xl hover:bg-purple-100 transition-colors text-center"
+              >
+                Go to Faculty Portal
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowSignInModal(false)}
+                className="text-xs text-gray-500 hover:text-gray-700 py-1.5 cursor-pointer mt-1"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+

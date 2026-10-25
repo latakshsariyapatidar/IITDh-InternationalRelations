@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import { resolveMediaUrl } from '../../utils/media';
 
 export default function Testimonials() {
   const [data, setData] = useState([]);
@@ -16,6 +17,11 @@ export default function Testimonials() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
+  
+  // Safe image upload replacement tracking (1.6)
+  const [initialPhotoUrl, setInitialPhotoUrl] = useState('');
+  const [newlyUploadedPhoto, setNewlyUploadedPhoto] = useState('');
+
   const [formData, setFormData] = useState({ name: '', country: '', program: '', text: '', photoUrl: '', isActive: 'true' });
 
   const fetchData = async () => {
@@ -25,19 +31,27 @@ export default function Testimonials() {
       setData(res.data?.data?.testimonials || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
-    } catch (err) { alert('Failed to load testimonials: ' + (err.response?.data?.message || err.message)); } finally { setLoading(false); }
+    } catch (err) { 
+      alert('Failed to load testimonials: ' + (err.response?.data?.message || err.message)); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   useEffect(() => { fetchData(); }, [page]);
 
   const openCreate = () => {
     setCurrentId(null);
+    setInitialPhotoUrl('');
+    setNewlyUploadedPhoto('');
     setFormData({ name: '', country: '', program: '', text: '', photoUrl: '', isActive: 'true' });
     setIsFormOpen(true);
   };
 
   const openEdit = (item) => {
     setCurrentId(item.id);
+    setInitialPhotoUrl(item.photoUrl || '');
+    setNewlyUploadedPhoto('');
     setFormData({
       name: item.name, country: item.country || '', program: item.program || '',
       text: item.text, photoUrl: item.photoUrl || '', isActive: item.isActive ? 'true' : 'false',
@@ -45,20 +59,37 @@ export default function Testimonials() {
     setIsFormOpen(true);
   };
 
+  const handleCancel = async () => {
+    if (newlyUploadedPhoto && newlyUploadedPhoto.startsWith('/uploads')) {
+      try {
+        await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedPhoto)}`);
+      } catch (e) {
+        console.error('Failed to clean up unsaved photo upload:', e);
+      }
+    }
+    setIsFormOpen(false);
+  };
+
   const handleDelete = async (id) => {
-    if (!confirm('Delete testimonial?')) return;
-    try { await apiClient.delete(`/testimonials/${id}`); fetchData(); } catch (err) {}
+    if (!confirm('Are you sure you want to delete this testimonial?')) return;
+    try { 
+      await apiClient.delete(`/testimonials/${id}`); 
+      fetchData(); 
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Failed to delete testimonial');
+    }
   };
 
   const handleImageUpload = async (file) => {
     if (!file) return;
     try {
-      const fd = new FormData(); fd.append('file', file);
+      const fd = new FormData(); 
+      fd.append('file', file);
       const res = await apiClient.post('/uploads/image/testimonials', fd);
       const newUrl = res.data?.data?.url;
-      if (formData.photoUrl && formData.photoUrl.startsWith('/uploads')) {
-        try { await apiClient.delete(`/uploads?url=${encodeURIComponent(formData.photoUrl)}`); } catch(e){}
-      }
+
+      setNewlyUploadedPhoto(newUrl);
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
     } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
   };
@@ -66,13 +97,34 @@ export default function Testimonials() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      const payload = { ...formData, isActive: formData.isActive === 'true' };
-      if (!payload.photoUrl) delete payload.photoUrl;
+      const payload = { 
+        name: formData.name.trim(),
+        country: formData.country.trim(),
+        program: formData.program.trim(),
+        text: formData.text.trim(),
+        photoUrl: formData.photoUrl || null,
+        isActive: formData.isActive === 'true' 
+      };
 
       if (currentId) await apiClient.patch(`/testimonials/${currentId}`, payload);
       else await apiClient.post('/testimonials', payload);
-      setIsFormOpen(false); fetchData();
-    } catch (err) { alert(err.response?.data?.message || 'Save failed'); } finally { setSaveLoading(false); }
+
+      // Clean up old replaced photo upon success
+      if (newlyUploadedPhoto && initialPhotoUrl && initialPhotoUrl !== newlyUploadedPhoto && initialPhotoUrl.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(initialPhotoUrl)}`);
+        } catch (e) {
+          console.error('Failed to delete old replaced testimonial photo:', e);
+        }
+      }
+
+      setIsFormOpen(false); 
+      fetchData();
+    } catch (err) { 
+      alert(err.response?.data?.message || 'Save failed'); 
+    } finally { 
+      setSaveLoading(false); 
+    }
   };
 
   if (isFormOpen) {
@@ -81,7 +133,7 @@ export default function Testimonials() {
         title={currentId ? 'Edit Testimonial' : 'Add New Testimonial'}
         subtitle="Manage the details of this testimonial."
         stepName="Testimonial Info"
-        onCancel={() => setIsFormOpen(false)}
+        onCancel={handleCancel}
         onSave={handleSave}
         loading={saveLoading}
       >
@@ -140,7 +192,7 @@ export default function Testimonials() {
               </div>
               {formData.photoUrl && (
                 <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center p-2">
-                  <img src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${formData.photoUrl}`} className="w-full h-full object-cover rounded-md" alt="Preview"/>
+                  <img src={resolveMediaUrl(formData.photoUrl)} className="w-full h-full object-cover rounded-md" alt="Preview"/>
                 </div>
               )}
             </div>
@@ -187,7 +239,7 @@ export default function Testimonials() {
                     <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-white flex items-center justify-center shrink-0">
                       {item.photoUrl ? (
                         <img 
-                          src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${item.photoUrl}`} 
+                          src={resolveMediaUrl(item.photoUrl)} 
                           alt="" 
                           className="w-full h-full object-cover"
                           onError={(e) => {e.target.style.display='none'}}

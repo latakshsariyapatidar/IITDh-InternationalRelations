@@ -3,31 +3,45 @@ import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import { useState, useEffect } from 'react'
-import { RiHandHeartLine, RiUserStarLine, RiGroupLine } from '@remixicon/react'
+import { RiHandHeartLine, RiUserStarLine, RiGroupLine, RiExternalLinkLine } from '@remixicon/react'
 import DOMPurify from 'dompurify'
 import apiClient from '../api/client'
+import { useSiteContent } from '../contexts/SiteContentContext'
+import { resolveMediaUrl } from '../utils/media'
 
 export default function About() {
   const [team, setTeam] = useState([]);
   const [faculty, setFaculty] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { getContent } = useSiteContent();
+
+  const aboutIntro = getContent('about.intro');
+  const chairpersonMessage = getContent('about.chairpersonMessage');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    // 1.10 Load independent requests separately
+    const fetchTeam = async () => {
       try {
         const teamRes = await apiClient.get('/team?limit=100');
         setTeam(teamRes.data?.data?.team || []);
-        
+      } catch (err) {
+        console.error('Failed to fetch team data', err);
+      }
+    };
+
+    const fetchFaculty = async () => {
+      try {
         const facRes = await apiClient.get('/faculty?limit=100');
         setFaculty(facRes.data?.data?.faculty || []);
       } catch (err) {
-        console.error('Failed to fetch about data', err);
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch faculty data', err);
       }
     };
-    fetchData();
+
+    setLoading(true);
+    Promise.allSettled([fetchTeam(), fetchFaculty()]).finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -39,30 +53,36 @@ export default function About() {
         cta={{ label: 'Learn More', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
       />
 
-      {/* Intro Section */}
+      {/* Intro Section (3.8 reads about.intro from site content) */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="prose max-w-none text-gray-700 leading-relaxed space-y-4 text-lg">
-          <p>
-            Internationalisation is an inherent aspect of the Indian Institutes and the International Relations Office at IIT Dharwad is committed to achieving its goals through a focused approach, supported by two verticals, <strong>“International Collaborations and International Academic Programs”</strong>.
-          </p>
-          <p>
-            We look forward to welcoming the international community to our midst, in the spirit of mutually beneficial partnerships. To broaden the experience -- both yours and ours -- of academic and cultural life, to be better equipped to participate in multicultural, globalised workspaces; and to contribute meaningfully to a dynamic, more integrated world.
-          </p>
-          <p>
-            The departments and centers of IIT Dharwad are responsible for teaching, research, and industrial consultancy. With our excellent faculty, students who excel both in academics and extra-curricular activities, dedicated staff members, and state-of-the-art research facilities, the first decade of our existence is proving to be an exciting phase. Going forward, we expect to have:
-          </p>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>International student admissions to full time taught and research programs</li>
-            <li>Semester abroad student exchanges with partner institutes, research internships, immersion programs, study tours, project work.</li>
-            <li>Twinning arrangements to collaboratively design and offer programs, and jointly award degrees</li>
-            <li>Course-specific tie-ups and blended teaching-learning</li>
-            <li>Visiting faculty exchanges</li>
-            <li>Joint Research & Development on projects of relevance to either/both/ all concerned countries to offer just an indicative list.</li>
-          </ul>
-        </div>
+        {aboutIntro ? (
+          <div className="prose max-w-none text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+            {aboutIntro}
+          </div>
+        ) : (
+          <div className="prose max-w-none text-gray-700 leading-relaxed space-y-4 text-lg">
+            <p>
+              Internationalisation is an inherent aspect of the Indian Institutes and the International Relations Office at IIT Dharwad is committed to achieving its goals through a focused approach, supported by two verticals, <strong>“International Collaborations and International Academic Programs”</strong>.
+            </p>
+            <p>
+              We look forward to welcoming the international community to our midst, in the spirit of mutually beneficial partnerships. To broaden the experience -- both yours and ours -- of academic and cultural life, to be better equipped to participate in multicultural, globalised workspaces; and to contribute meaningfully to a dynamic, more integrated world.
+            </p>
+            <p>
+              The departments and centers of IIT Dharwad are responsible for teaching, research, and industrial consultancy. With our excellent faculty, students who excel both in academics and extra-curricular activities, dedicated staff members, and state-of-the-art research facilities, the first decade of our existence is proving to be an exciting phase. Going forward, we expect to have:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>International student admissions to full time taught and research programs</li>
+              <li>Semester abroad student exchanges with partner institutes, research internships, immersion programs, study tours, project work.</li>
+              <li>Twinning arrangements to collaboratively design and offer programs, and jointly award degrees</li>
+              <li>Course-specific tie-ups and blended teaching-learning</li>
+              <li>Visiting faculty exchanges</li>
+              <li>Joint Research & Development on projects of relevance to either/both/ all concerned countries to offer just an indicative list.</li>
+            </ul>
+          </div>
+        )}
       </section>
 
-      {/* Chairperson Message */}
+      {/* Chairperson Message (3.8 reads about.chairpersonMessage from site content) */}
       <section className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 items-start">
@@ -79,30 +99,36 @@ export default function About() {
                 centered={false}
                 badge={<RiHandHeartLine size={24} />}
               />
-              <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
-                <p><strong>Dear International Community,</strong></p>
-                <p>
-                  A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.
-                </p>
-                <p>
-                  It is our pleasure to welcome students, faculty members, researchers, and academic partners from around the world to our vibrant and growing academic community. At IIT Dharwad, we believe that international engagement is built through meaningful academic collaboration, mutual respect, and shared learning.
-                </p>
-                <p>
-                  The International Relations Office serves as a bridge between the Institute and the global academic community. We are committed to facilitating international partnerships, student and faculty mobility, collaborative research, academic exchanges, and other initiatives that foster global learning and intercultural understanding. Our team strives to ensure that every international visitor experiences a smooth transition and feels welcomed, supported, and connected throughout their journey at the Institute.
-                </p>
-                <p>
-                  Beyond academics, IIT Dharwad offers an opportunity to experience India's rich cultural heritage while being part of an innovative and inclusive campus environment. We encourage you to engage with our students and faculty, explore new ideas, build lasting friendships, and contribute your unique perspectives to our academic community.
-                </p>
-                <p>
-                  We look forward to welcoming you to IIT Dharwad and to building enduring partnerships that advance knowledge, innovation, and global cooperation.
-                </p>
-                <p className="pt-4">
-                  With warm regards,<br/>
-                  <strong>Chairperson</strong><br/>
-                  International Relations Office<br/>
-                  Indian Institute of Technology Dharwad
-                </p>
-              </div>
+              {chairpersonMessage ? (
+                <div className="space-y-4 text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+                  {chairpersonMessage}
+                </div>
+              ) : (
+                <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
+                  <p><strong>Dear International Community,</strong></p>
+                  <p>
+                    A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.
+                  </p>
+                  <p>
+                    It is our pleasure to welcome students, faculty members, researchers, and academic partners from around the world to our vibrant and growing academic community. At IIT Dharwad, we believe that international engagement is built through meaningful academic collaboration, mutual respect, and shared learning.
+                  </p>
+                  <p>
+                    The International Relations Office serves as a bridge between the Institute and the global academic community. We are committed to facilitating international partnerships, student and faculty mobility, collaborative research, academic exchanges, and other initiatives that foster global learning and intercultural understanding. Our team strives to ensure that every international visitor experiences a smooth transition and feels welcomed, supported, and connected throughout their journey at the Institute.
+                  </p>
+                  <p>
+                    Beyond academics, IIT Dharwad offers an opportunity to experience India's rich cultural heritage while being part of an innovative and inclusive campus environment. We encourage you to engage with our students and faculty, explore new ideas, build lasting friendships, and contribute your unique perspectives to our academic community.
+                  </p>
+                  <p>
+                    We look forward to welcoming you to IIT Dharwad and to building enduring partnerships that advance knowledge, innovation, and global cooperation.
+                  </p>
+                  <p className="pt-4">
+                    With warm regards,<br/>
+                    <strong>Chairperson</strong><br/>
+                    International Relations Office<br/>
+                    Indian Institute of Technology Dharwad
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -110,7 +136,7 @@ export default function About() {
 
       {/* Faculty */}
       {faculty.length > 0 && (
-        <section className="bg-white py-16">
+        <section id="faculty" className="bg-white py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
               <p className="text-brand-purple text-xs font-bold tracking-widest uppercase mb-3 flex items-center justify-center gap-2">
@@ -126,7 +152,7 @@ export default function About() {
                   <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 border-2 border-brand-purple/20 group-hover:border-brand-marigold transition-colors mb-4 shadow-sm shrink-0 overflow-hidden">
                     {member.photoUrl ? (
                       <img 
-                        src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${member.photoUrl}`} 
+                        src={resolveMediaUrl(member.photoUrl)} 
                         alt={member.name}
                         className="w-full h-full rounded-full object-cover"
                         onError={(e) => { e.target.style.display = 'none'; }}
@@ -137,7 +163,21 @@ export default function About() {
                       </div>
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    {member.redirectUrl ? (
+                      <a 
+                        href={member.redirectUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="hover:text-brand-purple hover:underline inline-flex items-center gap-1"
+                      >
+                        {member.name}
+                        <RiExternalLinkLine size={14} className="text-gray-400 group-hover:text-brand-purple" />
+                      </a>
+                    ) : (
+                      member.name
+                    )}
+                  </h3>
                   {member.designation && <p className="text-sm text-brand-purple font-semibold mb-2">{member.designation}</p>}
                   {member.department && <p className="text-xs text-gray-500 mb-4">{member.department}</p>}
                   {member.email && (
@@ -172,7 +212,7 @@ export default function About() {
                     <div className="bg-white/10 rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center border-2 border-brand-marigold shrink-0 relative overflow-hidden text-gray-200 shadow-lg">
                       {member.photoUrl ? (
                         <img 
-                          src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${member.photoUrl}`} 
+                          src={resolveMediaUrl(member.photoUrl)} 
                           alt={member.name}
                           className="w-full h-full object-cover"
                           onError={(e) => { e.target.style.display = 'none'; }}

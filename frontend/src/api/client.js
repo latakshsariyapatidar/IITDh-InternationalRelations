@@ -20,23 +20,55 @@ const apiClient = axios.create({
   withCredentials: true, // Crucial for refresh cookies
 });
 
-// A mechanism to inject the token from our AuthContext
-// We'll expose a setter so the AuthContext can keep this updated
-let currentAccessToken = null;
+let adminAccessToken = null;
+let campusAccessToken = null;
 
-export const setAccessToken = (token) => {
-  currentAccessToken = token;
+export const setAdminAccessToken = (token) => {
+  adminAccessToken = token;
 };
 
-// Request interceptor: attach the access token to every request if we have it
+export const setCampusAccessToken = (token) => {
+  campusAccessToken = token;
+};
+
+// Backward compatibility alias for admin context
+export const setAccessToken = (token) => {
+  adminAccessToken = token;
+};
+
+export const getAdminAccessToken = () => adminAccessToken;
+export const getCampusAccessToken = () => campusAccessToken;
+
+const isCampusEndpoint = (config) => {
+  if (config.authType === 'campus') return true;
+  if (config.authType === 'admin') return false;
+  const url = config.url || '';
+  const method = config.method?.toLowerCase();
+  if (url.includes('/campus-auth')) return true;
+  if (url.includes('/opportunities/feed')) return true;
+  if (url.includes('/outbound-applications/mine')) return true;
+  if (url === '/outbound-applications' && method === 'post') return true;
+  return false;
+};
+
+// Request interceptor: attach the appropriate access token
 apiClient.interceptors.request.use((config) => {
-  if (currentAccessToken) {
-    config.headers.Authorization = `Bearer ${currentAccessToken}`;
-  }
+  const isCampus = isCampusEndpoint(config);
   
-  // Cache-busting for GET requests to ensure admin panel gets fresh data
-  if (config.method?.toLowerCase() === 'get') {
-    config.params = { ...config.params, _t: Date.now() };
+  if (isCampus) {
+    if (campusAccessToken) {
+      config.headers.Authorization = `Bearer ${campusAccessToken}`;
+      config._tokenType = 'campus';
+    }
+  } else {
+    if (adminAccessToken) {
+      config.headers.Authorization = `Bearer ${adminAccessToken}`;
+      config._tokenType = 'admin';
+    } else if (campusAccessToken && (config.url?.includes('/mous/') && config.url?.includes('/download'))) {
+      // Campus users can download public/IITDh MOUs
+      config.headers.Authorization = `Bearer ${campusAccessToken}`;
+      config._tokenType = 'campus';
+    }
   }
 
   return config;
@@ -57,39 +89,47 @@ apiClient.interceptors.response.use(
     }
 
     // If error is 401 and we haven't already retried this exact request,
-    // AND the original request was NOT a login or refresh attempt (admin or campus)
+    // AND the original request was NOT a login or refresh attempt
     if (
       error.response?.status === 401 && 
+      originalRequest &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/auth/login') &&
       !originalRequest.url?.includes('/auth/refresh') &&
-      !originalRequest.url?.includes('/campus-auth')
+      !originalRequest.url?.includes('/campus-auth/refresh') &&
+      !originalRequest.url?.includes('/campus-auth/google')
     ) {
       originalRequest._retry = true;
+      const isCampus = originalRequest._tokenType === 'campus' || isCampusEndpoint(originalRequest);
 
-      try {
-        // Attempt to refresh the token. The browser will automatically include the httpOnly refreshToken cookie
-        const refreshResponse = await axios.post(`${baseURL}/auth/refresh`, {}, {
-          withCredentials: true
-        });
-
-        const newAccessToken = refreshResponse.data.data.accessToken;
-        
-        // Update our local variable
-        setAccessToken(newAccessToken);
-
-        // Update the original request's authorization header and retry it
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return axios(originalRequest);
-      } catch (refreshError) {
-        // If the refresh fails, it means the session is truly dead.
-        // We should clear the token and force a redirect to login.
-        setAccessToken(null);
-        
-        // Dispatch a custom event so the AuthContext knows we logged out
-        window.dispatchEvent(new Event('auth-session-expired'));
-        
-        return Promise.reject(refreshError);
+      if (isCampus) {
+        try {
+          const refreshResponse = await axios.post(`${baseURL}/campus-auth/refresh`, {}, {
+            withCredentials: true
+          });
+          const newAccessToken = refreshResponse.data?.data?.accessToken;
+          setCampusAccessToken(newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axios(originalRequest);
+        } catch (refreshError) {
+          setCampusAccessToken(null);
+          window.dispatchEvent(new Event('campus-session-expired'));
+          return Promise.reject(refreshError);
+        }
+      } else {
+        try {
+          const refreshResponse = await axios.post(`${baseURL}/auth/refresh`, {}, {
+            withCredentials: true
+          });
+          const newAccessToken = refreshResponse.data?.data?.accessToken;
+          setAdminAccessToken(newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axios(originalRequest);
+        } catch (refreshError) {
+          setAdminAccessToken(null);
+          window.dispatchEvent(new Event('auth-session-expired'));
+          return Promise.reject(refreshError);
+        }
       }
     }
 

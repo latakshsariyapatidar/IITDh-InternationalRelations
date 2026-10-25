@@ -130,10 +130,16 @@ export default function Faculty() {
         department: formData.department.trim() || null,
         photoUrl: formData.photoUrl || null,
         redirectUrl: formData.redirectUrl.trim(),
-        email: formData.email && formData.email.trim() ? formData.email.trim().toLowerCase() : null,
         isPortalEnabled: formData.isPortalEnabled === 'true',
         isActive: formData.isActive === 'true',
       };
+      // 5.31: Omit email on create when empty so backend validation doesn't reject null
+      if (formData.email && formData.email.trim()) {
+        payload.email = formData.email.trim().toLowerCase();
+      } else if (currentId) {
+        payload.email = null;
+      }
+
       if (currentId) await apiClient.patch(`/faculty/${currentId}`, payload);
       else await apiClient.post('/faculty', payload);
       if (savedPhotoUrl && savedPhotoUrl !== formData.photoUrl && savedPhotoUrl.startsWith('/uploads')) {

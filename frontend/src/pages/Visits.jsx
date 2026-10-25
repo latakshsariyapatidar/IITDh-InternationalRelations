@@ -4,6 +4,7 @@ import Card from '../components/ui/Card'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import apiClient from '../api/client'
+import { resolveMediaUrl } from '../utils/media'
 
 export default function Visits() {
   const [visits, setVisits] = useState([]);
@@ -13,7 +14,7 @@ export default function Visits() {
     const fetchVisits = async () => {
       try {
         const [eventsRes] = await Promise.allSettled([
-          apiClient.get('/events?type=VISIT&limit=50'),
+          apiClient.get('/events?type=VISIT&isPublic=true&limit=50'),
         ]);
 
         const eventItems = (eventsRes.status === 'fulfilled' && eventsRes.value.data?.data?.events)
@@ -66,7 +67,7 @@ export default function Visits() {
                   {visit.imageUrl && (
                     <div className="md:col-span-3 rounded-lg overflow-hidden aspect-video bg-neutral-canvas flex items-center justify-center">
                       <img
-                        src={`${apiClient.defaults.baseURL.replace('/api/v1', '')}${visit.imageUrl}`}
+                        src={resolveMediaUrl(visit.imageUrl)}
                         alt={visit.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => { e.target.style.display = 'none'; }}

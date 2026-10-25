@@ -14,8 +14,11 @@ import {
   RiAttachmentLine,
   RiUserLine,
   RiSparklingLine,
-  RiArrowRightLine
+  RiArrowRightLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine
 } from '@remixicon/react';
+import { resolveMediaUrl } from '../utils/media';
 
 const CATEGORIES = [
   { id: 'ALL', label: 'All Categories' },
@@ -35,6 +38,19 @@ const AUDIENCES = [
   { id: 'FACULTY', label: 'For Faculty' },
 ];
 
+function FlagIcon({ code }) {
+  if (!code || !code.trim()) return null;
+  return (
+    <img
+      src={`https://flagcdn.com/h80/${code.trim().toLowerCase()}.png`}
+      height="14"
+      alt={`${code} flag`}
+      className="h-3.5 w-auto rounded-[2px] shadow-2xs inline-block align-middle mr-1"
+      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+    />
+  );
+}
+
 export default function Opportunities() {
   const { isStudentAuthenticated } = useStudentAuth();
   const [opportunities, setOpportunities] = useState([]);
@@ -44,30 +60,67 @@ export default function Opportunities() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedAudience, setSelectedAudience] = useState('ALL');
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Modal detail state
   const [selectedOpp, setSelectedOpp] = useState(null);
 
-  useEffect(() => {
-    const fetchOpps = async () => {
-      setLoading(true);
-      try {
-        let endpoint = '/opportunities';
-        if (isStudentAuthenticated) {
-          endpoint = '/opportunities/feed';
-        }
+  const fetchOpps = async () => {
+    setLoading(true);
+    try {
+      // 3.21: If signed in as student and looking for faculty, use standard /opportunities so faculty filter isn't empty.
+      // Pass includeExpired=false and limit=50.
+      let endpoint = '/opportunities';
+      const params = {
+        includeExpired: false,
+        limit: 24,
+        page: page,
+      };
 
-        const res = await apiClient.get(endpoint);
-        setOpportunities(res.data?.data?.opportunities || res.data?.data || []);
-      } catch (err) {
-        console.error('Failed to fetch opportunities:', err);
-      } finally {
-        setLoading(false);
+      if (isStudentAuthenticated && selectedAudience !== 'FACULTY') {
+        endpoint = '/opportunities/feed';
+        params.limit = 50;
       }
-    };
 
+      // 3.23: Pass category and audience to backend
+      if (selectedCategory !== 'ALL') {
+        params.category = selectedCategory;
+      }
+      if (selectedAudience !== 'ALL') {
+        params.audience = selectedAudience;
+      }
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim();
+      }
+
+      const res = await apiClient.get(endpoint, { params });
+      const fetched = res.data?.data?.opportunities || res.data?.data || [];
+      const total = res.data?.data?.total || fetched.length;
+
+      setOpportunities(fetched);
+      setTotalCount(total);
+    } catch (err) {
+      console.error('Failed to fetch opportunities:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, selectedAudience, searchQuery]);
+
+  useEffect(() => {
     fetchOpps();
-  }, [isStudentAuthenticated]);
+  }, [isStudentAuthenticated, selectedCategory, selectedAudience, page]);
+
+  // Handle search submit on enter or debounce
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter') {
+      fetchOpps();
+    }
+  };
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -92,49 +145,11 @@ export default function Opportunities() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedOpp]);
 
-  // Filtered and searched opportunities
-  const filteredOpportunities = useMemo(() => {
-    return opportunities.filter((opp) => {
-      // Category filter
-      if (selectedCategory !== 'ALL' && opp.category !== selectedCategory) {
-        return false;
-      }
-
-      // Audience filter
-      if (selectedAudience === 'STUDENT') {
-        if (opp.audience !== 'STUDENT' && opp.audience !== 'BOTH') return false;
-      } else if (selectedAudience === 'FACULTY') {
-        if (opp.audience !== 'FACULTY' && opp.audience !== 'BOTH') return false;
-      }
-
-      // Search query
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const searchable = [
-          opp.title,
-          opp.description,
-          opp.organisation,
-          opp.country,
-          opp.category,
-          opp.audience
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-
-        if (!searchable.includes(query)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [opportunities, selectedCategory, selectedAudience, searchQuery]);
-
   const clearAllFilters = () => {
     setSearchQuery('');
     setSelectedCategory('ALL');
     setSelectedAudience('ALL');
+    setPage(1);
   };
 
   const formatAudience = (aud) => {
@@ -148,6 +163,8 @@ export default function Opportunities() {
     const found = CATEGORIES.find(c => c.id === cat);
     return found ? found.label : cat;
   };
+
+  const totalPages = Math.ceil(totalCount / 24) || 1;
 
   return (
     <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
@@ -185,12 +202,13 @@ export default function Opportunities() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search opportunities by title, organisation, country, or keyword..."
+                onKeyDown={handleSearchSubmit}
+                placeholder="Search opportunities (press Enter)..."
                 className="w-full pl-11 pr-10 py-3 rounded-xl border border-brand-purpleLight/70 bg-brand-cream/20 text-sm text-brand-purpleDark placeholder:text-brand-purpleDark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple transition-all"
               />
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => { setSearchQuery(''); fetchOpps(); }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-purple/50 hover:text-brand-purple p-1 cursor-pointer transition-colors"
                   aria-label="Clear search"
                 >
@@ -244,7 +262,7 @@ export default function Opportunities() {
           {(searchQuery || selectedCategory !== 'ALL' || selectedAudience !== 'ALL') && (
             <div className="flex items-center justify-between pt-3 border-t border-brand-purpleLight/30 text-xs text-brand-purpleDark/75">
               <span>
-                Showing <strong>{filteredOpportunities.length}</strong> matching result{filteredOpportunities.length === 1 ? '' : 's'}
+                Showing <strong>{opportunities.length}</strong> loaded result{opportunities.length === 1 ? '' : 's'} (Total: {totalCount})
               </span>
               <button
                 onClick={clearAllFilters}
@@ -258,14 +276,14 @@ export default function Opportunities() {
 
         {/* Content Area */}
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-24">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-purple"></div>
-            <p className="text-sm text-brand-purpleDark/70 mt-4 font-medium">Loading opportunities...</p>
+          <div className="py-24 text-center">
+            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-brand-purple border-t-transparent mb-4" />
+            <p className="text-sm font-medium text-brand-purpleDark/60">Fetching global opportunities...</p>
           </div>
-        ) : filteredOpportunities.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-brand-purpleLight/60 shadow-xs max-w-xl mx-auto p-8 sm:p-10">
-            <div className="w-16 h-16 bg-brand-purpleLight/30 text-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
-              <RiSearchLine size={28} />
+        ) : opportunities.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-brand-purpleLight/60 p-12 text-center max-w-xl mx-auto shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-purple mx-auto mb-4">
+              <RiFilter3Line size={28} />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-brand-purpleDark mb-2">No Opportunities Found</h3>
             <p className="text-brand-purpleDark/70 text-sm mb-6 leading-relaxed">
@@ -279,78 +297,107 @@ export default function Opportunities() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOpportunities.map((opp) => {
-              const deadline = opp.applicationDeadline || opp.visibleUntil;
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {opportunities.map((opp) => {
+                // 3.22: Only treat opp.applicationDeadline as deadline
+                const deadline = opp.applicationDeadline;
 
-              return (
-                <div
-                  key={opp.id}
-                  onClick={() => setSelectedOpp(opp)}
-                  className="bg-white rounded-2xl border border-brand-purpleLight/60 hover:border-brand-purple hover:shadow-lg transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
-                >
-                  <div>
-                    {/* Badges */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-purpleLight/40 text-brand-purpleDark">
-                        {formatCategory(opp.category)}
-                      </span>
-                      {opp.audience && opp.audience !== 'BOTH' && (
-                        <span className="text-[11px] font-semibold text-brand-purpleDark/80 bg-brand-cream border border-brand-purpleLight/30 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <RiUserLine size={12} className="text-brand-purple" />
-                          {formatAudience(opp.audience)}
+                return (
+                  <div
+                    key={opp.id}
+                    onClick={() => setSelectedOpp(opp)}
+                    className="bg-white rounded-2xl border border-brand-purpleLight/60 hover:border-brand-purple hover:shadow-lg transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+                  >
+                    <div>
+                      {/* Badges */}
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-purpleLight/40 text-brand-purpleDark">
+                          {formatCategory(opp.category)}
                         </span>
-                      )}
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors line-clamp-2 leading-snug mb-2">
-                      {opp.title}
-                    </h3>
-
-                    {/* Organisation & Country */}
-                    {(opp.organisation || opp.country) && (
-                      <p className="text-xs text-brand-purpleDark/70 font-medium flex items-center gap-1.5 mb-3">
-                        {opp.organisation && (
-                          <span className="flex items-center gap-1 truncate">
-                            <RiBuildingLine size={13} className="shrink-0 text-brand-purple/70" />
-                            {opp.organisation}
+                        {opp.audience && opp.audience !== 'BOTH' && (
+                          <span className="text-[11px] font-semibold text-brand-purpleDark/80 bg-brand-cream border border-brand-purpleLight/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <RiUserLine size={12} className="text-brand-purple" />
+                            {formatAudience(opp.audience)}
                           </span>
                         )}
-                        {opp.organisation && opp.country && <span>•</span>}
-                        {opp.country && (
-                          <span className="flex items-center gap-1 shrink-0">
-                            <RiMapPinLine size={13} className="text-brand-purple/70" />
-                            {opp.country}
-                          </span>
-                        )}
-                      </p>
-                    )}
-
-                    {/* Description preview */}
-                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-6 font-normal">
-                      {opp.description || 'No description provided.'}
-                    </p>
-                  </div>
-
-                  {/* Card Bottom / Footer */}
-                  <div className="pt-4 border-t border-brand-purpleLight/30 space-y-3">
-                    {deadline && (
-                      <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-md w-fit font-medium">
-                        <RiCalendarLine size={13} className="text-amber-700" />
-                        <span>Deadline: {new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
-                    )}
 
-                    <div className="flex items-center justify-between text-xs font-semibold text-brand-purple group-hover:text-brand-purpleHover pt-1">
-                      <span>Click to view details</span>
-                      <RiArrowRightLine size={15} className="group-hover:translate-x-1 transition-transform" />
+                      {/* Title */}
+                      <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors line-clamp-2 leading-snug mb-2">
+                        {opp.title}
+                      </h3>
+
+                      {/* Organisation & Country */}
+                      {(opp.organisation || opp.country) && (
+                        <p className="text-xs text-brand-purpleDark/70 font-medium flex items-center gap-1.5 mb-3 flex-wrap">
+                          {opp.organisation && (
+                            <span className="flex items-center gap-1 truncate max-w-[200px]">
+                              <RiBuildingLine size={13} className="shrink-0 text-brand-purple/70" />
+                              {opp.organisation}
+                            </span>
+                          )}
+                          {opp.organisation && opp.country && <span>•</span>}
+                          {opp.country && (
+                            <span className="flex items-center gap-1 shrink-0">
+                              <FlagIcon code={opp.countryCode} />
+                              <RiMapPinLine size={13} className="text-brand-purple/70" />
+                              {opp.country}
+                            </span>
+                          )}
+                        </p>
+                      )}
+
+                      {/* Description preview */}
+                      <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-6 font-normal">
+                        {opp.description || 'No description provided.'}
+                      </p>
+                    </div>
+
+                    {/* Card Bottom / Footer */}
+                    <div className="pt-4 border-t border-brand-purpleLight/30 space-y-3">
+                      {deadline && (
+                        <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-md w-fit font-medium">
+                          <RiCalendarLine size={13} className="text-amber-700" />
+                          <span>Deadline: {new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between text-xs font-semibold text-brand-purple group-hover:text-brand-purpleHover pt-1">
+                        <span>Click to view details</span>
+                        <RiArrowRightLine size={15} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="px-4 py-2 rounded-xl border border-brand-purpleLight text-brand-purple text-xs font-bold hover:bg-brand-purpleLight/20 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <RiArrowLeftSLine size={16} /> Previous
+                </button>
+                <span className="text-xs text-gray-600 font-medium px-2">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-4 py-2 rounded-xl border border-brand-purpleLight text-brand-purple text-xs font-bold hover:bg-brand-purpleLight/20 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  Next <RiArrowRightSLine size={16} />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
@@ -402,6 +449,7 @@ export default function Opportunities() {
                   {selectedOpp.organisation && selectedOpp.country && <span>•</span>}
                   {selectedOpp.country && (
                     <span className="flex items-center gap-1.5 font-medium">
+                      <FlagIcon code={selectedOpp.countryCode} />
                       <RiMapPinLine size={16} className="text-brand-purple" />
                       {selectedOpp.country}
                     </span>
@@ -412,8 +460,8 @@ export default function Opportunities() {
 
             {/* Modal Scrollable Body */}
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              {/* Important Dates / Deadline */}
-              {(selectedOpp.applicationDeadline || selectedOpp.visibleUntil) && (
+              {/* 3.22 Only show Application Deadline if opp.applicationDeadline is present */}
+              {selectedOpp.applicationDeadline && (
                 <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200/60 flex items-center gap-3">
                   <div className="p-2.5 rounded-lg bg-amber-100 text-amber-800">
                     <RiCalendarLine size={20} />
@@ -421,7 +469,7 @@ export default function Opportunities() {
                   <div>
                     <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Application Deadline</p>
                     <p className="text-base font-bold text-amber-950">
-                      {new Date(selectedOpp.applicationDeadline || selectedOpp.visibleUntil).toLocaleDateString(undefined, {
+                      {new Date(selectedOpp.applicationDeadline).toLocaleDateString(undefined, {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -455,7 +503,7 @@ export default function Opportunities() {
                     </div>
                   </div>
                   <a
-                    href={selectedOpp.attachmentUrl}
+                    href={resolveMediaUrl(selectedOpp.attachmentUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-bold text-brand-purple hover:underline"

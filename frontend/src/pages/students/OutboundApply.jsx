@@ -20,6 +20,7 @@ export default function OutboundApply() {
   
   const [currentStep, setCurrentStep] = useState(0);
   const [partners, setPartners] = useState([]);
+  const [referenceId, setReferenceId] = useState(null);
 
   const [formData, setFormData] = useState({
     partnerId: '',
@@ -29,6 +30,7 @@ export default function OutboundApply() {
     cgpa: '',
     programType: 'SEMESTER_EXCHANGE',
     intendedSemester: '',
+    statementOfPurposeText: '',
     motivation: '',
   });
 
@@ -37,10 +39,12 @@ export default function OutboundApply() {
   const [compressionStats, setCompressionStats] = useState({});
 
   useEffect(() => {
+    // 4.9 Limit to universities and support paging/large limit
     const fetchPartners = async () => {
       try {
-        const res = await apiClient.get('/partners?limit=100');
-        setPartners(res.data?.data?.partners || []);
+        const res = await apiClient.get('/partners?type=UNIVERSITY&limit=100');
+        const list = res.data?.data?.partners || [];
+        setPartners(list.filter(p => p.type === 'UNIVERSITY' || !p.type));
       } catch (err) {
         console.error('Failed to load partners', err);
       }
@@ -116,8 +120,16 @@ export default function OutboundApply() {
     try {
       const payload = new FormData();
       Object.keys(formData).forEach(key => {
-        payload.append(key, formData[key]);
+        if (formData[key] !== undefined && formData[key] !== '') {
+          payload.append(key, formData[key]);
+        }
       });
+
+      // 4.7 Ensure statementOfPurposeText is populated
+      const sopText = formData.statementOfPurposeText || formData.motivation;
+      if (sopText && !formData.statementOfPurposeText) {
+        payload.append('statementOfPurposeText', sopText);
+      }
 
       for (const [key, file] of Object.entries(files)) {
         if (!file.compressedSize && (file.type?.startsWith('image/') || file.type === 'application/pdf')) {
@@ -128,10 +140,12 @@ export default function OutboundApply() {
         }
       }
 
-      await apiClient.post('/outbound-applications', payload, {
+      const res = await apiClient.post('/outbound-applications', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      const ref = res.data?.data?.referenceId || res.data?.data?.id || 'SUBMITTED';
+      setReferenceId(ref);
       setSuccess(true);
     } catch (err) {
       console.error(err);
@@ -144,17 +158,27 @@ export default function OutboundApply() {
   if (success) {
     return (
       <div className="h-screen w-screen bg-brand-purpleDark flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
+        <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-2xl shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-500">
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
             <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Application Submitted!</h2>
-          <p className="text-gray-600 text-lg">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Application Submitted!</h2>
+          <p className="text-gray-600 text-sm leading-relaxed">
             Your outbound application has been successfully submitted to the IRO for review.
           </p>
-          <Button onClick={() => navigate('/students/track')} className="mt-4 bg-brand-purple hover:bg-brand-purpleDark w-full">
+
+          {/* 1.13 Show reference ID */}
+          {referenceId && (
+            <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
+              <p className="text-xs uppercase font-bold tracking-wider text-gray-500 mb-1">Application Reference Number</p>
+              <p className="font-mono text-lg font-bold text-brand-purple select-all">{referenceId}</p>
+              <p className="text-[11px] text-gray-500 mt-1">Please note this reference ID to track your status.</p>
+            </div>
+          )}
+
+          <Button onClick={() => navigate('/students/track')} className="mt-4 bg-brand-purple hover:bg-brand-purpleDark w-full cursor-pointer">
             Track Application
           </Button>
         </div>
@@ -281,13 +305,37 @@ export default function OutboundApply() {
               <div className={currentStep === 2 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
                 <div className="grid grid-cols-1 gap-y-5">
                   <div className="space-y-2">
-                    <Label>Motivation / Statement of Purpose <span className="text-red-500">*</span></Label>
-                    <textarea required={currentStep === 2} name="motivation" value={formData.motivation} onChange={handleInputChange} className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" placeholder="Briefly describe why you want to apply for this program..." />
+                    <Label>Statement of Purpose / Motivation Text <span className="text-red-500">*</span></Label>
+                    <textarea
+                      required={currentStep === 2 && !files.statementOfPurpose}
+                      name="statementOfPurposeText"
+                      value={formData.statementOfPurposeText || formData.motivation}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData(prev => ({ ...prev, statementOfPurposeText: val, motivation: val }));
+                      }}
+                      className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      placeholder="Briefly describe your academic background, motivation, and why you are applying for this outbound exchange..."
+                    />
+                  </div>
+
+                  {/* 4.7 Statement of Purpose PDF upload */}
+                  <div className="space-y-2">
+                    <Label>Statement of Purpose (PDF Upload, Optional)</Label>
+                    <Input type="file" name="statementOfPurpose" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
+                    {compressing['statementOfPurpose'] && (
+                      <p className="text-xs text-brand-purple animate-pulse">Compressing PDF...</p>
+                    )}
+                    {compressionStats['statementOfPurpose'] && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Ready: {formatBytes(compressionStats['statementOfPurpose'].compressed)}
+                      </p>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
                     <Label>Academic Transcripts (PDF) <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 2} type="file" name="transcript" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
+                    <Input required={currentStep === 2 && !files.transcript} type="file" name="transcript" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
                     {compressing['transcript'] && (
                       <p className="text-xs text-brand-purple animate-pulse">Compressing PDF...</p>
                     )}
@@ -298,8 +346,10 @@ export default function OutboundApply() {
                       </p>
                     )}
                   </div>
+
+                  {/* 4.8 Relabeled recommendation letter */}
                   <div className="space-y-2">
-                    <Label>NOC / Endorsement Form (Optional)</Label>
+                    <Label>Recommendation Letter / Faculty Endorsement (Optional)</Label>
                     <Input type="file" name="recommendationLetter" accept=".pdf" onChange={handleFileChange} className="cursor-pointer" />
                     {compressing['recommendationLetter'] && (
                       <p className="text-xs text-brand-purple animate-pulse">Compressing PDF...</p>

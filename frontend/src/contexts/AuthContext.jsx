@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient, { setAccessToken } from '../api/client';
+import apiClient, { setAdminAccessToken } from '../api/client';
 
 const AuthContext = createContext();
 
@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
   // Function to handle login success
   const login = (token) => {
-    setAccessToken(token);
+    setAdminAccessToken(token);
     setIsAdminAuthenticated(true);
   };
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      setAccessToken(null);
+      setAdminAccessToken(null);
       setIsAdminAuthenticated(false);
     }
   };

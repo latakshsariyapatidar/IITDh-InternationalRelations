@@ -8,18 +8,33 @@ const AdminLayout = () => {
   const { logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const location = useLocation();
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await apiClient.get('/notifications/unread-count');
+      setUnreadCount(res.data?.data?.unread || 0);
+    } catch (err) {
+      console.error('Failed to fetch unread notifications count');
+    }
+  };
+
   useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const res = await apiClient.get('/notifications/unread-count');
-        setUnreadCount(res.data?.data?.unread || 0);
-      } catch (err) {
-        console.error('Failed to fetch unread notifications count');
-      }
-    };
     fetchUnreadCount();
-    // optionally could poll, but we'll just fetch once on mount for now
-  }, []);
+    window.addEventListener('notifications-read', fetchUnreadCount);
+    return () => window.removeEventListener('notifications-read', fetchUnreadCount);
+  }, [location.pathname]);
+
+  const handleLogoutAll = async () => {
+    if (!confirm('Are you sure you want to log out of all active sessions across all devices?')) return;
+    try {
+      await apiClient.post('/auth/logout-all');
+    } catch (err) {
+      console.error('Logout all failed:', err);
+    } finally {
+      logout();
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col md:flex-row bg-gray-50 overflow-hidden">
@@ -40,9 +55,9 @@ const AdminLayout = () => {
           <Link to="/admin" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Dashboard</Link>
           <div className="pt-4 pb-2 px-3 text-xs font-bold text-gray-400 uppercase tracking-wider">CMS & Applications</div>
           <Link to="/admin/site-content" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Site Content</Link>
-          <Link to="/admin/applications" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Inbound Apps</Link>
+          <Link to="/admin/applications" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Inbound Degree Applications</Link>
+          <Link to="/admin/inbound-exchange" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Inbound Exchange Applications</Link>
           <Link to="/admin/outbound-applications" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Outbound Apps</Link>
-          <Link to="/admin/inbound-exchange" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Inbound Exchange</Link>
           
           <div className="pt-6 pb-2 px-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Resources</div>
           <Link to="/admin/announcements" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Announcements</Link>
@@ -61,12 +76,18 @@ const AdminLayout = () => {
           <Link to="/admin/testimonials" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Testimonials</Link>
           <Link to="/admin/visitors" className="block px-3 py-2 rounded-md hover:bg-gray-100 font-medium">Visitors</Link>
         </nav>
-        <div className="p-4 border-t shrink-0">
+        <div className="p-3 border-t shrink-0 space-y-1">
           <button 
             onClick={logout} 
-            className="w-full text-left p-2 rounded-md hover:bg-red-50 text-red-600 font-semibold transition-colors"
+            className="w-full text-left px-3 py-1.5 rounded-md hover:bg-red-50 text-red-600 font-medium text-sm transition-colors"
           >
             Logout
+          </button>
+          <button 
+            onClick={handleLogoutAll} 
+            className="w-full text-left px-3 py-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-xs transition-colors"
+          >
+            Log out of all devices
           </button>
         </div>
       </aside>

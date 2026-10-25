@@ -10,6 +10,7 @@ export default function Reports() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [reportType, setReportType] = useState('inbound');
+  const [inboundType, setInboundType] = useState('both'); // 'admission' | 'exchange' | 'both'
   
   const [previewLoading, setPreviewLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
@@ -26,7 +27,10 @@ export default function Reports() {
 
     setPreviewLoading(true);
     try {
-      const url = `/reports/${reportType}?from=${from}&to=${to}&format=json`;
+      let url = `/reports/${reportType}?from=${from}&to=${to}&format=json`;
+      if (reportType === 'inbound') {
+        url += `&type=${inboundType}`;
+      }
       const res = await apiClient.get(url);
       const dataRows = res.data?.data?.rows || [];
       setRows(dataRows);
@@ -48,14 +52,18 @@ export default function Reports() {
 
     setDownloadLoading(true);
     try {
-      const url = `/reports/${reportType}?from=${from}&to=${to}&format=xlsx`;
+      let url = `/reports/${reportType}?from=${from}&to=${to}&format=xlsx`;
+      if (reportType === 'inbound') {
+        url += `&type=${inboundType}`;
+      }
       const res = await apiClient.get(url, { responseType: 'blob' });
       
       const blob = new Blob([res.data], { type: res.headers['content-type'] });
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.setAttribute('download', `${reportType}_report_${from}_to_${to}.xlsx`);
+      const fileSuffix = reportType === 'inbound' ? `inbound_${inboundType}` : 'visitors';
+      link.setAttribute('download', `${fileSuffix}_report_${from}_to_${to}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -78,7 +86,7 @@ export default function Reports() {
       </div>
 
       <div className="bg-white border rounded-xl shadow-sm p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
           <div className="space-y-1">
             <Label className="text-xs font-semibold text-gray-700">Report Register</Label>
             <select 
@@ -86,10 +94,25 @@ export default function Reports() {
               value={reportType}
               onChange={e => setReportType(e.target.value)}
             >
-              <option value="inbound">Inbound Applications (Degree & Exchange)</option>
+              <option value="inbound">Inbound Applications</option>
               <option value="visitors">Delegations & Visitors</option>
             </select>
           </div>
+
+          {reportType === 'inbound' && (
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold text-gray-700">Application Scope</Label>
+              <select 
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple"
+                value={inboundType}
+                onChange={e => setInboundType(e.target.value)}
+              >
+                <option value="both">Both Degree & Exchange</option>
+                <option value="admission">Degree Only</option>
+                <option value="exchange">Exchange Only</option>
+              </select>
+            </div>
+          )}
 
           <div className="space-y-1">
             <Label className="text-xs font-semibold text-gray-700">From Date</Label>

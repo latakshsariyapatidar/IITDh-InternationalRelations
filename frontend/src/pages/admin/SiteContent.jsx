@@ -83,7 +83,8 @@ export default function SiteContent() {
       }
     } catch (err) {
       console.error('Image upload failed', err);
-      alert('Failed to upload image. Max 5MB, JPEG/PNG/WEBP/GIF only.');
+      // 1.8: Backend allows 10MB
+      alert(err.response?.data?.message || 'Failed to upload image. Max 10MB, JPEG/PNG/WEBP/GIF only.');
     }
   };
 
@@ -122,17 +123,19 @@ export default function SiteContent() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError('Failed to save changes.');
+      // 1.4: Show backend error message
+      setError(err.response?.data?.message || 'Failed to save changes.');
       console.error(err);
     } finally {
       setSaving(false);
     }
   };
 
+  // 5.3: Group fields using backend's page field (or fallback to key prefix)
   const groupedFields = contentFields.reduce((acc, item) => {
-    const prefix = item.key.split('.')[0] || 'other';
-    if (!acc[prefix]) acc[prefix] = [];
-    acc[prefix].push(item);
+    const pageGroup = item.page || item.key.split('.')[0] || 'general';
+    if (!acc[pageGroup]) acc[pageGroup] = [];
+    acc[pageGroup].push(item);
     return acc;
   }, {});
 
@@ -192,7 +195,7 @@ export default function SiteContent() {
                 <div key={field.key} className="space-y-3 bg-gray-50/50 p-4 rounded-lg border border-gray-100">
                   <div className="flex justify-between items-end mb-2">
                     <div>
-                      <Label className="text-base font-semibold text-gray-800">{formatKeyName(field.key)}</Label>
+                      <Label className="text-base font-semibold text-gray-800">{field.label || formatKeyName(field.key)}</Label>
                       <p className="text-[11px] text-gray-400 font-mono mt-0.5">{field.key}</p>
                     </div>
                   </div>

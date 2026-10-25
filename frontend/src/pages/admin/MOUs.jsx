@@ -15,6 +15,11 @@ export default function MOUs() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 20;
 
+  // Filters
+  const [statusFilter, setStatusFilter] = useState('');
+  const [partnerFilter, setPartnerFilter] = useState('');
+  const [expiringFilter, setExpiringFilter] = useState('');
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formData, setFormData] = useState({
@@ -29,7 +34,12 @@ export default function MOUs() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get(`/mous?page=${page}&limit=${limit}`);
+      let url = `/mous?page=${page}&limit=${limit}`;
+      if (statusFilter) url += `&status=${statusFilter}`;
+      if (partnerFilter) url += `&partnerId=${partnerFilter}`;
+      if (expiringFilter) url += `&expiringWithinDays=${expiringFilter}`;
+
+      const res = await apiClient.get(url);
       setData(res.data?.data?.mous || []);
       const total = res.data?.data?.total || 0;
       setTotalPages(Math.ceil(total / limit) || 1);
@@ -49,8 +59,11 @@ export default function MOUs() {
 
   useEffect(() => {
     fetchData();
+  }, [page, statusFilter, partnerFilter, expiringFilter]);
+
+  useEffect(() => {
     fetchPartners();
-  }, [page]);
+  }, []);
 
   const openCreate = () => {
     setCurrentId(null);
@@ -79,12 +92,12 @@ export default function MOUs() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete MOU?')) return;
+    if (!confirm('Are you sure you want to delete this MOU?')) return;
     try { 
       await apiClient.delete(`/mous/${id}`); 
       fetchData(); 
     } catch (err) {
-      alert('Failed to delete MOU');
+      alert(err.response?.data?.message || 'Failed to delete MOU');
     }
   };
 
@@ -138,12 +151,12 @@ export default function MOUs() {
       const payload = {
         partnerId: formData.partnerId,
         title: formData.title.trim(),
-        signedDate: new Date(formData.signedDate).toISOString(),
+        signedDate: formData.signedDate,
         status: formData.status,
+        scope: formData.scope?.trim() ? formData.scope.trim() : null,
+        expiryDate: formData.expiryDate ? formData.expiryDate : null,
         isPublic: formData.isPublic === 'true',
       };
-      if (formData.scope?.trim()) payload.scope = formData.scope.trim();
-      if (formData.expiryDate) payload.expiryDate = new Date(formData.expiryDate).toISOString();
 
       let mouId = currentId;
       if (currentId) {
@@ -169,6 +182,19 @@ export default function MOUs() {
       alert(err.response?.data?.message || 'Save failed'); 
     } finally { 
       setSaveLoading(false); 
+    }
+  };
+
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return dateStr;
     }
   };
 
@@ -212,7 +238,7 @@ export default function MOUs() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-700 font-semibold">Expiry Date</Label>
+            <Label className="text-gray-700 font-semibold">Expiry Date (Optional)</Label>
             <Input type="date" className="border-gray-300 focus-visible:ring-brand-purple" value={formData.expiryDate} onChange={e=>setFormData({...formData, expiryDate: e.target.value})} />
           </div>
 
@@ -225,7 +251,7 @@ export default function MOUs() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <Label className="text-gray-700 font-semibold">Scope of MOU</Label>
+            <Label className="text-gray-700 font-semibold">Scope of MOU (Optional)</Label>
             <textarea className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" rows="3" value={formData.scope} onChange={e=>setFormData({...formData, scope: e.target.value})} placeholder="Describe the scope of collaboration..." />
           </div>
 
@@ -259,55 +285,158 @@ export default function MOUs() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">MOUs Management</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">MOUs Management</h2>
+          <p className="text-sm text-gray-500">Track and manage Memorandums of Understanding</p>
+        </div>
         <Button onClick={openCreate} className="bg-brand-purple hover:bg-brand-purpleDark">Add New MOU</Button>
       </div>
 
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+      {/* Filters (5.41) */}
+      <div className="flex flex-wrap gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm items-center">
+        <div className="w-44">
+          <Label className="text-xs font-semibold text-gray-500 mb-1 block">Status</Label>
+          <select
+            className="w-full text-sm border border-gray-300 rounded-md p-2"
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="EXPIRED">Expired</option>
+            <option value="RENEWED">Renewed</option>
+            <option value="TERMINATED">Terminated</option>
+          </select>
+        </div>
+
+        <div className="w-56">
+          <Label className="text-xs font-semibold text-gray-500 mb-1 block">Partner</Label>
+          <select
+            className="w-full text-sm border border-gray-300 rounded-md p-2 truncate"
+            value={partnerFilter}
+            onChange={(e) => {
+              setPartnerFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Partners</option>
+            {partners.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-48">
+          <Label className="text-xs font-semibold text-gray-500 mb-1 block">Expiring In</Label>
+          <select
+            className="w-full text-sm border border-gray-300 rounded-md p-2"
+            value={expiringFilter}
+            onChange={(e) => {
+              setExpiringFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">Any Time</option>
+            <option value="30">Within 30 Days</option>
+            <option value="60">Within 60 Days</option>
+            <option value="90">Within 90 Days</option>
+            <option value="180">Within 180 Days</option>
+            <option value="365">Within 1 Year</option>
+          </select>
+        </div>
+
+        {(statusFilter || partnerFilter || expiringFilter) && (
+          <div className="self-end pb-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStatusFilter('');
+                setPartnerFilter('');
+                setExpiringFilter('');
+                setPage(1);
+              }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Table (5.40: Show signed date, expiry date, and visibility) */}
+      <div className="bg-white border rounded-xl shadow-sm overflow-x-auto">
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
               <TableHead className="font-semibold">Title</TableHead>
               <TableHead className="font-semibold">Partner</TableHead>
+              <TableHead className="font-semibold">Signed Date</TableHead>
+              <TableHead className="font-semibold">Expiry Date</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">Visibility</TableHead>
               <TableHead className="font-semibold">Document</TableHead>
               <TableHead className="text-right font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-8 text-gray-500">Loading MOUs...</TableCell></TableRow>
-            ) : data.map(item => (
-              <TableRow key={item.id} className="hover:bg-gray-50/50">
-                <TableCell className="font-medium text-gray-900">{item.title}</TableCell>
-                <TableCell className="text-gray-600">{item.partner?.name}</TableCell>
-                <TableCell>
-                  <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-purpleLight/20 text-brand-purple">
-                    {item.status}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {item.hasDocument ? (
-                    <button 
-                      onClick={() => handleDownloadDoc(item.id, item.title)} 
-                      className="text-xs text-brand-purple font-medium hover:underline flex items-center gap-1"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                      PDF Available
-                    </button>
-                  ) : (
-                    <span className="text-xs text-gray-400">None</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!loading && data.length === 0 && (
-              <TableRow><TableCell colSpan={5} className="text-center py-8 text-gray-500">No MOUs found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center py-8 text-gray-500">Loading MOUs...</TableCell></TableRow>
+            ) : data.length === 0 ? (
+              <TableRow><TableCell colSpan={8} className="text-center py-8 text-gray-500">No MOUs found.</TableCell></TableRow>
+            ) : (
+              data.map(item => (
+                <TableRow key={item.id} className="hover:bg-gray-50/50">
+                  <TableCell className="font-medium text-gray-900 max-w-xs truncate" title={item.title}>
+                    {item.title}
+                  </TableCell>
+                  <TableCell className="text-gray-600 max-w-xs truncate">{item.partner?.name || '—'}</TableCell>
+                  <TableCell className="text-gray-600 text-sm whitespace-nowrap">
+                    {formatDateDisplay(item.signedDate)}
+                  </TableCell>
+                  <TableCell className="text-gray-600 text-sm whitespace-nowrap">
+                    {formatDateDisplay(item.expiryDate)}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                      item.status === 'ACTIVE' 
+                        ? 'bg-green-100 text-green-700'
+                        : item.status === 'EXPIRED'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-brand-purpleLight/20 text-brand-purple'
+                    }`}>
+                      {item.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {item.isPublic !== false ? (
+                      <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs font-medium border border-blue-200">Public</span>
+                    ) : (
+                      <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs font-medium border border-amber-200">Campus Only</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {item.hasDocument ? (
+                      <button 
+                        onClick={() => handleDownloadDoc(item.id, item.title)} 
+                        className="text-xs text-brand-purple font-medium hover:underline flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        PDF
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400">None</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right space-x-2 whitespace-nowrap">
+                    <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
