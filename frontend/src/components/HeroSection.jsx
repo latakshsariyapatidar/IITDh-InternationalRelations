@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import CTAButton from './ui/CTAButton'
+import ScrollDownArrow from './ui/ScrollDownArrow'
 
 // Mapping routes to specific high-res institute campus photos
 // Note the exact casing and extensions: Institute1-5 are .jpg (capital I), institute6-10 are .webp (lowercase i)
@@ -29,7 +30,8 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
   const altButton = secondButton || secondaryCta
 
   return (
-    <div className="relative min-h-[50vh] md:min-h-[calc(100vh-140px)] bg-brand-purpleDark overflow-hidden flex items-center">
+    // On desktop the hero fills the screen below the header (--site-header-h, set in Layout)
+    <div className="relative min-h-[50vh] md:min-h-[calc(100vh_-_var(--site-header-h,140px))] bg-brand-purpleDark overflow-hidden flex items-center">
       {/* Background Institute Photo */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
@@ -42,7 +44,8 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 flex flex-col items-start text-left">
+      {/* Extra bottom padding keeps the content clear of the scroll cue */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-20 pb-28 flex flex-col items-start text-left">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-6 leading-tight animate-fadeUp drop-shadow-md">
             {title}
@@ -76,6 +79,8 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
           )}
         </div>
       </div>
+
+      <ScrollDownArrow />
     </div>
   )
 }

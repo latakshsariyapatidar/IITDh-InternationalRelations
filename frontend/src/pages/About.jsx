@@ -5,7 +5,7 @@ import CTAButton from '../components/ui/CTAButton'
 import { useState, useEffect } from 'react'
 import { RiHandHeartLine, RiUserStarLine, RiGroupLine, RiExternalLinkLine } from '@remixicon/react'
 import DOMPurify from 'dompurify'
-import apiClient from '../api/client'
+import { fetchAllPages } from '../api/fetchAllPages'
 import { useSiteContent } from '../contexts/SiteContentContext'
 import { resolveMediaUrl } from '../utils/media'
 
@@ -19,11 +19,10 @@ export default function About() {
   const chairpersonMessage = getContent('about.chairpersonMessage');
 
   useEffect(() => {
-    // 1.10 Load independent requests separately
+    // 1.10 Load independent requests separately (every page of each)
     const fetchTeam = async () => {
       try {
-        const teamRes = await apiClient.get('/team?limit=100');
-        setTeam(teamRes.data?.data?.team || []);
+        setTeam(await fetchAllPages('/team', 'team', { pageSize: 100 }));
       } catch (err) {
         console.error('Failed to fetch team data', err);
       }
@@ -31,8 +30,7 @@ export default function About() {
 
     const fetchFaculty = async () => {
       try {
-        const facRes = await apiClient.get('/faculty?limit=100');
-        setFaculty(facRes.data?.data?.faculty || []);
+        setFaculty(await fetchAllPages('/faculty', 'faculty', { pageSize: 100 }));
       } catch (err) {
         console.error('Failed to fetch faculty data', err);
       }

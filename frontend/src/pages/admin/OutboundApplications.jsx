@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/client';
+import { fetchAllPages } from '../../api/fetchAllPages';
 import { Button } from '../../components/ui/button';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -30,8 +31,8 @@ export default function OutboundApplications() {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const res = await apiClient.get('/partners?type=UNIVERSITY&limit=100');
-        setPartnersList(res.data?.data?.partners || []);
+        // Every partner university, not just the first page
+        setPartnersList(await fetchAllPages('/partners', 'partners', { pageSize: 100, params: { type: 'UNIVERSITY' } }));
       } catch (err) {
         console.warn('Failed to load partners for filter', err);
       }
@@ -347,14 +348,17 @@ export default function OutboundApplications() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Review Notes (Internal & Student Feedback)</Label>
-                  <textarea 
-                    className="w-full p-3 border rounded-lg text-sm focus:ring-2 focus:ring-brand-purple" 
+                  <Label>Review Notes (visible to the student)</Label>
+                  <textarea
+                    className="w-full p-3 border rounded-lg text-sm focus:ring-2 focus:ring-brand-purple"
                     rows="3"
-                    value={reviewNotes} 
-                    onChange={e => setReviewNotes(e.target.value)} 
-                    placeholder="Add internal remarks, nomination details, or instructions..."
+                    value={reviewNotes}
+                    onChange={e => setReviewNotes(e.target.value)}
+                    placeholder="Feedback, nomination details, or next steps for the student..."
                   />
+                  <p className="text-xs text-gray-500">
+                    The student sees these notes on their application tracker, so keep internal remarks out of them.
+                  </p>
                 </div>
               </div>
             </div>

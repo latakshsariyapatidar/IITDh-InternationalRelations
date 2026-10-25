@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import apiClient from '../api/client';
-import { useStudentAuth } from '../contexts/StudentAuthContext';
+import { fetchAllPages } from '../api/fetchAllPages';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/ui/SectionHeader';
 import { 
@@ -38,6 +37,8 @@ const AUDIENCES = [
   { id: 'FACULTY', label: 'For Faculty' },
 ];
 
+const PAGE_SIZE = 24;
+
 function FlagIcon({ code }) {
   if (!code || !code.trim()) return null;
   return (
@@ -52,7 +53,6 @@ function FlagIcon({ code }) {
 }
 
 export default function Opportunities() {
-  const { isStudentAuthenticated } = useStudentAuth();
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,66 +61,46 @@ export default function Opportunities() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedAudience, setSelectedAudience] = useState('ALL');
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
 
   // Modal detail state
   const [selectedOpp, setSelectedOpp] = useState(null);
 
-  const fetchOpps = async () => {
-    setLoading(true);
-    try {
-      // 3.21: If signed in as student and looking for faculty, use standard /opportunities so faculty filter isn't empty.
-      // Pass includeExpired=false and limit=50.
-      let endpoint = '/opportunities';
-      const params = {
-        includeExpired: false,
-        limit: 24,
-        page: page,
-      };
-
-      if (isStudentAuthenticated && selectedAudience !== 'FACULTY') {
-        endpoint = '/opportunities/feed';
-        params.limit = 50;
-      }
-
-      // 3.23: Pass category and audience to backend
-      if (selectedCategory !== 'ALL') {
-        params.category = selectedCategory;
-      }
-      if (selectedAudience !== 'ALL') {
-        params.audience = selectedAudience;
-      }
-      if (searchQuery.trim()) {
-        params.search = searchQuery.trim();
-      }
-
-      const res = await apiClient.get(endpoint, { params });
-      const fetched = res.data?.data?.opportunities || res.data?.data || [];
-      const total = res.data?.data?.total || fetched.length;
-
-      setOpportunities(fetched);
-      setTotalCount(total);
-    } catch (err) {
-      console.error('Failed to fetch opportunities:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // 3.21 / 3.23: Every live posting, filtered here rather than by the backend.
+  // The list route has no search, matches an audience exactly (so "For
+  // Students" would drop postings marked for both), and the signed-in feed
+  // ignores every filter. includeExpired=false keeps an admin's view live-only.
   useEffect(() => {
-    setPage(1);
-  }, [selectedCategory, selectedAudience, searchQuery]);
-
-  useEffect(() => {
+    const fetchOpps = async () => {
+      setLoading(true);
+      try {
+        setOpportunities(
+          await fetchAllPages('/opportunities', 'opportunities', { pageSize: 100, params: { includeExpired: false } })
+        );
+      } catch (err) {
+        console.error('Failed to fetch opportunities:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchOpps();
-  }, [isStudentAuthenticated, selectedCategory, selectedAudience, page]);
+  }, []);
 
-  // Handle search submit on enter or debounce
-  const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter') {
-      fetchOpps();
-    }
-  };
+  const filteredOpps = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return opportunities.filter((opp) => {
+      if (selectedCategory !== 'ALL' && opp.category !== selectedCategory) return false;
+      // A posting for both audiences belongs under either one.
+      if (selectedAudience !== 'ALL' && opp.audience !== selectedAudience && opp.audience !== 'BOTH') return false;
+      if (!query) return true;
+      return [opp.title, opp.description, opp.organisation, opp.country]
+        .some((field) => typeof field === 'string' && field.toLowerCase().includes(query));
+    });
+  }, [opportunities, searchQuery, selectedCategory, selectedAudience]);
+
+  // Any change to the filters starts again from the first page.
+  const changeSearch = (value) => { setSearchQuery(value); setPage(1); };
+  const changeCategory = (value) => { setSelectedCategory(value); setPage(1); };
+  const changeAudience = (value) => { setSelectedAudience(value); setPage(1); };
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -164,7 +144,9 @@ export default function Opportunities() {
     return found ? found.label : cat;
   };
 
-  const totalPages = Math.ceil(totalCount / 24) || 1;
+  const totalCount = filteredOpps.length;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+  const pageOpps = filteredOpps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
@@ -201,14 +183,13 @@ export default function Opportunities() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearchSubmit}
-                placeholder="Search opportunities (press Enter)..."
+                onChange={(e) => changeSearch(e.target.value)}
+                placeholder="Search opportunities..."
                 className="w-full pl-11 pr-10 py-3 rounded-xl border border-brand-purpleLight/70 bg-brand-cream/20 text-sm text-brand-purpleDark placeholder:text-brand-purpleDark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple transition-all"
               />
               {searchQuery && (
                 <button
-                  onClick={() => { setSearchQuery(''); fetchOpps(); }}
+                  onClick={() => changeSearch('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-purple/50 hover:text-brand-purple p-1 cursor-pointer transition-colors"
                   aria-label="Clear search"
                 >
@@ -222,7 +203,7 @@ export default function Opportunities() {
               {AUDIENCES.map((aud) => (
                 <button
                   key={aud.id}
-                  onClick={() => setSelectedAudience(aud.id)}
+                  onClick={() => changeAudience(aud.id)}
                   className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     selectedAudience === aud.id
                       ? 'bg-brand-purple text-white shadow-xs font-bold'
@@ -245,7 +226,7 @@ export default function Opportunities() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => changeCategory(cat.id)}
                   className={`shrink-0 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-brand-purple text-white shadow-xs'
@@ -262,7 +243,7 @@ export default function Opportunities() {
           {(searchQuery || selectedCategory !== 'ALL' || selectedAudience !== 'ALL') && (
             <div className="flex items-center justify-between pt-3 border-t border-brand-purpleLight/30 text-xs text-brand-purpleDark/75">
               <span>
-                Showing <strong>{opportunities.length}</strong> loaded result{opportunities.length === 1 ? '' : 's'} (Total: {totalCount})
+                Showing <strong>{pageOpps.length}</strong> of {totalCount} matching result{totalCount === 1 ? '' : 's'}
               </span>
               <button
                 onClick={clearAllFilters}
@@ -280,7 +261,7 @@ export default function Opportunities() {
             <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-brand-purple border-t-transparent mb-4" />
             <p className="text-sm font-medium text-brand-purpleDark/60">Fetching global opportunities...</p>
           </div>
-        ) : opportunities.length === 0 ? (
+        ) : pageOpps.length === 0 ? (
           <div className="bg-white rounded-2xl border border-brand-purpleLight/60 p-12 text-center max-w-xl mx-auto shadow-xs">
             <div className="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-purple mx-auto mb-4">
               <RiFilter3Line size={28} />
@@ -299,7 +280,7 @@ export default function Opportunities() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {opportunities.map((opp) => {
+              {pageOpps.map((opp) => {
                 // 3.22: Only treat opp.applicationDeadline as deadline
                 const deadline = opp.applicationDeadline;
 

@@ -33,8 +33,8 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Inbound Degree */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Pending Degree Applications</CardTitle>
           </CardHeader>
           <CardContent>
@@ -43,8 +43,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Total Degree Applications</CardTitle>
           </CardHeader>
           <CardContent>
@@ -54,8 +54,8 @@ export default function Dashboard() {
         </Card>
 
         {/* Inbound Exchange (moved next to degree applications) */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Pending Exchange</CardTitle>
           </CardHeader>
           <CardContent>
@@ -64,8 +64,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Total Exchange</CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,8 +75,8 @@ export default function Dashboard() {
         </Card>
 
         {/* Outbound Applications */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Pending Outbound</CardTitle>
           </CardHeader>
           <CardContent>
@@ -85,8 +85,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Total Outbound</CardTitle>
           </CardHeader>
           <CardContent>
@@ -95,8 +95,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Active Partners</CardTitle>
           </CardHeader>
           <CardContent>
@@ -104,8 +104,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Active MOUs</CardTitle>
           </CardHeader>
           <CardContent>
@@ -113,8 +113,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Announcements</CardTitle>
           </CardHeader>
           <CardContent>
@@ -122,8 +122,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Faculty Members</CardTitle>
           </CardHeader>
           <CardContent>
@@ -131,8 +131,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Gallery Images</CardTitle>
           </CardHeader>
           <CardContent>
@@ -140,8 +140,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Live Opportunities</CardTitle>
           </CardHeader>
           <CardContent>
@@ -149,8 +149,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Visitors</CardTitle>
           </CardHeader>
           <CardContent>
@@ -158,8 +158,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="pt-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 bg-brand-purple py-3 text-white">
             <CardTitle className="text-sm font-medium">Unread Notifications</CardTitle>
           </CardHeader>
           <CardContent>

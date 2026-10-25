@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import apiClient from "../api/client";
+import { fetchAllPages } from "../api/fetchAllPages";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../utils/media";
+import ScrollDownArrow from "../components/ui/ScrollDownArrow";
 
 export default function Home() {
   const slideshowImages = [
@@ -19,6 +21,8 @@ export default function Home() {
   ];
   const [activeSlide, setActiveSlide] = useState(0);
   const [events, setEvents] = useState([]);
+  // True when nothing is upcoming and the section falls back to past events.
+  const [showingRecentEvents, setShowingRecentEvents] = useState(false);
   const [testimonials, setTestimonials] = useState([]);
   const { getContent } = useSiteContent();
 
@@ -49,27 +53,36 @@ export default function Home() {
     // 1.5 Ask only for public content
     const fetchEvents = async () => {
       try {
-        const eventsRes = await apiClient.get('/events?isPublic=true&limit=20');
-        const allEvents = eventsRes.data?.data?.events || [];
-        
+        // The events list is newest-first, so one page of it holds the
+        // furthest-off events, not the nearest. Load every event that starts
+        // from now on, plus the most recently started ones (some still running).
+        const [futureEvents, startedRes] = await Promise.all([
+          fetchAllPages('/events', 'events', { pageSize: 50, params: { isPublic: true, upcoming: true } }),
+          apiClient.get('/events', { params: { isPublic: true, upcoming: false, limit: 50 } }),
+        ]);
+        const startedEvents = startedRes.data?.data?.events || [];
+
         const now = new Date();
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
         // 1. Find upcoming or ongoing events (event ends today or in the future)
-        const upcoming = allEvents.filter(ev => {
+        const ongoing = startedEvents.filter(ev => {
           const start = ev.startDate ? new Date(ev.startDate).getTime() : 0;
           const end = ev.endDate ? new Date(ev.endDate).getTime() : start;
           return end >= todayStart;
         });
+        const upcoming = [...ongoing, ...futureEvents];
 
         if (upcoming.length > 0) {
           // Sort ascending so the nearest events appear first (Item 3.3 fix)
           upcoming.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
           setEvents(upcoming.slice(0, 3));
+          setShowingRecentEvents(false);
         } else {
           // Fallback: If all events are in the past, show the 3 most recent public events
-          const recent = [...allEvents].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
-          setEvents(recent.slice(0, 3));
+          // (the started list is already newest-first)
+          setEvents(startedEvents.slice(0, 3));
+          setShowingRecentEvents(startedEvents.length > 0);
         }
       } catch (error) {
         console.error('Failed to load home events', error);
@@ -93,7 +106,9 @@ export default function Home() {
 
   return (
     <div className="pb-24">
-      <section className="relative min-h-[65vh] sm:min-h-[72vh] flex flex-col justify-end text-white pt-32 pb-10 sm:pb-14 overflow-hidden border-b border-black/20">
+      {/* Bottom padding leaves room for the scroll-down arrow below the text */}
+      {/* On desktop the photo fills the screen below the header (--site-header-h, set in Layout) */}
+      <section className="relative min-h-[65vh] sm:min-h-[72vh] md:min-h-[calc(100vh_-_var(--site-header-h,140px))] flex flex-col justify-end text-white pt-32 pb-24 sm:pb-28 overflow-hidden border-b border-black/20">
         <div className="absolute inset-0 z-0">
           {slideshowImages.map((image, index) => (
             <div
@@ -118,38 +133,19 @@ export default function Home() {
             <div className="text-sm sm:text-base text-white/90 font-normal space-y-1.5 leading-relaxed drop-shadow-xs">
               {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
             </div>
+            {/* Founding year, from the site content's "established" stat.
+                font-heading! needs the !important: index.css sets font-family
+                on * outside any layer, which beats plain font utilities. */}
+            <div className="mt-5 flex items-center gap-3.5">
+              <span aria-hidden="true" className="h-px w-10 bg-brand-marigold" />
+              <span className="font-heading! text-lg italic text-white/90 drop-shadow-xs">
+                {getContent("home.stats.stat3Label", "Established")} {getContent("home.stats.stat3Number", "2016")}
+              </span>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-12 bg-brand-purpleDark text-white border-y border-white">
-        <div className="container mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-brand-white">
-          <div className="pt-6 md:pt-0">
-            <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              {getContent("home.stats.stat1Number", "77")}
-            </h3>
-            <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              {getContent("home.stats.stat1Label", "NIRF Engineering Rank")}
-            </p>
-          </div>
-          <div className="pt-6 md:pt-0">
-            <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              {getContent("home.stats.stat2Number", "500+")}
-            </h3>
-            <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              {getContent("home.stats.stat2Label", "Acre Permanent Green Campus")}
-            </p>
-          </div>
-          <div className="pt-6 md:pt-0">
-            <h3 className="text-5xl font-extrabold mb-2 text-brand-marigold">
-              {getContent("home.stats.stat3Number", "2016")}
-            </h3>
-            <p className="text-sm uppercase tracking-wider font-semibold opacity-90">
-              {getContent("home.stats.stat3Label", "Established")}
-            </p>
-          </div>
-        </div>
+        <ScrollDownArrow />
       </section>
 
 
@@ -186,13 +182,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Upcoming Events */}
+      {/* Upcoming Events (or the most recent ones when nothing is scheduled) */}
       <section className="py-20 bg-white">
         <div className="container mx-auto max-w-7xl px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
             <div>
               <h2 className="text-3xl font-bold text-neutral-textDark mb-3">
-                Upcoming Events
+                {showingRecentEvents ? 'Recent Events' : 'Upcoming Events'}
               </h2>
               <p className="text-neutral-textDark/70 max-w-2xl">
                 Stay updated with the latest happenings, visits, and opportunities.
@@ -245,12 +241,6 @@ export default function Home() {
                     <p className="text-neutral-textDark/70 text-sm line-clamp-3 mb-4 flex-1">
                       {event.description}
                     </p>
-                    {event.link && (
-                      <a href={event.link} target="_blank" rel="noreferrer" className="text-brand-purple font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">
-                        Read more
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                      </a>
-                    )}
                   </div>
                 </div>
               ))}

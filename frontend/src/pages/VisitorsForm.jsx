@@ -14,7 +14,7 @@ export default function VisitorsForm() {
     country: '',
     nationality: '',
     passportNumber: '',
-    website: '',
+    websiteOrProfileUrl: '',
     designation: '',
     purposeOfVisit: '',
     visitFrom: '',
@@ -62,7 +62,8 @@ export default function VisitorsForm() {
         ...(formData.department && { department: formData.department.trim() }),
         ...(formData.nationality && { nationality: formData.nationality.trim() }),
         ...(formData.passportNumber && { passportNumber: formData.passportNumber.trim() }),
-        ...(formData.website && { website: formData.website.trim() }),
+        // The backend's field name; a "website" key is dropped without being saved
+        ...(formData.websiteOrProfileUrl && { websiteOrProfileUrl: formData.websiteOrProfileUrl.trim() }),
         ...(formData.phone && { phone: formData.phone.trim() }),
         ...(formData.hostName && { hostName: formData.hostName.trim() }),
         ...(formData.hostDepartment && { hostDepartment: formData.hostDepartment.trim() }),
@@ -81,7 +82,7 @@ export default function VisitorsForm() {
         country: '',
         nationality: '',
         passportNumber: '',
-        website: '',
+        websiteOrProfileUrl: '',
         designation: '',
         purposeOfVisit: '',
         visitFrom: '',
@@ -274,10 +275,12 @@ export default function VisitorsForm() {
                 <Input
                   type="url"
                   maxLength={300}
-                  value={formData.website}
-                  onChange={handleChange('website')}
+                  value={formData.websiteOrProfileUrl}
+                  onChange={handleChange('websiteOrProfileUrl')}
                   placeholder="https://university.edu/~faculty"
+                  className={fieldErrors.websiteOrProfileUrl ? 'border-red-500' : ''}
                 />
+                {fieldErrors.websiteOrProfileUrl && <p className="text-xs text-red-500">{fieldErrors.websiteOrProfileUrl}</p>}
               </div>
 
               <div className="space-y-2 md:col-span-2">

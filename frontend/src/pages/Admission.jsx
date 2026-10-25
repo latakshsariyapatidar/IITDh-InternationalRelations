@@ -5,7 +5,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
 import FAQAccordion from '../components/FAQAccordion'
-import apiClient from '../api/client'
+import { fetchAllPages } from '../api/fetchAllPages'
 import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine, RiBookOpenLine, RiExchangeFundsLine, RiArrowRightLine } from '@remixicon/react'
 
 export default function Admission() {
@@ -16,16 +16,14 @@ export default function Admission() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const faqRes = await apiClient.get('/faqs?limit=100&isActive=true')
-        setFaqs(faqRes.data?.data?.faqs || [])
+        setFaqs(await fetchAllPages('/faqs', 'faqs', { pageSize: 100, params: { isActive: true } }))
       } catch (err) {
         console.error("Failed to load admission faqs", err)
       }
     }
     const fetchPrograms = async () => {
       try {
-        const progRes = await apiClient.get('/programs?limit=100&isActive=true')
-        setPrograms(progRes.data?.data?.programs || [])
+        setPrograms(await fetchAllPages('/programs', 'programs', { pageSize: 100, params: { isActive: true } }))
       } catch (err) {
         console.error("Failed to load programs", err)
       } finally {

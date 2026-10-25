@@ -1,11 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 *{
   font-family: var(--font-sans);
+}
+
+/* Headings in the serif. Like the rule above this is unlayered, so it wins
+   over font utilities; it outranks the * rule by specificity. */
+h1, h2, h3 {
+  font-family: var(--font-heading);
+}
+
+/* Native jumps to a section (#links, scrollIntoView) stop below the sticky
+   header instead of under it. --site-header-h is measured in Layout.jsx. */
+html {
+  scroll-padding-top: calc(var(--site-header-h, 0px) + 8px);
 }
 
 html,
@@ -35,7 +46,26 @@ body::-webkit-scrollbar,
   --color-neutral-textDark: #5e1c64;
   --color-neutral-lavenderSoft: #e7d1e9;
   --color-neutral-lavenderMuted: #c98fcf;
-  --font-sans: "Source Sans 3", "system-ui", sans-serif;
+  --font-sans: "Lato", system-ui, sans-serif;
+
+  /* The hero's scroll-down cue (ScrollDownArrow.jsx): a purple highlight runs
+     down the line, and the dot below fills as it arrives. Same duration, so
+     the two stay in step. */
+  --animate-scroll-line: scroll-line 2.2s ease-in-out infinite;
+  --animate-scroll-dot: scroll-dot 2.2s ease-in-out infinite;
+  @keyframes scroll-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+  @keyframes scroll-dot {
+    0%, 55% { background-color: transparent; border-color: rgb(255 255 255 / 0.75); box-shadow: none; }
+    70% {
+      background-color: var(--color-brand-purple);
+      border-color: var(--color-neutral-lavenderMuted);
+      box-shadow: 0 0 10px rgb(201 143 207 / 0.7);
+    }
+    100% { background-color: transparent; border-color: rgb(255 255 255 / 0.75); box-shadow: none; }
+  }
 }
 
 @layer utilities {
@@ -63,6 +93,23 @@ body::-webkit-scrollbar,
 
 .barba-curtain-hidden {
   display: none;
+}
+
+/* Admin panel tables: column-heading rows in the brand purple. Unlayered, so
+   it wins over the pages' own bg-gray-50 and the table component's
+   text-foreground / row-hover utilities without touching any page. */
+.admin-panel [data-slot="table-header"] {
+  background-color: var(--color-brand-purple);
+}
+
+.admin-panel [data-slot="table-header"] [data-slot="table-row"],
+.admin-panel [data-slot="table-header"] [data-slot="table-row"]:hover {
+  background-color: transparent;
+  border-color: var(--color-brand-purpleDark);
+}
+
+.admin-panel [data-slot="table-header"] [data-slot="table-head"] {
+  color: #ffffff;
 }
 
 .barba-curtain-cover {
@@ -182,8 +229,9 @@ body::-webkit-scrollbar,
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  /* Loaded from Google Fonts in index.html */
+  --font-heading: "EB Garamond", Georgia, serif;
+  --font-sans: "Lato", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Label } from '../../components/ui/label';
 import { formatDay } from '../../utils/formatDay';
+import { formatApiError } from '../../utils/formErrors';
 import { RiSearchLine, RiFilter3Line, RiDownloadCloud2Line } from '@remixicon/react';
 
 export default function Visitors() {
@@ -31,8 +32,10 @@ export default function Visitors() {
     if (search.trim()) params.search = search.trim();
     if (countryFilter.trim()) params.country = countryFilter.trim();
     if (verifiedFilter !== '') params.isVerified = verifiedFilter;
-    if (dateFrom) params.visitFrom = new Date(dateFrom).toISOString();
-    if (dateTo) params.visitTo = new Date(dateTo).toISOString();
+    // The backend filters on `from` / `to` (visits starting within the range);
+    // `visitFrom` / `visitTo` keys were silently ignored.
+    if (dateFrom) params.from = dateFrom;
+    if (dateTo) params.to = dateTo;
     return params;
   };
 
@@ -99,7 +102,7 @@ export default function Visitors() {
       passportNumber: visitor.passportNumber || '',
       designation: visitor.designation || visitor.title || '',
       phone: visitor.phone || '',
-      website: visitor.website || '',
+      websiteOrProfileUrl: visitor.websiteOrProfileUrl || '',
       hostName: visitor.hostName || '',
       hostDepartment: visitor.hostDepartment || '',
       purposeOfVisit: visitor.purposeOfVisit || '',
@@ -128,7 +131,7 @@ export default function Visitors() {
       fetchVisitors();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to update visitor record');
+      alert(formatApiError(err, 'Failed to update visitor record'));
     }
   };
 
@@ -345,7 +348,7 @@ export default function Visitors() {
               {/* 5.25 Website */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Website / Profile Link</Label>
-                <Input value={editFormData.website || ''} onChange={(e) => handleFieldChange('website', e.target.value)} />
+                <Input value={editFormData.websiteOrProfileUrl || ''} onChange={(e) => handleFieldChange('websiteOrProfileUrl', e.target.value)} />
               </div>
 
               <div className="space-y-1.5">

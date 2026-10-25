@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
+import { fetchAllPages } from '../api/fetchAllPages';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -55,8 +56,7 @@ export default function Apply() {
     // 4.3 Populate programs catalogue for dropdown
     const fetchPrograms = async () => {
       try {
-        const res = await apiClient.get('/programs?isActive=true&limit=100');
-        const list = res.data?.data?.programs || [];
+        const list = await fetchAllPages('/programs', 'programs', { pageSize: 100, params: { isActive: true } });
         setPrograms(list);
       } catch (err) {
         console.warn('Could not load programs catalogue:', err);

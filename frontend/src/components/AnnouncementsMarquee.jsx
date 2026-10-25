@@ -68,11 +68,6 @@ export default function AnnouncementsMarquee() {
               <div key={ann.id} className="py-4 first:pt-0 last:pb-0 hover:bg-brand-purpleLight/5 px-2.5 rounded-lg transition-colors flex flex-col gap-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {ann.type && (
-                      <span className="text-[10px] font-bold text-brand-marigoldDark uppercase tracking-wider bg-brand-marigold/15 px-2 py-0.5 rounded shrink-0">
-                        {ann.type}
-                      </span>
-                    )}
                     <h4 className="text-base sm:text-lg font-bold text-brand-purpleDark leading-snug">{ann.title}</h4>
                   </div>
                   {/* 3.26: Show publish date */}
@@ -84,14 +79,9 @@ export default function AnnouncementsMarquee() {
                   )}
                 </div>
 
+                {/* Announcements have no separate link field; links written in
+                    the content are made clickable here. */}
                 <p className="text-gray-600 text-sm pl-0 whitespace-pre-wrap leading-relaxed">{renderContentWithLinks(ann.content)}</p>
-
-                {/* 3.25: Support link if provided */}
-                {ann.linkUrl && (
-                  <a href={ann.linkUrl} target="_blank" rel="noreferrer" className="text-brand-purple font-semibold text-xs hover:underline mt-1 inline-flex items-center gap-1 self-start">
-                    {ann.linkText || 'Read more'} <span>&rarr;</span>
-                  </a>
-                )}
               </div>
             ))}
           </div>

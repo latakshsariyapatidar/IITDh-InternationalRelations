@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/client';
+import { fetchAllPages } from '../../api/fetchAllPages';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -39,11 +40,10 @@ export default function OutboundApply() {
   const [compressionStats, setCompressionStats] = useState({});
 
   useEffect(() => {
-    // 4.9 Limit to universities and support paging/large limit
+    // 4.9 Limit to universities and load every page of them
     const fetchPartners = async () => {
       try {
-        const res = await apiClient.get('/partners?type=UNIVERSITY&limit=100');
-        const list = res.data?.data?.partners || [];
+        const list = await fetchAllPages('/partners', 'partners', { pageSize: 100, params: { type: 'UNIVERSITY' } });
         setPartners(list.filter(p => p.type === 'UNIVERSITY' || !p.type));
       } catch (err) {
         console.error('Failed to load partners', err);

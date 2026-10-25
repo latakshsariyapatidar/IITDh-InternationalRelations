@@ -12,7 +12,7 @@ import {
   RiDownloadCloud2Line,
   RiFilter3Line
 } from '@remixicon/react'
-import apiClient from '../api/client'
+import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
 
 const CATEGORIES = [
@@ -44,13 +44,12 @@ export default function Downloads() {
       try {
         const params = {
           isPublic: true,
-          limit: 50,
         }
         if (selectedCategory && selectedCategory !== 'ALL') {
           params.category = selectedCategory
         }
-        const res = await apiClient.get('/downloads', { params })
-        setDownloads(res.data?.data?.downloads || [])
+        // Every page: the route returns at most 50 documents at a time
+        setDownloads(await fetchAllPages('/downloads', 'downloads', { pageSize: 50, params }))
       } catch (err) {
         console.error('Failed to fetch downloads', err)
       } finally {

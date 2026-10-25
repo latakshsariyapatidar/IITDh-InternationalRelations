@@ -1,24 +1,94 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import apiClient from '../api/client'
+import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
+
+// Labels for the backend's EventType values shown in the Events section
+// (VISIT events are listed above, as delegation visits).
+const EVENT_TYPE_LABELS = {
+  CONFERENCE: 'Conference',
+  WORKSHOP: 'Workshop',
+  EXCHANGE: 'Exchange',
+  OTHER: 'Event',
+};
+
+const formatEventDate = (startDate, endDate) => {
+  if (!startDate) return '';
+  const options = { month: 'short', day: 'numeric', year: 'numeric' };
+  const startStr = new Date(startDate).toLocaleDateString('en-US', options);
+  if (!endDate) return startStr;
+  const endStr = new Date(endDate).toLocaleDateString('en-US', options);
+  return startStr === endStr ? startStr : `${startStr} – ${endStr}`;
+};
+
+function EventCard({ event }) {
+  return (
+    <div className="bg-white rounded-2xl border border-brand-purpleLight/60 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+      {event.imageUrl ? (
+        <div className="aspect-video w-full overflow-hidden bg-brand-purpleLight/30 relative">
+          <img
+            src={resolveMediaUrl(event.imageUrl)}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
+            {formatEventDate(event.startDate, event.endDate)}
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 bg-brand-purpleLight/30 border-b border-brand-purpleLight/50">
+          <div className="bg-white inline-block px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
+            {formatEventDate(event.startDate, event.endDate)}
+          </div>
+        </div>
+      )}
+      <div className="p-6 flex-1 flex flex-col">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-marigold/20 text-brand-marigoldDark">
+            {EVENT_TYPE_LABELS[event.type] || event.type}
+          </span>
+          {event.location && (
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              📍 {event.location}
+            </span>
+          )}
+        </div>
+        <h3 className="text-lg font-bold text-brand-purpleDark mb-2 group-hover:text-brand-marigoldDark transition-colors">
+          {event.title}
+        </h3>
+        {event.description && (
+          <p className="text-neutral-textDark/70 text-sm whitespace-pre-wrap line-clamp-4">
+            {event.description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Visits() {
   const [visits, setVisits] = useState([]);
+  const [otherEvents, setOtherEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVisits = async () => {
       try {
+        // Every public event, every page (the route returns at most 50 at a
+        // time): visits are listed as delegation visits, the rest as events.
         const [eventsRes] = await Promise.allSettled([
-          apiClient.get('/events?type=VISIT&isPublic=true&limit=50'),
+          fetchAllPages('/events', 'events', { pageSize: 50, params: { isPublic: true } }),
         ]);
+        const allEvents = eventsRes.status === 'fulfilled' ? eventsRes.value : [];
+        setOtherEvents(allEvents.filter((ev) => ev.type !== 'VISIT'));
 
-        const eventItems = (eventsRes.status === 'fulfilled' && eventsRes.value.data?.data?.events)
-          ? eventsRes.value.data.data.events.map(ev => ({
+        const eventItems = allEvents
+          .filter((ev) => ev.type === 'VISIT')
+          .map(ev => ({
             id: ev.id,
             type: 'event',
             title: ev.title,
@@ -27,8 +97,7 @@ export default function Visits() {
             endDate: ev.endDate,
             location: ev.location,
             imageUrl: ev.imageUrl,
-          }))
-          : [];
+          }));
 
         // Combine and sort by startDate descending
         const combined = [...eventItems].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
@@ -42,6 +111,23 @@ export default function Visits() {
     fetchVisits();
   }, []);
 
+  // Upcoming or ongoing (the event ends today or later), nearest first; then
+  // past events, most recent first.
+  const { upcomingEvents, pastEvents } = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const isCurrent = (ev) => {
+      const start = ev.startDate ? new Date(ev.startDate).getTime() : 0;
+      const end = ev.endDate ? new Date(ev.endDate).getTime() : start;
+      return end >= todayStart;
+    };
+    const byStart = (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    return {
+      upcomingEvents: otherEvents.filter(isCurrent).sort(byStart),
+      pastEvents: otherEvents.filter((ev) => !isCurrent(ev)).sort((a, b) => byStart(b, a)),
+    };
+  }, [otherEvents]);
+
   return (
     <div>
       <HeroSection
@@ -51,7 +137,7 @@ export default function Visits() {
       />
 
       {/* Upcoming Visits */}
-      <section id="visitor-info" className="max-w-7xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <SectionHeader
           title="Delegation Visits"
           subtitle="Recent and scheduled international delegations hosted at IIT Dharwad"
@@ -119,9 +205,46 @@ export default function Visits() {
         )}
       </section>
 
+      {/* Other events: conferences, workshops, exchanges and the rest */}
+      <section id="events" className="bg-brand-cream/40 border-y border-brand-purpleLight/40 py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionHeader
+            title="Events"
+            subtitle="Conferences, workshops, exchanges and other events at IIT Dharwad"
+          />
 
-      {/* Visitor Information */}
-      <section className="bg-neutral-canvas py-16">
+          {loading ? (
+            <div className="text-center py-12 text-gray-500">Loading events...</div>
+          ) : otherEvents.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">No events currently available.</div>
+          ) : (
+            <div className="space-y-12">
+              <div>
+                <h3 className="text-xl font-bold text-brand-purpleDark mb-5">Upcoming & Ongoing</h3>
+                {upcomingEvents.length > 0 ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {upcomingEvents.map((event) => <EventCard key={event.id} event={event} />)}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">No upcoming events scheduled at the moment.</p>
+                )}
+              </div>
+
+              {pastEvents.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-bold text-brand-purpleDark mb-5">Past Events</h3>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {pastEvents.map((event) => <EventCard key={event.id} event={event} />)}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Visitor Information (the footer's "Guesthouse" link lands here) */}
+      <section id="visitor-info" className="bg-neutral-canvas py-16">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             title="Visitor Information"

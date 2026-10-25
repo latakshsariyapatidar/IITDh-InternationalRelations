@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { headerOffset } from '../utils/scroll';
 
 const BASE_TITLE = 'IIT Dharwad';
 
@@ -23,7 +24,7 @@ const ROUTE_TITLES = {
   '/contact': `Contact Us | IRO ${BASE_TITLE}`,
   '/search': `Search Portal | IRO ${BASE_TITLE}`,
   '/opportunities': `Global Opportunities | ${BASE_TITLE}`,
-  '/visitors/register': `Visitor Registration | ${BASE_TITLE}`,
+  '/iro/delegate-registration': `Visiting Delegation Registration | ${BASE_TITLE}`,
   '/students': `Outbound Mobility Portal | IITDh Students`,
   '/students/apply': `Apply for Outbound Mobility | ${BASE_TITLE}`,
   '/students/track': `Track Outbound Application | ${BASE_TITLE}`,
@@ -52,13 +53,30 @@ const ROUTE_TITLES = {
   '/admin/notifications': `Notifications | Admin IRO`,
 };
 
+// Many sections (FAQs, faculty, MOUs) render only after their data loads, so a
+// #hash target is looked for, and re-aligned as content above it settles, for
+// this long.
+const HASH_WAIT_MS = 3000;
+const HASH_RETRY_MS = 100;
+// Breathing room between the sticky header and the section heading.
+const HASH_GAP_PX = 8;
+// Input that means the visitor is moving the page themselves. Scroll position
+// alone can't tell: the browser also shifts it when content above loads.
+const USER_SCROLL_EVENTS = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+
+const decodeHash = (hash) => {
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return hash.slice(1);
+  }
+};
+
 export default function TitleAndScrollManager() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  const lastPathnameRef = useRef(null);
 
   useEffect(() => {
-    // Scroll window to top on route navigation
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-
     // Normalize path by stripping trailing slash (unless root '/')
     const cleanPath = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 
@@ -72,6 +90,49 @@ export default function TitleAndScrollManager() {
       document.title = `404 - Page Not Found | IRO ${BASE_TITLE}`;
     }
   }, [pathname]);
+
+  useEffect(() => {
+    // A new page starts at the top. A hash change on the same page keeps the
+    // current position until its target is found.
+    const pathnameChanged = lastPathnameRef.current !== pathname;
+    lastPathnameRef.current = pathname;
+    if (pathnameChanged) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+
+    if (!hash || hash === '#') return undefined;
+    const id = decodeHash(hash);
+    const startedAt = Date.now();
+    let userTookOver = false;
+    let timer;
+
+    // Once the visitor scrolls, clicks or types, leave the page where they put it.
+    const stopAligning = () => {
+      userTookOver = true;
+      window.clearTimeout(timer);
+    };
+    USER_SCROLL_EVENTS.forEach((type) => window.addEventListener(type, stopAligning, { passive: true }));
+
+    const alignToTarget = () => {
+      if (userTookOver) return;
+      const target = document.getElementById(id);
+      if (target) {
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset() - HASH_GAP_PX);
+        if (Math.abs(top - window.scrollY) > 2) {
+          window.scrollTo({ top, left: 0, behavior: 'instant' });
+        }
+      }
+      if (Date.now() - startedAt < HASH_WAIT_MS) {
+        timer = window.setTimeout(alignToTarget, HASH_RETRY_MS);
+      }
+    };
+
+    alignToTarget();
+    return () => {
+      window.clearTimeout(timer);
+      USER_SCROLL_EVENTS.forEach((type) => window.removeEventListener(type, stopAligning));
+    };
+  }, [pathname, hash]);
 
   return null;
 }

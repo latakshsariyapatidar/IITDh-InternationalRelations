@@ -101,21 +101,18 @@ export default function Notifications() {
     }
   };
 
-  const getRecordLink = (item) => {
-    if (item.entityType === 'inbound-application' || item.entityType === 'admission') {
-      return '/admin/applications';
-    }
-    if (item.entityType === 'inbound-exchange' || item.entityType === 'exchange') {
-      return '/admin/inbound-exchange';
-    }
-    if (item.entityType === 'mou') {
-      return '/admin/mous';
-    }
-    if (item.entityType === 'visitor') {
-      return '/admin/visitors';
-    }
-    return TYPE_CONFIG[item.type]?.defaultPath || null;
+  // The entityType values the backend writes (notification.events.ts and
+  // notification.reminders.ts). Visa, passport and exit reminders are raised
+  // for both registers, so entityType, not type, says which page holds the record.
+  const ENTITY_PATHS = {
+    student_application: '/admin/applications',
+    inbound_exchange_application: '/admin/inbound-exchange',
+    visitor: '/admin/visitors',
+    mou: '/admin/mous',
   };
+
+  const getRecordLink = (item) =>
+    ENTITY_PATHS[item.entityType] || TYPE_CONFIG[item.type]?.defaultPath || null;
 
   return (
     <div className="space-y-6">

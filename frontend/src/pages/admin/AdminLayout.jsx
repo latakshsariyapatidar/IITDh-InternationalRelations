@@ -92,8 +92,8 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 min-w-0 p-4 md:p-8 overflow-y-auto h-full relative">
+      {/* Main Content Area (admin-panel: brand-purple table headings, see index.css) */}
+      <main className="admin-panel flex-1 min-w-0 p-4 md:p-8 overflow-y-auto h-full relative">
         <div className="max-w-6xl mx-auto pb-24">
           <Outlet />
         </div>
