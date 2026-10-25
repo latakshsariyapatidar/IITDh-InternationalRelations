@@ -5,6 +5,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 import { RiFilter3Line } from '@remixicon/react';
 
 // 5.35 Backend accepted categories
@@ -135,10 +137,11 @@ export default function Downloads() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      // 1.7: Clear optional description sending null if empty
+      // 1.7: Clear optional description if empty ("" on an edit; the backend
+      // rejects null here)
       const payload = {
         title: formData.title.trim(),
-        description: formData.description ? formData.description.trim() : null,
+        description: optionalText(formData.description, Boolean(currentId)),
         fileUrl: formData.fileUrl,
         fileType: 'PDF',
         category: formData.category,
@@ -168,7 +171,7 @@ export default function Downloads() {
       setIsFormOpen(false);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.message || 'Save failed');
+      alert(formatApiError(err, 'Save failed'));
     } finally {
       setSaveLoading(false);
     }

@@ -6,6 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { resolveMediaUrl } from '../../utils/media';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function Testimonials() {
   const [data, setData] = useState([]);
@@ -89,6 +90,15 @@ export default function Testimonials() {
       const res = await apiClient.post('/uploads/image/testimonials', fd);
       const newUrl = res.data?.data?.url;
 
+      // An earlier upload from this form was never saved, so nothing uses it.
+      if (newlyUploadedPhoto && newlyUploadedPhoto.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedPhoto)}`);
+        } catch (e) {
+          console.error('Failed to clean up replaced photo upload:', e);
+        }
+      }
+
       setNewlyUploadedPhoto(newUrl);
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
     } catch (err) { alert('Upload failed: ' + (err.response?.data?.message || err.message)); }
@@ -120,10 +130,10 @@ export default function Testimonials() {
 
       setIsFormOpen(false); 
       fetchData();
-    } catch (err) { 
-      alert(err.response?.data?.message || 'Save failed'); 
-    } finally { 
-      setSaveLoading(false); 
+    } catch (err) {
+      alert(formatApiError(err, 'Save failed'));
+    } finally {
+      setSaveLoading(false);
     }
   };
 

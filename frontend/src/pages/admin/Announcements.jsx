@@ -6,6 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { formatDay } from '../../utils/formatDay';
+import { formatApiError } from '../../utils/formErrors';
 
 const toDateTimeLocal = (isoStr) => {
   if (!isoStr) return '';
@@ -97,13 +98,16 @@ export default function Announcements() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      // 1.7 & 5.4: Send null when fields are cleared
+      // 1.7 & 5.4: Send null when fields are cleared. Only an edit accepts
+      // null; on create it becomes 1 Jan 1970 (hidden for good), so an empty
+      // date is left out there instead.
+      const emptyDate = currentId ? null : undefined;
       const payload = {
         title: formData.title.trim(),
         content: formData.content.trim(),
         isPublic: formData.isPublic === 'true',
-        publishedAt: formData.publishedAt ? new Date(formData.publishedAt).toISOString() : null,
-        visibleUntil: formData.visibleUntil ? new Date(formData.visibleUntil).toISOString() : null,
+        publishedAt: formData.publishedAt ? new Date(formData.publishedAt).toISOString() : emptyDate,
+        visibleUntil: formData.visibleUntil ? new Date(formData.visibleUntil).toISOString() : emptyDate,
       };
 
       if (currentId) {
@@ -115,7 +119,7 @@ export default function Announcements() {
       fetchAnnouncements();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to save announcement');
+      alert(formatApiError(err, 'Failed to save announcement'));
     } finally {
       setSaveLoading(false);
     }

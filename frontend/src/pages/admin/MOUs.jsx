@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/client';
+import { fetchAllPages } from '../../api/fetchAllPages';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { compressDocument, formatBytes } from '../../utils/fileCompressor';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function MOUs() {
   const [data, setData] = useState([]);
@@ -50,10 +53,10 @@ export default function MOUs() {
     }
   };
 
+  // Every partner, not just the first page: the dropdowns list them all.
   const fetchPartners = async () => {
     try {
-      const res = await apiClient.get('/partners?limit=100');
-      setPartners(res.data?.data?.partners || []);
+      setPartners(await fetchAllPages('/partners', 'partners', { pageSize: 100 }));
     } catch (err) {}
   };
 
@@ -153,7 +156,8 @@ export default function MOUs() {
         title: formData.title.trim(),
         signedDate: formData.signedDate,
         status: formData.status,
-        scope: formData.scope?.trim() ? formData.scope.trim() : null,
+        // A plain optional string: "" clears it on an edit, null is rejected
+        scope: optionalText(formData.scope, Boolean(currentId)),
         expiryDate: formData.expiryDate ? formData.expiryDate : null,
         isPublic: formData.isPublic === 'true',
       };
@@ -179,7 +183,7 @@ export default function MOUs() {
       setSelectedFile(null);
       fetchData();
     } catch (err) { 
-      alert(err.response?.data?.message || 'Save failed'); 
+      alert(formatApiError(err, 'Save failed'));
     } finally { 
       setSaveLoading(false); 
     }

@@ -4,20 +4,41 @@ import { GoogleLogin } from '@react-oauth/google';
 import apiClient from '../../api/client';
 import { useStudentAuth } from '../../contexts/StudentAuthContext';
 
+// The page that sent the user here: a protected route's redirect passes it as
+// `state.from`, a link passes `?next=` (the page transition drops link state).
+const returnPathFrom = (location) => {
+  const from = location.state?.from;
+  if (from?.pathname) return `${from.pathname}${from.search || ''}${from.hash || ''}`;
+  const next = new URLSearchParams(location.search).get('next');
+  // Only a path on this site; "//host" would leave it.
+  if (next && next.startsWith('/') && !next.startsWith('//')) return next;
+  return null;
+};
+
+const pathOf = (route) => route.split(/[?#]/)[0];
+const isWithin = (route, base) => pathOf(route) === base || pathOf(route).startsWith(`${base}/`);
+
+// Each role goes back where it came from, except into the other role's portal,
+// whose guard would only send it straight back here.
+const destinationFor = (role, from) => {
+  if (role === 'faculty') {
+    return from && !isWithin(from, '/students') ? from : '/faculty-portal';
+  }
+  return from && !isWithin(from, '/faculty-portal') && pathOf(from) !== '/students'
+    ? from
+    : '/students/track';
+};
+
 export default function Landing() {
   const { login, isStudentAuthenticated, role } = useStudentAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/students/track';
+  const from = returnPathFrom(location);
 
   useEffect(() => {
     if (isStudentAuthenticated) {
-      if (role === 'faculty') {
-        navigate('/faculty-portal', { replace: true });
-      } else {
-        navigate(from, { replace: true });
-      }
+      navigate(destinationFor(role, from), { replace: true });
     }
   }, [isStudentAuthenticated, role, navigate, from]);
 
@@ -31,11 +52,7 @@ export default function Landing() {
       const profile = res.data?.data?.faculty;
       if (token) {
         login(token, userRole, profile);
-        if (userRole === 'faculty') {
-          navigate('/faculty-portal', { replace: true });
-        } else {
-          navigate(from, { replace: true });
-        }
+        navigate(destinationFor(userRole, from), { replace: true });
       }
     } catch (error) {
       console.error(error);
@@ -59,7 +76,7 @@ export default function Landing() {
             Please log in with your official IIT Dharwad Google Account to access the student or faculty portal.
           </p>
         </div>
-        
+
         <div className="flex justify-center pb-4">
           <GoogleLogin
             onSuccess={handleSuccess}

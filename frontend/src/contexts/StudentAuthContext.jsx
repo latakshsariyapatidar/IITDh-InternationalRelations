@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient, { setCampusAccessToken } from '../api/client';
+import apiClient, { setCampusAccessToken, refreshCampusSession } from '../api/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const StudentAuthContext = createContext();
@@ -35,10 +35,12 @@ export const StudentAuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiClient.post('/campus-auth/refresh');
-        const token = response.data?.data?.accessToken;
-        const userRole = response.data?.data?.role;
-        const profile = response.data?.data?.faculty;
+        // Shared with the axios interceptor, so the two can't rotate the same
+        // refresh cookie at once
+        const data = await refreshCampusSession();
+        const token = data?.accessToken;
+        const userRole = data?.role;
+        const profile = data?.faculty;
         if (token) {
           login(token, userRole, profile);
         }

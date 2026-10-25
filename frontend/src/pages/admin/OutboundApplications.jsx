@@ -288,7 +288,8 @@ export default function OutboundApplications() {
               <div className="border-t pt-4">
                 <h4 className="font-semibold text-gray-800 mb-3">Submitted Documents</h4>
                 <div className="flex flex-wrap gap-2.5">
-                  {(selectedApp.hasTranscript || selectedApp.transcriptUrl) && (
+                  {/* The record stores each upload as `<field>Path` (null when not sent) */}
+                  {selectedApp.transcriptPath && (
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -299,7 +300,7 @@ export default function OutboundApplications() {
                     </Button>
                   )}
 
-                  {(selectedApp.hasStatementOfPurpose || selectedApp.statementOfPurposeUrl) && (
+                  {selectedApp.statementOfPurposePath && (
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -310,7 +311,7 @@ export default function OutboundApplications() {
                     </Button>
                   )}
 
-                  {(selectedApp.hasRecommendationLetter || selectedApp.recommendationLetterUrl) && (
+                  {selectedApp.recommendationLetterPath && (
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -321,9 +322,9 @@ export default function OutboundApplications() {
                     </Button>
                   )}
 
-                  {!(selectedApp.hasTranscript || selectedApp.transcriptUrl) &&
-                   !(selectedApp.hasStatementOfPurpose || selectedApp.statementOfPurposeUrl) &&
-                   !(selectedApp.hasRecommendationLetter || selectedApp.recommendationLetterUrl) && (
+                  {!selectedApp.transcriptPath &&
+                   !selectedApp.statementOfPurposePath &&
+                   !selectedApp.recommendationLetterPath && (
                     <p className="text-xs text-gray-400">No downloadable PDF documents attached to this record.</p>
                   )}
                 </div>

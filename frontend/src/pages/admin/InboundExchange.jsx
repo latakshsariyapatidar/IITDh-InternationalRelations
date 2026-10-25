@@ -289,10 +289,10 @@ export default function InboundExchange() {
             onChange={(e) => { setExchangeTypeFilter(e.target.value); setPage(1); }}
           >
             <option value="">All Types</option>
+            {/* The backend's ExchangeType values */}
             <option value="SEMESTER_EXCHANGE">Semester Exchange</option>
             <option value="RESEARCH_INTERNSHIP">Research Internship</option>
-            <option value="SUMMER_WINTER_PROGRAM">Summer/Winter Program</option>
-            <option value="VISITING_STUDENT">Visiting Student</option>
+            <option value="SUMMER_PROGRAM">Summer / Short-Term Program</option>
             <option value="OTHER">Other</option>
           </select>
         </div>
@@ -363,7 +363,7 @@ export default function InboundExchange() {
                     </span>
                   </TableCell>
                   <TableCell className="text-xs text-gray-600 whitespace-nowrap">
-                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}
+                    {item.submittedAt ? new Date(item.submittedAt).toLocaleDateString() : '—'}
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap
@@ -431,10 +431,11 @@ export default function InboundExchange() {
                   <div><span className="text-xs text-gray-500 block">Passport Expiry</span> <p className="font-medium">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Home Institution</span> <p className="font-medium">{selectedApp.homeUniversity}</p></div>
                   <div><span className="text-xs text-gray-500 block">Home University Country</span> <p className="font-medium">{selectedApp.homeUniversityCountry || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Home Academic Program</span> <p className="font-medium">{selectedApp.homeProgram || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Home Academic Program</span> <p className="font-medium">{selectedApp.homeProgramOfStudy || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Program Level</span> <p className="font-medium">{selectedApp.programLevel === 'OTHER' ? `Other (${selectedApp.programLevelOther || ''})` : selectedApp.programLevel}</p></div>
                   <div className="sm:col-span-2"><span className="text-xs text-gray-500 block">Current Address</span> <p className="font-medium">{selectedApp.currentAddress || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Emergency Contact</span> <p className="font-medium">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Submitted On</span> <p className="font-medium">{selectedApp.submittedAt ? new Date(selectedApp.submittedAt).toLocaleDateString() : '—'}</p></div>
                 </div>
 
                 <h4 className="font-semibold text-gray-800 text-base border-b pb-2 pt-2">Visit & Mobility Details at IIT Dharwad</h4>
@@ -444,7 +445,7 @@ export default function InboundExchange() {
                     <p className="font-medium">{selectedApp.exchangeType === 'OTHER' ? `Other (${selectedApp.exchangeTypeOther || ''})` : selectedApp.exchangeType}</p>
                   </div>
                   <div><span className="text-xs text-gray-500 block">Proposed Department</span> <p className="font-medium">{selectedApp.proposedDepartment || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Proposed Host Faculty</span> <p className="font-medium">{selectedApp.proposedHostFaculty || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Proposed Host Faculty</span> <p className="font-medium">{selectedApp.proposedFacultyHost || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Intended Stay Period</span> <p className="font-medium">{selectedApp.intendedStayFrom ? selectedApp.intendedStayFrom.slice(0, 10) : '—'} to {selectedApp.intendedStayTo ? selectedApp.intendedStayTo.slice(0, 10) : '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Visa Category</span> <p className="font-medium">{selectedApp.visaCategory || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Requires Visa Sponsorship</span> <p className="font-medium">{selectedApp.requiresVisaSponsorship ? 'Yes' : 'No'}</p></div>
@@ -468,7 +469,8 @@ export default function InboundExchange() {
                     { field: 'financialProof', label: 'Financial Proof' },
                     { field: 'recommendationLetter', label: 'Recommendation Letter' },
                   ]
-                    .filter(doc => Boolean(selectedApp[doc.field]))
+                    // The record stores each upload as `<field>Path` (null when not sent)
+                    .filter(doc => Boolean(selectedApp[`${doc.field}Path`]))
                     .map(doc => (
                       <Button 
                         key={doc.field} 
@@ -481,7 +483,7 @@ export default function InboundExchange() {
                     ))}
                   {![
                     'passportCopy', 'photo', 'academicTranscripts', 'nominationLetter', 'statementOfPurpose', 'financialProof', 'recommendationLetter'
-                  ].some(field => Boolean(selectedApp[field])) && (
+                  ].some(field => Boolean(selectedApp[`${field}Path`])) && (
                     <span className="text-xs text-gray-500 italic">No document attachments were uploaded.</span>
                   )}
                 </div>

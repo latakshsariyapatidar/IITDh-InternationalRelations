@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function FAQs() {
   const [data, setData] = useState([]);
@@ -74,7 +75,7 @@ export default function FAQs() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to save FAQ');
+      alert(formatApiError(err, 'Failed to save FAQ'));
     } finally {
       setSaveLoading(false);
     }

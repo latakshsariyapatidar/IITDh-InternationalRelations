@@ -8,6 +8,7 @@ import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { resolveMediaUrl } from '../../utils/media';
+import { formatApiError } from '../../utils/formErrors';
 
 // Mirrors the backend's HTML sanitiser allow-list. Anything not offered here
 // would be silently stripped when the record is saved.
@@ -110,6 +111,15 @@ export default function Team() {
       const res = await apiClient.post('/uploads/image/team', fd);
       const newUrl = res.data?.data?.url;
 
+      // An earlier upload from this form was never saved, so nothing uses it.
+      if (newlyUploadedPhoto && newlyUploadedPhoto.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedPhoto)}`);
+        } catch (e) {
+          console.error('Failed to clean up replaced photo upload:', e);
+        }
+      }
+
       setNewlyUploadedPhoto(newUrl);
       setFormData(prev => ({ ...prev, photoUrl: newUrl }));
     } catch (err) { alert('Image upload failed: ' + (err.response?.data?.message || err.message)); }
@@ -142,8 +152,8 @@ export default function Team() {
 
       setIsFormOpen(false);
       fetchData();
-    } catch (err) { 
-      alert(err.response?.data?.message || 'Save failed'); 
+    } catch (err) {
+      alert(formatApiError(err, 'Save failed'));
     } finally {
       setSaveLoading(false);
     }

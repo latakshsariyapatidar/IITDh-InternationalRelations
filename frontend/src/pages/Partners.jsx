@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -18,6 +18,9 @@ import {
   RiRefreshLine
 } from '@remixicon/react'
 import apiClient from '../api/client'
+import { fetchAllPages } from '../api/fetchAllPages'
+import { useAuth } from '../contexts/AuthContext'
+import { useStudentAuth } from '../contexts/StudentAuthContext'
 import { formatDay } from '../utils/formatDay';
 
 const countryCodeMap = {
@@ -57,6 +60,31 @@ const resolveLogoUrl = (url) => {
   return `${backendOrigin}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
+const mouFileName = (name, mouId) => `MOU_${(name || mouId).replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`
+
+const saveFile = (url, fileName) => {
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', fileName)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
+// Asked for as a blob, so an error body arrives as a Blob too; the backend's
+// message is the JSON inside it.
+const blobErrorMessage = async (err) => {
+  const data = err?.response?.data
+  if (data instanceof Blob) {
+    try {
+      return JSON.parse(await data.text())?.message
+    } catch {
+      return undefined
+    }
+  }
+  return data?.message
+}
+
 function FlagIcon({ country, code, className = "h-4 w-auto rounded-[2px] shadow-xs" }) {
   if (!code) {
     return (
@@ -94,20 +122,29 @@ export default function Partners() {
   const [showAllUniversities, setShowAllUniversities] = useState(false)
   const [downloadingId, setDownloadingId] = useState(null)
 
-  const [showSignInModal, setShowSignInModal] = useState(false)
+  // The MOU whose document needs a sign-in first, and the one downloaded on
+  // coming back from that sign-in.
+  const [signInMouId, setSignInMouId] = useState(null)
+  const [readyMou, setReadyMou] = useState(null)
+
+  const { isAdminAuthenticated, loading: adminAuthLoading } = useAuth()
+  const { isStudentAuthenticated, loading: campusAuthLoading } = useStudentAuth()
+  const authLoading = adminAuthLoading || campusAuthLoading
+  const signedIn = isAdminAuthenticated || isStudentAuthenticated
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const returnMouId = searchParams.get('mou')
+  const returnHandledRef = useRef(false)
 
   const fetchData = async () => {
     setLoading(true)
     setError(null)
     try {
       // 1.9 Stop swallowing errors so error banner can appear
-      const [partnersRes, mousRes] = await Promise.all([
-        apiClient.get('/partners?limit=100'),
-        apiClient.get('/mous?isPublic=true&limit=100'),
+      const [fetchedPartners, fetchedMous] = await Promise.all([
+        fetchAllPages('/partners', 'partners', { pageSize: 100 }),
+        fetchAllPages('/mous', 'mous', { pageSize: 100, params: { isPublic: true } }),
       ])
-
-      const fetchedPartners = partnersRes.data?.data?.partners || []
-      const fetchedMous = mousRes.data?.data?.mous || []
 
       setPartners(fetchedPartners)
       setMous(fetchedMous)
@@ -123,30 +160,54 @@ export default function Partners() {
     fetchData()
   }, [])
 
-  // 3.16 Show link to /students instead of a bare alert when sign-in needed
-  const handleDownloadMou = async (mouId, partnerName) => {
+  // 3.16 Show link to /students instead of a bare alert when sign-in needed.
+  // The signed PDF is for IIT Dharwad accounts (campus sign-in or admin).
+  const handleDownloadMou = useCallback(async (mouId, partnerName, { afterSignIn = false } = {}) => {
+    if (!authLoading && !signedIn) {
+      setSignInMouId(mouId)
+      return
+    }
     try {
       setDownloadingId(mouId)
       const res = await apiClient.get(`/mous/${mouId}/document`, { responseType: 'blob' })
       const blob = new Blob([res.data], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `MOU_${(partnerName || mouId).replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
+      const fileName = mouFileName(partnerName, mouId)
+      saveFile(url, fileName)
+      if (afterSignIn) {
+        // This download started without a click, which some browsers block,
+        // so the file stays available from a button until the notice closes.
+        setReadyMou({ url, fileName, partnerName })
+      } else {
+        window.URL.revokeObjectURL(url)
+      }
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
-        setShowSignInModal(true)
+        setSignInMouId(mouId)
       } else {
-        alert('MOU document unavailable: ' + (err.response?.data?.message || err.message))
+        alert('MOU document unavailable: ' + ((await blobErrorMessage(err)) || err.message))
       }
     } finally {
       setDownloadingId(null)
     }
-  }
+  }, [authLoading, signedIn])
+
+  // Back from signing in (/partners?mou=<id>): download the MOU that asked for it.
+  useEffect(() => {
+    if (!returnMouId || returnHandledRef.current || loading || authLoading) return
+    returnHandledRef.current = true
+    setSearchParams((params) => {
+      params.delete('mou')
+      return params
+    }, { replace: true })
+    const mou = mous.find((m) => m.id === returnMouId)
+    handleDownloadMou(returnMouId, mou?.partner?.name || mou?.title, { afterSignIn: true })
+  }, [returnMouId, loading, authLoading, mous, handleDownloadMou, setSearchParams])
+
+  useEffect(() => {
+    if (!readyMou) return undefined
+    return () => window.URL.revokeObjectURL(readyMou.url)
+  }, [readyMou])
 
   // Segment partners into categories
   const universities = useMemo(
@@ -937,7 +998,7 @@ export default function Partners() {
       )}
 
       {/* 3.16 Student / Faculty Authentication Required Modal */}
-      {showSignInModal && (
+      {signInMouId && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center border border-gray-100">
             <div className="w-12 h-12 rounded-full bg-purple-50 text-brand-purple flex items-center justify-center mx-auto mb-4">
@@ -948,21 +1009,51 @@ export default function Partners() {
               Full bilateral MOU texts and legal documents are protected and available to verified IIT Dharwad students and faculty. Please sign in to download this agreement.
             </p>
             <div className="flex flex-col gap-2.5">
+              {/* One Google sign-in serves students and faculty; it brings the
+                  user back here (?next=), and the document then downloads. */}
               <Link
-                to="/students"
+                to={`/students?next=${encodeURIComponent(`/partners?mou=${signInMouId}`)}`}
                 className="w-full py-2.5 px-4 bg-brand-purple text-white text-sm font-semibold rounded-xl hover:bg-brand-purpleDark transition-colors text-center shadow-xs"
               >
-                Sign in to Student Portal
+                Sign in with IIT Dharwad Google account
               </Link>
-              <Link
-                to="/faculty-portal"
-                className="w-full py-2.5 px-4 bg-purple-50 text-brand-purple text-sm font-semibold rounded-xl hover:bg-purple-100 transition-colors text-center"
-              >
-                Go to Faculty Portal
-              </Link>
+              <p className="text-[11px] text-gray-500">
+                Students and faculty use the same sign-in. You will come back to this page and the MOU will download.
+              </p>
               <button
                 type="button"
-                onClick={() => setShowSignInModal(false)}
+                onClick={() => setSignInMouId(null)}
+                className="text-xs text-gray-500 hover:text-gray-700 py-1.5 cursor-pointer mt-1"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* After signing in: the MOU that asked for it has been downloaded */}
+      {readyMou && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center border border-gray-100">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-4">
+              <RiFileDownloadLine size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">MOU Document Downloaded</h3>
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              You are signed in, so the agreement{readyMou.partnerName ? ` with ${readyMou.partnerName}` : ''} has been downloaded. If the download did not start, use the button below.
+            </p>
+            <div className="flex flex-col gap-2.5">
+              <a
+                href={readyMou.url}
+                download={readyMou.fileName}
+                className="w-full py-2.5 px-4 bg-brand-purple text-white text-sm font-semibold rounded-xl hover:bg-brand-purpleDark transition-colors text-center shadow-xs"
+              >
+                Download PDF
+              </a>
+              <button
+                type="button"
+                onClick={() => setReadyMou(null)}
                 className="text-xs text-gray-500 hover:text-gray-700 py-1.5 cursor-pointer mt-1"
               >
                 Close

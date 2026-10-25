@@ -6,6 +6,8 @@ import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { resolveMediaUrl } from '../../utils/media';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function GalleryCRUD() {
   const [data, setData] = useState([]);
@@ -102,7 +104,16 @@ export default function GalleryCRUD() {
       fd.append('file', file);
       const res = await apiClient.post('/uploads/image/gallery', fd);
       const newUrl = res.data?.data?.url;
-      
+
+      // An earlier upload from this form was never saved, so nothing uses it.
+      if (newlyUploadedImage && newlyUploadedImage.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedImage)}`);
+        } catch (e) {
+          console.error('Failed to clean up replaced gallery upload:', e);
+        }
+      }
+
       setNewlyUploadedImage(newUrl);
       setFormData(prev => ({ ...prev, imageUrl: newUrl }));
     } catch (err) { 
@@ -122,7 +133,7 @@ export default function GalleryCRUD() {
         title: formData.title.trim(),
         imageUrl: formData.imageUrl,
         category: formData.category,
-        caption: formData.caption?.trim() ? formData.caption.trim() : null,
+        caption: optionalText(formData.caption, Boolean(currentId)),
         takenAt: formData.takenAt ? new Date(formData.takenAt).toISOString() : null,
         isPublic: formData.isPublic === 'true' 
       };
@@ -145,7 +156,7 @@ export default function GalleryCRUD() {
       setIsFormOpen(false); 
       fetchData();
     } catch (err) { 
-      alert(err.response?.data?.message || 'Save failed'); 
+      alert(formatApiError(err, 'Save failed'));
     } finally { 
       setSaveLoading(false); 
     }

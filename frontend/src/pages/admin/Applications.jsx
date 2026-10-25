@@ -343,7 +343,7 @@ export default function Applications() {
                   </TableCell>
                   <TableCell>{item.nationality}</TableCell>
                   <TableCell className="text-xs text-gray-600 whitespace-nowrap">
-                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}
+                    {item.submittedAt ? new Date(item.submittedAt).toLocaleDateString() : '—'}
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap
@@ -413,6 +413,7 @@ export default function Applications() {
                   <div><span className="text-xs text-gray-500 block">Passport Expiry</span> <p className="font-medium">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p></div>
                   <div className="sm:col-span-2"><span className="text-xs text-gray-500 block">Current Address</span> <p className="font-medium">{selectedApp.currentAddress || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Emergency Contact</span> <p className="font-medium">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Submitted On</span> <p className="font-medium">{selectedApp.submittedAt ? new Date(selectedApp.submittedAt).toLocaleDateString() : '—'}</p></div>
                 </div>
 
                 <h4 className="font-semibold text-gray-800 text-base border-b pb-2 pt-2">Academic & Visa Details</h4>
@@ -446,7 +447,8 @@ export default function Applications() {
                     { field: 'financialProof', label: 'Financial Proof' },
                     { field: 'recommendationLetter', label: 'Recommendation Letter' },
                   ]
-                    .filter(doc => Boolean(selectedApp[doc.field]))
+                    // The record stores each upload as `<field>Path` (null when not sent)
+                    .filter(doc => Boolean(selectedApp[`${doc.field}Path`]))
                     .map(doc => (
                       <Button 
                         key={doc.field} 
@@ -459,7 +461,7 @@ export default function Applications() {
                     ))}
                   {![
                     'passportCopy', 'photo', 'academicTranscripts', 'englishTestScoreCard', 'statementOfPurpose', 'financialProof', 'recommendationLetter'
-                  ].some(field => Boolean(selectedApp[field])) && (
+                  ].some(field => Boolean(selectedApp[`${field}Path`])) && (
                     <span className="text-xs text-gray-500 italic">No document attachments were uploaded.</span>
                   )}
                 </div>

@@ -6,6 +6,8 @@ import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { resolveLogoUrl } from '../../utils/media';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function Partners() {
   const [data, setData] = useState([]);
@@ -137,6 +139,15 @@ export default function Partners() {
       const res = await apiClient.post('/uploads/image/partners', fd);
       const newUrl = res.data?.data?.url;
 
+      // An earlier upload from this form was never saved, so nothing uses it.
+      if (newlyUploadedLogo && newlyUploadedLogo.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(newlyUploadedLogo)}`);
+        } catch (e) {
+          console.error('Failed to cleanup replaced uploaded logo:', e);
+        }
+      }
+
       // Track newly uploaded logo
       setNewlyUploadedLogo(newUrl);
       setFormData(prev => ({ ...prev, logoUrl: newUrl }));
@@ -149,17 +160,22 @@ export default function Partners() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
+      // website and logoUrl accept null to clear. focus and the champion's
+      // name/designation are plain optional strings: "" clears them on an edit
+      // and null is rejected. countryCode and championEmail reject "" as well,
+      // so an empty box leaves them out.
+      const isEdit = Boolean(currentId);
       const payload = {
         name: formData.name.trim(),
         country: formData.country.trim(),
         countryCode: formData.countryCode?.trim() ? formData.countryCode.trim().toUpperCase() : undefined,
         type: formData.type,
-        focus: formData.focus?.trim() ? formData.focus.trim() : null,
+        focus: optionalText(formData.focus, isEdit),
         website: formData.website?.trim() ? formData.website.trim() : null,
         logoUrl: formData.logoUrl ? formData.logoUrl : null,
-        championName: formData.championName?.trim() ? formData.championName.trim() : null,
+        championName: optionalText(formData.championName, isEdit),
         championEmail: formData.championEmail?.trim() ? formData.championEmail.trim() : undefined,
-        championDesignation: formData.championDesignation?.trim() ? formData.championDesignation.trim() : null,
+        championDesignation: optionalText(formData.championDesignation, isEdit),
         isActive: formData.isActive === 'true'
       };
 
@@ -182,7 +198,7 @@ export default function Partners() {
       fetchPartners();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to save partner');
+      alert(formatApiError(err, 'Failed to save partner'));
     } finally {
       setSaveLoading(false);
     }

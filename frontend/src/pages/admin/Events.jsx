@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { formatDay } from '../../utils/formatDay';
 import { resolveMediaUrl } from '../../utils/media';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 import { RiFilter3Line } from '@remixicon/react';
 
 const toDateTimeLocal = (isoStr) => {
@@ -149,7 +151,8 @@ export default function Events() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
-      // 1.7 & 5.32: Clear optional fields with null/empty string
+      // 1.7 & 5.32: Clear optional fields with null/empty string. endDate and
+      // imageUrl accept null; location is a plain optional string (no null).
       const payload = {
         title: formData.title.trim(),
         description: formData.description ? formData.description.trim() : "",
@@ -157,7 +160,7 @@ export default function Events() {
         type: formData.type,
         startDate: formData.startDate ? new Date(formData.startDate).toISOString() : new Date().toISOString(),
         endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
-        location: formData.location ? formData.location.trim() : null,
+        location: optionalText(formData.location, Boolean(currentId)),
         imageUrl: formData.imageUrl ? formData.imageUrl : null,
       };
 
@@ -179,7 +182,7 @@ export default function Events() {
       setIsFormOpen(false);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.message || 'Save failed');
+      alert(formatApiError(err, 'Save failed'));
     } finally {
       setSaveLoading(false);
     }

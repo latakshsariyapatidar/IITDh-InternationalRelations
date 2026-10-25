@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient, { setAdminAccessToken } from '../api/client';
+import apiClient, { setAdminAccessToken, refreshAdminSession } from '../api/client';
 
 const AuthContext = createContext();
 
@@ -27,12 +27,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Check auth state on mount by attempting a refresh
+  // Check auth state on mount by attempting a refresh (shared with the axios
+  // interceptor, so the two can't rotate the same refresh cookie at once)
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiClient.post('/auth/refresh');
-        const token = response.data?.data?.accessToken;
+        const data = await refreshAdminSession();
+        const token = data?.accessToken;
         if (token) {
           login(token);
         }

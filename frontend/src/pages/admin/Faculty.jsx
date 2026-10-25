@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function Faculty() {
   const [data, setData] = useState([]);
@@ -153,7 +154,7 @@ export default function Faculty() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to save faculty');
+      alert(formatApiError(err, 'Failed to save faculty'));
     } finally {
       setSaveLoading(false);
     }

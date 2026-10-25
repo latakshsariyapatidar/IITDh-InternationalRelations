@@ -5,6 +5,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
+import { optionalText } from '../../utils/formPayload';
+import { formatApiError } from '../../utils/formErrors';
 
 export default function Contacts() {
   const [data, setData] = useState([]);
@@ -66,13 +68,16 @@ export default function Contacts() {
   const handleSave = async () => {
     setSaveLoading(true);
     try {
+      // name, phone and address are optional strings: "" clears one on an
+      // edit, and null is rejected.
+      const isEdit = Boolean(currentId);
       const payload = {
         type: formData.type,
         title: formData.title.trim(),
         email: formData.email.trim(),
-        name: formData.name?.trim() ? formData.name.trim() : null,
-        phone: formData.phone?.trim() ? formData.phone.trim() : null,
-        address: formData.address?.trim() ? formData.address.trim() : null,
+        name: optionalText(formData.name, isEdit),
+        phone: optionalText(formData.phone, isEdit),
+        address: optionalText(formData.address, isEdit),
         isActive: formData.isActive === 'true'
       };
 
@@ -82,7 +87,7 @@ export default function Contacts() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to save contact');
+      alert(formatApiError(err, 'Failed to save contact'));
     } finally {
       setSaveLoading(false);
     }
