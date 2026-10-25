@@ -49,8 +49,28 @@ export default function Home() {
     // 1.5 Ask only for public content
     const fetchEvents = async () => {
       try {
-        const eventsRes = await apiClient.get('/events?upcoming=true&isPublic=true&limit=3');
-        setEvents(eventsRes.data?.data?.events || []);
+        const eventsRes = await apiClient.get('/events?isPublic=true&limit=20');
+        const allEvents = eventsRes.data?.data?.events || [];
+        
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        // 1. Find upcoming or ongoing events (event ends today or in the future)
+        const upcoming = allEvents.filter(ev => {
+          const start = ev.startDate ? new Date(ev.startDate).getTime() : 0;
+          const end = ev.endDate ? new Date(ev.endDate).getTime() : start;
+          return end >= todayStart;
+        });
+
+        if (upcoming.length > 0) {
+          // Sort ascending so the nearest events appear first (Item 3.3 fix)
+          upcoming.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+          setEvents(upcoming.slice(0, 3));
+        } else {
+          // Fallback: If all events are in the past, show the 3 most recent public events
+          const recent = [...allEvents].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+          setEvents(recent.slice(0, 3));
+        }
       } catch (error) {
         console.error('Failed to load home events', error);
       }

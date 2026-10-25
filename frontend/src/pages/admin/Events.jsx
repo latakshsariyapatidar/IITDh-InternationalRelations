@@ -89,7 +89,7 @@ export default function Events() {
     setFormData({
       title: '',
       description: '',
-      startDate: '',
+      startDate: toDateTimeLocal(new Date().toISOString()),
       endDate: '',
       location: '',
       imageUrl: '',
