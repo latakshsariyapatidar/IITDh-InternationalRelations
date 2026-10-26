@@ -56,7 +56,7 @@ const isCampusEndpoint = (config) => {
 // GET /mous/:id/document (the signed PDF) accepts an admin token or a campus one.
 const isMouDocument = (config) =>
   config.method?.toLowerCase() === 'get' &&
-  /^\/mous\/[^/?#]+\/document(?:[?#]|$)/.test(config.url || '');
+  /(?:^|\/)mous\/[^/?#]+\/document(?:[?#]|$)/.test(config.url || '');
 
 const sessions = {
   admin: { refreshPath: '/auth/refresh', setToken: setAdminAccessToken, getToken: getAdminAccessToken },

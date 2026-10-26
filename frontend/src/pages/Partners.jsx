@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -7,7 +7,6 @@ import {
   RiGlobalLine,
   RiLinksLine,
   RiEarthLine,
-  RiMapPinLine,
   RiCalendarLine,
   RiSearchLine,
   RiExternalLinkLine,
@@ -110,6 +109,7 @@ function FlagIcon({ country, code, className = "h-4 w-auto rounded-[2px] shadow-
 }
 
 export default function Partners() {
+  const navigate = useNavigate()
   const [partners, setPartners] = useState([])
   const [mous, setMous] = useState([])
   const [loading, setLoading] = useState(true)
@@ -122,9 +122,7 @@ export default function Partners() {
   const [showAllUniversities, setShowAllUniversities] = useState(false)
   const [downloadingId, setDownloadingId] = useState(null)
 
-  // The MOU whose document needs a sign-in first, and the one downloaded on
-  // coming back from that sign-in.
-  const [signInMouId, setSignInMouId] = useState(null)
+  // The MOU document loaded for authenticated viewing
   const [readyMou, setReadyMou] = useState(null)
 
   const { isAdminAuthenticated, loading: adminAuthLoading } = useAuth()
@@ -160,11 +158,11 @@ export default function Partners() {
     fetchData()
   }, [])
 
-  // 3.16 Show link to /students instead of a bare alert when sign-in needed.
-  // The signed PDF is for IIT Dharwad accounts (campus sign-in or admin).
+  // The signed PDF is restricted to IIT Dharwad accounts (campus sign-in or admin).
+  // If not signed in, redirect directly to the student login page.
   const handleDownloadMou = useCallback(async (mouId, partnerName, { afterSignIn = false } = {}) => {
     if (!authLoading && !signedIn) {
-      setSignInMouId(mouId)
+      navigate(`/students?next=${encodeURIComponent(`/partners?mou=${mouId}`)}`)
       return
     }
     try {
@@ -173,24 +171,34 @@ export default function Partners() {
       const blob = new Blob([res.data], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
       const fileName = mouFileName(partnerName, mouId)
-      saveFile(url, fileName)
-      if (afterSignIn) {
-        // This download started without a click, which some browsers block,
-        // so the file stays available from a button until the notice closes.
-        setReadyMou({ url, fileName, partnerName })
-      } else {
-        window.URL.revokeObjectURL(url)
+
+      // Open in a new tab so the student can immediately see it
+      if (!afterSignIn) {
+        const opened = window.open(url, '_blank')
+        if (!opened) {
+          saveFile(url, fileName)
+        }
       }
+      setReadyMou({ url, fileName, partnerName })
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
-        setSignInMouId(mouId)
+        navigate(`/students?next=${encodeURIComponent(`/partners?mou=${mouId}`)}`)
       } else {
-        alert('MOU document unavailable: ' + ((await blobErrorMessage(err)) || err.message))
+        const msg = (await blobErrorMessage(err)) || err.message || 'MOU document unavailable'
+        alert('MOU document unavailable: ' + msg)
       }
     } finally {
       setDownloadingId(null)
     }
-  }, [authLoading, signedIn])
+  }, [authLoading, signedIn, navigate])
+
+  const handleMouClick = useCallback((mou, partnerName) => {
+    if (!mou.hasDocument) {
+      alert('No signed document has been uploaded for this MOU yet.')
+      return
+    }
+    handleDownloadMou(mou.id, partnerName)
+  }, [handleDownloadMou])
 
   // Back from signing in (/partners?mou=<id>): download the MOU that asked for it.
   useEffect(() => {
@@ -291,8 +299,6 @@ export default function Partners() {
     ? filteredUniversities
     : filteredUniversities.slice(0, 6)
 
-  const marqueeList = [...partners, ...partners]
-
   return (
     <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
       <HeroSection
@@ -307,30 +313,6 @@ export default function Partners() {
           },
         }}
       />
-
-      {/* Marquee Ticker */}
-      {marqueeList.length > 0 && (
-        <div className="w-full overflow-hidden border-b border-brand-purpleLight/40 bg-white py-3">
-          <div className="marquee-track flex w-max items-center gap-10">
-            {marqueeList.map((partner, idx) => {
-              const code = resolveCountryCode(partner.country, partner.countryCode)
-              return (
-                <div
-                  key={`${partner.id || partner.name}-${idx}`}
-                  className="flex items-center gap-3 text-brand-purpleDark shrink-0 px-2"
-                >
-                  <span className="h-2 w-2 rounded-full bg-brand-marigold" />
-                  <span className="text-xs font-bold uppercase tracking-wider">{partner.name}</span>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <FlagIcon country={partner.country} code={code} />
-                    <span>{partner.country}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Search & Navigation Bar */}
       <section className="max-w-7xl mx-auto px-4 pt-8 pb-2">
@@ -832,7 +814,20 @@ export default function Partners() {
                     return (
                       <div
                         key={mou.id}
-                        className="bg-white rounded-2xl border border-brand-purpleLight/60 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-emerald-600/40"
+                        onClick={() => handleMouClick(mou, partnerName)}
+                        role={mou.hasDocument ? 'button' : undefined}
+                        tabIndex={mou.hasDocument ? 0 : undefined}
+                        onKeyDown={(e) => {
+                          if (mou.hasDocument && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault()
+                            handleMouClick(mou, partnerName)
+                          }
+                        }}
+                        className={`bg-white rounded-2xl border border-brand-purpleLight/60 p-6 shadow-xs transition-all flex flex-col justify-between group ${
+                          mou.hasDocument
+                            ? 'cursor-pointer hover:border-brand-purple hover:shadow-md hover:-translate-y-0.5'
+                            : 'hover:border-gray-200 opacity-90'
+                        }`}
                       >
                         <div>
                           {/* Header: Name and Globe icon */}
@@ -902,20 +897,30 @@ export default function Partners() {
                         </div>
 
                         {/* Download CTA */}
-                        {mou.hasDocument && (
-                          <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                            <span className="text-[11px] text-gray-400">PDF Document on File</span>
-                            <button
-                              type="button"
-                              disabled={downloadingId === mou.id}
-                              onClick={() => handleDownloadMou(mou.id, partnerName)}
-                              className="text-xs font-bold text-brand-purple hover:text-brand-purpleDark hover:underline inline-flex items-center gap-1 cursor-pointer"
-                            >
-                              <RiFileDownloadLine size={14} />
-                              {downloadingId === mou.id ? 'Downloading...' : 'Read / Download MOU'}
-                            </button>
-                          </div>
-                        )}
+                        <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                          {mou.hasDocument ? (
+                            <>
+                              <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Signed PDF Available
+                              </span>
+                              <button
+                                type="button"
+                                disabled={downloadingId === mou.id}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleMouClick(mou, partnerName)
+                                }}
+                                className="text-xs font-bold text-brand-purple hover:text-brand-purpleDark hover:underline inline-flex items-center gap-1 cursor-pointer"
+                              >
+                                <RiFileDownloadLine size={14} />
+                                {downloadingId === mou.id ? 'Loading Document...' : 'View / Download MOU'}
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-gray-400 italic">No document on file</span>
+                          )}
+                        </div>
                       </div>
                     )
                   })}
@@ -997,67 +1002,61 @@ export default function Partners() {
         </>
       )}
 
-      {/* 3.16 Student / Faculty Authentication Required Modal */}
-      {signInMouId && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center border border-gray-100">
-            <div className="w-12 h-12 rounded-full bg-purple-50 text-brand-purple flex items-center justify-center mx-auto mb-4">
-              <RiLinksLine size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Campus Authentication Required</h3>
-            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-              Full bilateral MOU texts and legal documents are protected and available to verified IIT Dharwad students and faculty. Please sign in to download this agreement.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              {/* One Google sign-in serves students and faculty; it brings the
-                  user back here (?next=), and the document then downloads. */}
-              <Link
-                to={`/students?next=${encodeURIComponent(`/partners?mou=${signInMouId}`)}`}
-                className="w-full py-2.5 px-4 bg-brand-purple text-white text-sm font-semibold rounded-xl hover:bg-brand-purpleDark transition-colors text-center shadow-xs"
-              >
-                Sign in with IIT Dharwad Google account
-              </Link>
-              <p className="text-[11px] text-gray-500">
-                Students and faculty use the same sign-in. You will come back to this page and the MOU will download.
-              </p>
-              <button
-                type="button"
-                onClick={() => setSignInMouId(null)}
-                className="text-xs text-gray-500 hover:text-gray-700 py-1.5 cursor-pointer mt-1"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* After signing in: the MOU that asked for it has been downloaded */}
+      {/* MOU Document Viewer / Downloader Modal */}
       {readyMou && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl text-center border border-gray-100">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-4">
-              <RiFileDownloadLine size={24} />
+          <div className="bg-white rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-brand-purple flex items-center justify-center shrink-0">
+                  <RiLinksLine size={20} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                    {readyMou.partnerName ? `MOU: ${readyMou.partnerName}` : 'MOU Document'}
+                  </h3>
+                  <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Verified IIT Dharwad Access
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={readyMou.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-brand-purpleLight/40 hover:bg-brand-purpleLight/70 text-brand-purpleDark text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1"
+                >
+                  <RiExternalLinkLine size={14} />
+                  <span className="hidden sm:inline">Open in</span> New Tab
+                </a>
+                <a
+                  href={readyMou.url}
+                  download={readyMou.fileName}
+                  className="px-3 py-1.5 bg-brand-purple hover:bg-brand-purpleDark text-white text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1 shadow-xs"
+                >
+                  <RiFileDownloadLine size={14} />
+                  Download
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setReadyMou(null)}
+                  className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">MOU Document Downloaded</h3>
-            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-              You are signed in, so the agreement{readyMou.partnerName ? ` with ${readyMou.partnerName}` : ''} has been downloaded. If the download did not start, use the button below.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <a
-                href={readyMou.url}
-                download={readyMou.fileName}
-                className="w-full py-2.5 px-4 bg-brand-purple text-white text-sm font-semibold rounded-xl hover:bg-brand-purpleDark transition-colors text-center shadow-xs"
-              >
-                Download PDF
-              </a>
-              <button
-                type="button"
-                onClick={() => setReadyMou(null)}
-                className="text-xs text-gray-500 hover:text-gray-700 py-1.5 cursor-pointer mt-1"
-              >
-                Close
-              </button>
+
+            {/* Embedded PDF Viewer */}
+            <div className="flex-1 mt-4 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 min-h-[420px] max-h-[68vh]">
+              <iframe
+                src={readyMou.url}
+                className="w-full h-full min-h-[420px]"
+                title="MOU Document Preview"
+              />
             </div>
           </div>
         </div>

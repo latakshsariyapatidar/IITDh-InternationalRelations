@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import apiClient from '../../api/client';
@@ -72,9 +72,18 @@ export default function Landing() {
         <div>
           <img src="/IITDh Logo.svg" alt="IITDh Logo" className="h-20 mx-auto mb-6" />
           <h1 className="text-3xl font-bold text-brand-purpleDark mb-2">Campus Portal</h1>
-          <p className="text-gray-500 text-sm">
-            Please log in with your official IIT Dharwad Google Account to access the student or faculty portal.
-          </p>
+          {from?.includes('mou=') ? (
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-3.5 text-left mt-3">
+              <p className="text-xs font-bold text-brand-purple mb-1">MOU Document Access</p>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Please sign in with your official <strong>@iitdh.ac.in</strong> Google account to view the requested Memorandum of Understanding (MOU).
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">
+              Please log in with your official IIT Dharwad Google Account to access the student or faculty portal.
+            </p>
+          )}
         </div>
 
         <div className="flex justify-center pb-4">

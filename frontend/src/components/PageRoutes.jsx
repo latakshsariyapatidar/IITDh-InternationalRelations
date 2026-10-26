@@ -277,6 +277,7 @@ export default function PageRoutes() {
 
           {/* Student Routes */}
           <Route path="/students" element={<Landing />} />
+          <Route path="/login" element={<Navigate to="/students" replace />} />
           <Route 
             path="/students/apply" 
             element={
