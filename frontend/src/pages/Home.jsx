@@ -4,6 +4,7 @@ import { fetchAllPages } from "../api/fetchAllPages";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../utils/media";
+import PhotoFrame from "../components/ui/PhotoFrame";
 import ArchFrame from "../components/ui/ArchFrame";
 import CTAButton from "../components/ui/CTAButton";
 import { RiArrowRightUpLine, RiMapPinLine, RiDoubleQuotesL } from "@remixicon/react";
@@ -132,7 +133,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* ── Hero: the office's name beside a doorway onto the campus ───────── */}
+      {/* ── Hero: the office's name beside a view of the campus ──────────── */}
       <section className="relative overflow-hidden bg-plum-deep text-white">
         {/* A faint meridian grid: the office faces the rest of the world */}
         <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 700">
@@ -173,7 +174,7 @@ export default function Home() {
           </div>
 
           <div className="md:col-span-5 flex flex-col items-center md:items-end">
-            <ArchFrame className="aspect-[4/5] w-full max-w-[19rem] sm:max-w-[22rem] lg:max-w-[25rem]">
+            <PhotoFrame className="aspect-[4/3] w-full max-w-[30rem]">
               {slideshowImages.map((image, index) => (
                 <div
                   key={image}
@@ -182,9 +183,9 @@ export default function Home() {
                   style={{ backgroundImage: `url(${image})` }}
                 />
               ))}
-            </ArchFrame>
+            </PhotoFrame>
             {/* Slide picker: one short bar per photograph */}
-            <div className="mt-6 flex w-full max-w-[19rem] sm:max-w-[22rem] lg:max-w-[25rem] gap-1.5" role="group" aria-label="Campus photographs">
+            <div className="mt-6 flex w-full max-w-[30rem] gap-1.5" role="group" aria-label="Campus photographs">
               {slideshowImages.map((image, index) => (
                 <button
                   key={image}

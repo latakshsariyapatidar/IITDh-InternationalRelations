@@ -1,7 +1,8 @@
 /**
  * The site's signature frame: an arched doorway. "Dharwad" comes from
  * "Dwarawata" (door town), and the office is the institute's door to the
- * world, so portraits and campus photographs are shown through an arch.
+ * world, so portraits of people are shown through an arch. Campus
+ * photographs use PhotoFrame instead.
  *
  *      ╭───╮ ╮      a saffron outline sits just behind and to the side
  *     │     ││      of the photo, like the edge of a door frame

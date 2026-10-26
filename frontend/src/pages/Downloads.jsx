@@ -1,14 +1,7 @@
 import HeroSection from '../components/HeroSection'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import {
-  RiBookReadLine,
-  RiFilePaper2Line,
-  RiFilePaperLine,
-  RiFileTextLine,
-  RiGlobalLine,
-  RiDownloadLine
-} from '@remixicon/react'
+import { RiDownloadLine } from '@remixicon/react'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
 
@@ -77,17 +70,6 @@ export default function Downloads() {
     return titles[category] || 'Resources'
   }
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      ADMISSION_FORM: <RiFilePaper2Line size={22} />,
-      VISA_GUIDE: <RiGlobalLine size={22} />,
-      MOU_DOCUMENT: <RiFilePaperLine size={22} />,
-      BROCHURE: <RiBookReadLine size={22} />,
-      OTHER: <RiFileTextLine size={22} />,
-    }
-    return icons[category] || <RiFileTextLine size={22} />
-  }
-
   const groupedDownloads = downloads.reduce((acc, current) => {
     const cat = current.category || 'OTHER'
     if (!acc[cat]) acc[cat] = []
@@ -101,7 +83,6 @@ export default function Downloads() {
     items: groupedDownloads[category].map((item) => ({
       name: item.title,
       desc: item.description,
-      icon: getCategoryIcon(category),
       size: item.fileType ? `${item.fileType.toUpperCase()}` : 'PDF',
       fileUrl: item.fileUrl,
     })),
@@ -149,19 +130,16 @@ export default function Downloads() {
                     {section.items.length} {section.items.length === 1 ? 'file' : 'files'}
                   </span>
                 </div>
-                <ul className="divide-y divide-mist overflow-hidden rounded-2xl border border-mist bg-white">
+                <ul className="divide-y divide-mist border-y border-mist">
                   {section.items.map((item, idx) => {
                     const resolvedUrl = resolveMediaUrl(item.fileUrl)
                     return (
-                      <li key={idx} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6">
-                        <div className="flex min-w-0 flex-1 items-start gap-4">
-                          <span aria-hidden="true" className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plum-tint text-plum">{item.icon}</span>
-                          <div className="min-w-0">
-                            <h3 className="text-lg font-medium leading-snug text-plum-deep">{item.name}</h3>
-                            {item.desc && <p className="mt-1 text-sm text-quiet line-clamp-2">{item.desc}</p>}
-                          </div>
+                      <li key={idx} className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:gap-6">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-lg font-medium leading-snug text-plum-deep">{item.name}</h3>
+                          {item.desc && <p className="mt-1 text-sm text-quiet line-clamp-2">{item.desc}</p>}
                         </div>
-                        <div className="flex shrink-0 items-center gap-4 pl-15 sm:pl-0">
+                        <div className="flex shrink-0 items-center gap-4">
                           <span className="text-xs font-semibold text-quiet">{item.size}</span>
                           {resolvedUrl ? (
                             <a

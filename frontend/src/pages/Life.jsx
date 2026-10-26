@@ -1,6 +1,6 @@
 import HeroSection from "../components/HeroSection";
 import SectionHeader from "../components/ui/SectionHeader";
-import ArchFrame from "../components/ui/ArchFrame";
+import PhotoFrame from "../components/ui/PhotoFrame";
 import { RiExternalLinkLine, RiPlaneLine, RiRoadMapLine, RiTrainLine } from "@remixicon/react";
 
 // Distances by road from IIT Dharwad (approximate).
@@ -127,7 +127,7 @@ export default function Life() {
             </div>
           </div>
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <ArchFrame src="/institute/Institute3.jpg" alt="IIT Dharwad campus" className="aspect-[4/5] w-full max-w-[22rem]" />
+            <PhotoFrame src="/institute/Institute3.jpg" alt="IIT Dharwad campus" className="aspect-[4/3] w-full max-w-[28rem]" />
           </div>
         </div>
       </section>

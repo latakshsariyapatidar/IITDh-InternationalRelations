@@ -399,7 +399,7 @@ export default function FacultyPortal() {
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 text-brand-purple flex items-center justify-center">
+                <div className="text-brand-purple">
                   <FileText size={20} />
                 </div>
                 <h4 className="font-bold text-sm text-gray-900 group-hover:text-brand-purple transition-colors">
@@ -421,7 +421,7 @@ export default function FacultyPortal() {
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <div className="text-blue-600">
                   <Users size={20} />
                 </div>
                 <h4 className="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -442,7 +442,7 @@ export default function FacultyPortal() {
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                <div className="text-amber-700">
                   <Mail size={20} />
                 </div>
                 <h4 className="font-bold text-sm text-gray-900 group-hover:text-brand-purple transition-colors">

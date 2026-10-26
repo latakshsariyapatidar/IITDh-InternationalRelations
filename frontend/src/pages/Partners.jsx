@@ -107,14 +107,17 @@ const AGREEMENT_TYPES = [
 const NETWORKS = ["TU9 German universities and the IITs", "Finnish universities and the IITs", "French universities and the IITs"]
 const PROJECTS = ['Erasmus mobility programmes', 'Erasmus capacity building projects', 'SPARC']
 
+// The logo is shown as the institution supplies it, with no tile or ring
+// around it. Without one, the slot keeps the name's initial in quiet type so
+// the names in a list still line up.
 function PartnerLogo({ name, logoUrl, size = 'h-11 w-11' }) {
   return (
-    <div className={`${size} shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-mist flex items-center justify-center font-heading! text-lg text-ink`}>
+    <div className={`${size} shrink-0 flex items-center justify-center font-heading! text-2xl text-ink/35`}>
       {logoUrl ? (
         <img
           src={resolveLogoUrl(logoUrl)}
           alt=""
-          className="h-full w-full object-contain p-1.5"
+          className="h-full w-full object-contain"
           onError={(e) => {
             e.currentTarget.style.display = 'none'
             if (e.currentTarget.nextElementSibling) {
@@ -459,7 +462,7 @@ export default function Partners() {
           <div className="divide-y divide-mist rounded-2xl border border-mist bg-white">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex animate-pulse items-center gap-4 p-5">
-                <div className="h-11 w-11 rounded-xl bg-mist" />
+                <div className="h-11 w-11 rounded-md bg-mist" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-1/3 rounded bg-mist" />
                   <div className="h-3 w-1/5 rounded bg-mist/70" />
@@ -927,11 +930,8 @@ export default function Partners() {
             </div>
 
             {/* Document Details Card */}
-            <div className="my-5 flex items-center gap-4 rounded-xl bg-porcelain p-4 ring-1 ring-inset ring-mist">
-              <div className="flex h-14 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-white text-plum ring-1 ring-inset ring-mist">
-                <span className="text-[10px] font-bold">PDF</span>
-                <RiFileDownloadLine size={18} aria-hidden="true" className="mt-0.5" />
-              </div>
+            <div className="my-5 flex items-start gap-3 border-y border-mist py-4">
+              <RiFileDownloadLine size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-plum" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-plum-deep" title={readyMou.fileName}>
                   {readyMou.fileName}

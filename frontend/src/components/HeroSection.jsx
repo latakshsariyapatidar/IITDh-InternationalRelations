@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import CTAButton from './ui/CTAButton'
-import ArchFrame from './ui/ArchFrame'
+import PhotoFrame from './ui/PhotoFrame'
 
 // Mapping routes to specific high-res institute campus photos
 // Note the exact casing and extensions: Institute1-5 are .jpg (capital I), institute6-10 are .webp (lowercase i)
@@ -25,7 +25,7 @@ const DEFAULT_IMAGE = '/institute/Institute1.jpg'
 
 /**
  * Page header for every inner page: the page's name and purpose on the left,
- * a campus photograph framed as an arch on the right (hidden on phones, where
+ * a campus photograph on the right (hidden on phones, where
  * the content matters more than the picture).
  *
  * `tone="ink"` sets the header on Global Ink, for the pages that face the
@@ -76,10 +76,10 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
         </div>
 
         <div className="hidden md:col-span-5 md:flex md:justify-end">
-          <ArchFrame
+          <PhotoFrame
             src={finalBgImage}
             alt=""
-            className="aspect-[4/5] w-full max-w-[22rem] lg:max-w-[24rem]"
+            className="aspect-[4/3] w-full max-w-[28rem]"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import ArchFrame from '../components/ui/ArchFrame';
+import PhotoFrame from '../components/ui/PhotoFrame';
 import CTAButton from '../components/ui/CTAButton';
 
 export default function NotFound() {
@@ -32,11 +32,9 @@ export default function NotFound() {
           </p>
         </div>
 
-        {/* An empty doorway */}
+        {/* The campus, as a reminder of where you are */}
         <div className="hidden md:col-span-5 md:flex md:justify-end">
-          <ArchFrame className="aspect-[4/5] w-full max-w-[20rem]">
-            <div className="absolute inset-0 bg-gradient-to-b from-plum-tint to-mist" />
-          </ArchFrame>
+          <PhotoFrame src="/institute/Institute1.jpg" className="aspect-[4/3] w-full max-w-[28rem]" />
         </div>
       </div>
     </div>

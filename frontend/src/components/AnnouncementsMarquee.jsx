@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../api/client";
 import { formatDay } from "../utils/formatDay";
-import { RiCalendarLine, RiArrowDownSLine } from "@remixicon/react";
+import { RiArrowDownSLine } from "@remixicon/react";
 
 export default function AnnouncementsMarquee() {
   const [announcements, setAnnouncements] = useState([]);
@@ -20,13 +20,13 @@ export default function AnnouncementsMarquee() {
   }, []);
 
   const renderContentWithLinks = (content) => {
-    if (!content) return 'No content provided.';
+    if (!content) return null;
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = content.split(urlRegex);
     return parts.map((part, i) => {
       if (part.match(urlRegex)) {
         return (
-          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-plum font-medium underline decoration-saffron/60 underline-offset-4 break-all hover:decoration-plum">
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-white underline decoration-saffron/70 underline-offset-4 break-all hover:decoration-saffron">
             {part}
           </a>
         );
@@ -77,36 +77,29 @@ export default function AnnouncementsMarquee() {
         </span>
       </div>
 
-      {/* Dropdown Overlay */}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[95%] max-w-4xl bg-white shadow-[0_24px_48px_-12px_rgb(23_40_56/0.35)] rounded-b-2xl border border-t-0 border-mist opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 max-h-[60vh] overflow-y-auto z-[9999] text-body">
-        <div className="p-6 sm:p-8">
-          <div className="flex items-baseline justify-between gap-4 border-b border-mist pb-4 mb-2">
-            <h3 className="text-2xl font-medium text-plum-deep">Announcements</h3>
-            <span className="text-sm text-quiet nums-tabular">
-              {publicAnnouncements.length} current
-            </span>
-          </div>
-
-          <div className="flex flex-col divide-y divide-mist">
+      {/* The full list hangs from the ticker as one dark drawer, the same
+          width as the page content, so it reads as the bar opening up rather
+          than a card floating over the hero. */}
+      <div className="invisible absolute inset-x-0 top-full z-[9999] border-t border-white/10 bg-ink-deep opacity-0 shadow-[0_28px_40px_-24px_rgb(23_40_56/0.6)] transition-[opacity,visibility] duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 motion-reduce:transition-none">
+        <div className="mx-auto max-h-[60vh] max-w-7xl overflow-y-auto px-4 sm:px-6 lg:px-8">
+          <ol className="divide-y divide-white/10">
             {publicAnnouncements.map((ann) => (
-              <article key={ann.id} className="py-5 flex flex-col gap-2">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h4 className="text-base sm:text-lg font-semibold text-plum-deep leading-snug">{ann.title}</h4>
-                  {/* 3.26: Show publish date */}
-                  {ann.publishedAt && (
-                    <span className="text-xs text-quiet flex items-center gap-1 shrink-0 nums-tabular">
-                      <RiCalendarLine size={13} className="text-saffron-deep" />
-                      {formatDay(ann.publishedAt, 'en-US')}
-                    </span>
+              <li key={ann.id} className="grid gap-x-8 gap-y-1 py-6 sm:grid-cols-[9rem_1fr]">
+                {/* 3.26: Show publish date */}
+                <p className="text-sm text-saffron nums-tabular sm:pt-1">
+                  {ann.publishedAt ? formatDay(ann.publishedAt, 'en-US') : ''}
+                </p>
+                <div className="max-w-3xl">
+                  <h3 className="font-heading! text-xl leading-snug text-white">{ann.title}</h3>
+                  {/* Announcements have no separate link field; links written in
+                      the content are made clickable here. */}
+                  {ann.content && (
+                    <p className="mt-2 text-[0.95rem] leading-relaxed text-white/70 whitespace-pre-wrap">{renderContentWithLinks(ann.content)}</p>
                   )}
                 </div>
-
-                {/* Announcements have no separate link field; links written in
-                    the content are made clickable here. */}
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{renderContentWithLinks(ann.content)}</p>
-              </article>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </div>
     </div>

@@ -72,7 +72,7 @@ export default function Contact() {
                       />
                     </div>
                   ) : (
-                    <div aria-hidden="true" className="flex h-16 w-14 shrink-0 items-end justify-center overflow-hidden rounded-t-full bg-plum-tint pb-2 font-heading! text-2xl text-plum">
+                    <div aria-hidden="true" className="flex h-24 w-20 shrink-0 items-end justify-center overflow-hidden rounded-t-full bg-plum-tint pb-3 font-heading! text-3xl text-plum">
                       {(contact.name || contact.title || '?').replace(/^(Dr|Prof|Mr|Ms|Mrs)\.?\s+/i, '').charAt(0)}
                     </div>
                   )}
