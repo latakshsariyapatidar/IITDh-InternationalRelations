@@ -429,9 +429,15 @@ export default function InboundExchange() {
                   <div><span className="text-xs text-gray-500 block">Country of Residence</span> <p className="font-medium">{selectedApp.countryOfResidence || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Passport Number</span> <p className="font-medium">{selectedApp.passportNumber || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Passport Expiry</span> <p className="font-medium">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Citizenship Number (Nepal / Bhutan)</span> <p className="font-medium">{selectedApp.citizenshipNo || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Home Institution</span> <p className="font-medium">{selectedApp.homeUniversity}</p></div>
                   <div><span className="text-xs text-gray-500 block">Home University Country</span> <p className="font-medium">{selectedApp.homeUniversityCountry || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Home Academic Program</span> <p className="font-medium">{selectedApp.homeProgramOfStudy || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Educational Qualification</span> <p className="font-medium">{selectedApp.highestQualification || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">CGPA / ECTS Obtained</span> <p className="font-medium">{selectedApp.previousGradeOrGPA || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Discipline</span> <p className="font-medium">{{ ENGINEERING: 'Engineering', SCIENCE: 'Science', HUMANITIES: 'Humanities' }[selectedApp.discipline] || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Program Applying For</span> <p className="font-medium">{{ BTECH: 'B.Tech', MSC: 'M.Sc', MS: 'MS', PHD: 'PhD' }[selectedApp.programAppliedFor] || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">English Proficiency</span> <p className="font-medium">{selectedApp.englishTestType ? `${selectedApp.englishTestType} ${selectedApp.englishTestScore || ''}` : '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Program Level</span> <p className="font-medium">{selectedApp.programLevel === 'OTHER' ? `Other (${selectedApp.programLevelOther || ''})` : selectedApp.programLevel}</p></div>
                   <div className="sm:col-span-2"><span className="text-xs text-gray-500 block">Current Address</span> <p className="font-medium">{selectedApp.currentAddress || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Emergency Contact</span> <p className="font-medium">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p></div>
@@ -468,6 +474,8 @@ export default function InboundExchange() {
                     { field: 'statementOfPurpose', label: 'Statement of Purpose' },
                     { field: 'financialProof', label: 'Financial Proof' },
                     { field: 'recommendationLetter', label: 'Recommendation Letter' },
+                    { field: 'cv', label: 'CV' },
+                    { field: 'acceptanceLetter', label: 'Professor Acceptance Letter' },
                   ]
                     // The record stores each upload as `<field>Path` (null when not sent)
                     .filter(doc => Boolean(selectedApp[`${doc.field}Path`]))
@@ -482,7 +490,7 @@ export default function InboundExchange() {
                       </Button>
                     ))}
                   {![
-                    'passportCopy', 'photo', 'academicTranscripts', 'nominationLetter', 'statementOfPurpose', 'financialProof', 'recommendationLetter'
+                    'passportCopy', 'photo', 'academicTranscripts', 'nominationLetter', 'statementOfPurpose', 'financialProof', 'recommendationLetter', 'cv', 'acceptanceLetter'
                   ].some(field => Boolean(selectedApp[`${field}Path`])) && (
                     <span className="text-xs text-gray-500 italic">No document attachments were uploaded.</span>
                   )}

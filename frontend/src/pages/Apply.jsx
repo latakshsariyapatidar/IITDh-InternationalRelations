@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { compressDocument, formatBytes } from '../utils/fileCompressor';
 import { extractValidationErrors } from '../utils/formErrors';
+import { isNepalOrBhutanNational } from '../utils/nationality';
 
 const STEPS = [
   "Personal Details",
@@ -15,12 +16,23 @@ const STEPS = [
   "Documents"
 ];
 
+// The documents the office asks for, all scanned into one PDF. "(if any)"
+// items are optional; the rest are required.
+const DOCUMENT_CHECKLIST = [
+  'Grade cards (10th, 12th and UG)',
+  'Statement of Purpose (SOP)',
+  'Recommendation by two members',
+  'Passport copy (ID card for Nepal / Bhutan nationals)',
+  'Work experience (if any)',
+  'Publications (if any)',
+];
+
 const STEP_FIELD_MAP = {
-  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate'],
+  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate', 'citizenshipNo'],
   1: ['email', 'phone', 'currentAddress', 'emergencyContactName', 'emergencyContactRelation', 'emergencyContactPhone'],
-  2: ['programLevel', 'programLevelOther', 'programAppliedFor', 'intendedIntake', 'highestQualification', 'previousInstitution', 'previousGradeOrGPA', 'englishTestType', 'englishTestScore'],
+  2: ['programLevel', 'programLevelOther', 'programAppliedFor', 'discipline', 'intendedIntake', 'highestQualification', 'previousInstitution', 'previousGradeOrGPA', 'englishTestType', 'englishTestScore', 'greScore'],
   3: ['requiresVisaSponsorship', 'visaCategory'],
-  4: ['passportCopy', 'photo', 'academicTranscripts', 'englishTestScoreCard', 'statementOfPurpose', 'financialProof', 'recommendationLetter']
+  4: ['combinedDocuments', 'photo']
 };
 
 export default function Apply() {
@@ -36,19 +48,20 @@ export default function Apply() {
 
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', dateOfBirth: '', gender: 'PREFER_NOT_TO_SAY',
-    nationality: '', countryOfResidence: '', passportNumber: '', passportExpiryDate: '',
+    nationality: '', countryOfResidence: '', passportNumber: '', passportExpiryDate: '', citizenshipNo: '',
     email: '', phone: '', currentAddress: '', emergencyContactName: '',
     emergencyContactRelation: '', emergencyContactPhone: '',
     // 4.1: Must be UNDERGRADUATE, POSTGRADUATE, PHD, or OTHER
     programLevel: 'UNDERGRADUATE',
     programLevelOther: '',
-    programAppliedFor: '', intendedIntake: '',
+    programAppliedFor: '', discipline: '', intendedIntake: '',
     highestQualification: '', previousInstitution: '', previousGradeOrGPA: '',
-    englishTestType: 'NOT_APPLICABLE', englishTestScore: '', visaCategory: '',
+    englishTestType: '', englishTestScore: '', greScore: '', visaCategory: '',
     requiresVisaSponsorship: 'true',
   });
 
   const [files, setFiles] = useState({});
+  const nepalOrBhutan = isNepalOrBhutanNational(formData.nationality);
   const [compressing, setCompressing] = useState({});
   const [compressionStats, setCompressionStats] = useState({});
 
@@ -145,6 +158,10 @@ export default function Apply() {
         if (key === 'programLevelOther' && formData.programLevel !== 'OTHER') {
           return;
         }
+        // The citizenship number only applies to Nepal and Bhutan nationals.
+        if (key === 'citizenshipNo' && !nepalOrBhutan) {
+          return;
+        }
         if (formData[key] !== undefined && formData[key] !== '') {
           payload.append(key, formData[key]);
         }
@@ -171,7 +188,7 @@ export default function Apply() {
       console.error('Application submission error:', err);
       // 1.8: Backend allows 5 MB for application documents
       if (err.response?.status === 413) {
-        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 5MB.');
+        setError('Uploaded files exceed the server upload limit. The documents PDF must be under 10 MB and the photo under 5 MB.');
         return;
       }
 
@@ -364,14 +381,22 @@ export default function Apply() {
                     <Input required={currentStep === 0} name="countryOfResidence" value={formData.countryOfResidence} onChange={handleInputChange} className={fieldErrors.countryOfResidence ? 'border-red-500' : ''} />
                     {fieldErrors.countryOfResidence && <p className="text-xs text-red-500">{fieldErrors.countryOfResidence}</p>}
                   </div>
+                  {nepalOrBhutan && (
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Citizenship Number <span className="text-red-500">*</span></Label>
+                      <Input required={currentStep === 0} name="citizenshipNo" value={formData.citizenshipNo} onChange={handleInputChange} className={fieldErrors.citizenshipNo ? 'border-red-500' : ''} />
+                      <p className="text-xs text-gray-500">Nepal and Bhutan nationals give their citizenship number. Passport details are optional.</p>
+                      {fieldErrors.citizenshipNo && <p className="text-xs text-red-500">{fieldErrors.citizenshipNo}</p>}
+                    </div>
+                  )}
                   <div className="space-y-2">
-                    <Label>Passport Number <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} className={fieldErrors.passportNumber ? 'border-red-500' : ''} />
+                    <Label>Passport Number {!nepalOrBhutan && <span className="text-red-500">*</span>}</Label>
+                    <Input required={currentStep === 0 && !nepalOrBhutan} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} className={fieldErrors.passportNumber ? 'border-red-500' : ''} />
                     {fieldErrors.passportNumber && <p className="text-xs text-red-500">{fieldErrors.passportNumber}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Passport Expiry Date <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 0} type="date" name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} className={fieldErrors.passportExpiryDate ? 'border-red-500' : ''} />
+                    <Label>Passport Expiry Date {!nepalOrBhutan && <span className="text-red-500">*</span>}</Label>
+                    <Input required={currentStep === 0 && !nepalOrBhutan} type="date" name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} className={fieldErrors.passportExpiryDate ? 'border-red-500' : ''} />
                     {fieldErrors.passportExpiryDate && <p className="text-xs text-red-500">{fieldErrors.passportExpiryDate}</p>}
                   </div>
                 </div>
@@ -491,12 +516,22 @@ export default function Apply() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label>Discipline <span className="text-red-500">*</span></Label>
+                    <select required={currentStep === 2} name="discipline" value={formData.discipline} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                      <option value="">Select a discipline</option>
+                      <option value="ENGINEERING">Engineering</option>
+                      <option value="SCIENCE">Science</option>
+                    </select>
+                    {fieldErrors.discipline && <p className="text-xs text-red-500">{fieldErrors.discipline}</p>}
+                  </div>
+
+                  <div className="space-y-2">
                     <Label>Intended Intake <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 2} name="intendedIntake" value={formData.intendedIntake} onChange={handleInputChange} placeholder="e.g. Autumn 2026" className={fieldErrors.intendedIntake ? 'border-red-500' : ''} />
                     {fieldErrors.intendedIntake && <p className="text-xs text-red-500">{fieldErrors.intendedIntake}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Highest Qualification <span className="text-red-500">*</span></Label>
+                    <Label>Educational Qualification <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 2} name="highestQualification" value={formData.highestQualification} onChange={handleInputChange} className={fieldErrors.highestQualification ? 'border-red-500' : ''} />
                     {fieldErrors.highestQualification && <p className="text-xs text-red-500">{fieldErrors.highestQualification}</p>}
                   </div>
@@ -506,25 +541,28 @@ export default function Apply() {
                     {fieldErrors.previousInstitution && <p className="text-xs text-red-500">{fieldErrors.previousInstitution}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Previous Grade / GPA <span className="text-red-500">*</span></Label>
+                    <Label>Percentage / CGPA Obtained <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 2} name="previousGradeOrGPA" value={formData.previousGradeOrGPA} onChange={handleInputChange} className={fieldErrors.previousGradeOrGPA ? 'border-red-500' : ''} />
                     {fieldErrors.previousGradeOrGPA && <p className="text-xs text-red-500">{fieldErrors.previousGradeOrGPA}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>English Test Type</Label>
-                    <select name="englishTestType" value={formData.englishTestType} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                      <option value="NOT_APPLICABLE">Not Applicable</option>
-                      <option value="IELTS">IELTS</option>
+                    <Label>TOEFL / IELTS <span className="text-red-500">*</span></Label>
+                    <select required={currentStep === 2} name="englishTestType" value={formData.englishTestType} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                      <option value="">Select a test</option>
                       <option value="TOEFL">TOEFL</option>
-                      <option value="PTE">PTE</option>
-                      <option value="DUOLINGO">Duolingo</option>
-                      <option value="NATIVE_SPEAKER">Native Speaker</option>
-                      <option value="OTHER">Other</option>
+                      <option value="IELTS">IELTS</option>
                     </select>
+                    {fieldErrors.englishTestType && <p className="text-xs text-red-500">{fieldErrors.englishTestType}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>English Test Score</Label>
-                    <Input name="englishTestScore" value={formData.englishTestScore} onChange={handleInputChange} />
+                    <Label>TOEFL / IELTS Score <span className="text-red-500">*</span></Label>
+                    <Input required={currentStep === 2} name="englishTestScore" value={formData.englishTestScore} onChange={handleInputChange} className={fieldErrors.englishTestScore ? 'border-red-500' : ''} />
+                    {fieldErrors.englishTestScore && <p className="text-xs text-red-500">{fieldErrors.englishTestScore}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>GRE Score (Optional)</Label>
+                    <Input name="greScore" value={formData.greScore} onChange={handleInputChange} className={fieldErrors.greScore ? 'border-red-500' : ''} />
+                    {fieldErrors.greScore && <p className="text-xs text-red-500">{fieldErrors.greScore}</p>}
                   </div>
                 </div>
               </div>
@@ -548,49 +586,26 @@ export default function Apply() {
 
               {/* STEP 5: Documents */}
               <div className={currentStep === 4 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
-                <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-gray-700">
-                  <p className="font-semibold text-brand-purple">Document Upload Guidelines:</p>
-                  <p>Maximum size: 5 MB per document. Accepted formats: PDF, JPEG, PNG.</p>
+                <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-sm text-gray-700">
+                  <p className="font-semibold text-brand-purple">Scan and attach all documents in a single PDF</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {DOCUMENT_CHECKLIST.map((doc) => <li key={doc}>{doc}</li>)}
+                  </ul>
+                  <p className="mt-3 text-xs text-gray-500">The PDF can be up to 10 MB. Upload the passport photo separately as a JPEG or PNG, up to 5 MB.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                  <div className="space-y-2">
-                    <Label>Passport Copy <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 4 && !files.passportCopy} type="file" name="passportCopy" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('passportCopy')}
-                    {fieldErrors.passportCopy && <p className="text-xs text-red-500">{fieldErrors.passportCopy}</p>}
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>All Documents (single PDF) <span className="text-red-500">*</span></Label>
+                    <Input required={currentStep === 4 && !files.combinedDocuments} type="file" name="combinedDocuments" accept=".pdf,application/pdf" onChange={handleFileChange} className="cursor-pointer" />
+                    {renderFileBadge('combinedDocuments')}
+                    {fieldErrors.combinedDocuments && <p className="text-xs text-red-500">{fieldErrors.combinedDocuments}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Photo <span className="text-red-500">*</span></Label>
+                    <Label>Passport Photo <span className="text-red-500">*</span></Label>
                     <Input required={currentStep === 4 && !files.photo} type="file" name="photo" accept=".jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
                     {renderFileBadge('photo')}
                     {fieldErrors.photo && <p className="text-xs text-red-500">{fieldErrors.photo}</p>}
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label>Academic Transcripts <span className="text-red-500">*</span></Label>
-                    <Input required={currentStep === 4 && !files.academicTranscripts} type="file" name="academicTranscripts" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('academicTranscripts')}
-                    {fieldErrors.academicTranscripts && <p className="text-xs text-red-500">{fieldErrors.academicTranscripts}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>English Test Score Card</Label>
-                    <Input type="file" name="englishTestScoreCard" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('englishTestScoreCard')}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Statement of Purpose</Label>
-                    <Input type="file" name="statementOfPurpose" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('statementOfPurpose')}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Financial Proof</Label>
-                    <Input type="file" name="financialProof" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('financialProof')}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Recommendation Letter</Label>
-                    <Input type="file" name="recommendationLetter" accept=".pdf,.jpeg,.jpg,.png" onChange={handleFileChange} className="cursor-pointer" />
-                    {renderFileBadge('recommendationLetter')}
                   </div>
                 </div>
               </div>

@@ -17,10 +17,10 @@ export function formatBytes(bytes, decimals = 1) {
  * Resizes dimensions to maxWidth/maxHeight while preserving aspect ratio,
  * and re-encodes to high-quality JPEG.
  */
-export async function compressImage(file, { maxWidth = 1600, maxHeight = 1600, quality = 0.78 } = {}) {
+export async function compressImage(file, { maxWidth = 1600, maxHeight = 1600, quality = 0.78, skipBelowBytes = 150 * 1024 } = {}) {
   if (!file || !file.type.startsWith('image/')) return file;
-  // If file is already tiny (less than 150KB) and JPEG, no need to touch it
-  if (file.size <= 150 * 1024 && file.type === 'image/jpeg') return file;
+  // If file is already small enough and JPEG, no need to touch it
+  if (file.size <= skipBelowBytes && file.type === 'image/jpeg') return file;
 
   return new Promise((resolve) => {
     const reader = new FileReader();

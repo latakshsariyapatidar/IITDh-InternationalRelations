@@ -364,15 +364,17 @@ POST /api/v1/applications          Content-Type: multipart/form-data
 Text fields (all required unless marked optional):
 ```ts
 firstName, lastName, dateOfBirth (ISO date), gender ("MALE"|"FEMALE"|"OTHER"|"PREFER_NOT_TO_SAY"),
-nationality, countryOfResidence, passportNumber, passportExpiryDate (ISO date),
+nationality, countryOfResidence,
+passportNumber, passportExpiryDate (ISO date) — required unless a Nepal/Bhutan national,
+citizenshipNo — required for Nepal/Bhutan nationals (nationality "Nepal"/"Nepali"/"Nepalese"/"Bhutan"/"Bhutanese"),
 email, phone, currentAddress, emergencyContactName, emergencyContactPhone,
-emergencyContactRelation (optional), programLevel ("UNDERGRADUATE"|"POSTGRADUATE"|"PHD"),
-programAppliedFor, intendedIntake, highestQualification, previousInstitution, previousGradeOrGPA,
-englishTestType (optional, default "NOT_APPLICABLE"; one of IELTS/TOEFL/PTE/DUOLINGO/NATIVE_SPEAKER/OTHER/NOT_APPLICABLE),
-englishTestScore (optional), visaCategory (optional),
+emergencyContactRelation (optional), programLevel ("UNDERGRADUATE"|"POSTGRADUATE"|"PHD"|"OTHER"),
+programAppliedFor, discipline ("ENGINEERING"|"SCIENCE"), intendedIntake,
+highestQualification, previousInstitution, previousGradeOrGPA,
+englishTestType ("TOEFL"|"IELTS"), englishTestScore, greScore (optional), visaCategory (optional),
 requiresVisaSponsorship (optional, default true — see boolean gotcha below)
 ```
-File fields (all optional, PDF/JPEG/PNG, 10MB each): `passportCopy`, `photo`, `academicTranscripts`, `englishTestScoreCard`, `statementOfPurpose`, `financialProof`, `recommendationLetter`.
+File fields (both required): `combinedDocuments` — one PDF up to 10MB holding grade cards (10th, 12th, UG), SOP, two recommendations, passport copy (or ID card for Nepal/Bhutan), and work experience / publications if any; `photo` — JPEG/PNG. The older per-document fields (`passportCopy`, `academicTranscripts`, `englishTestScoreCard`, `statementOfPurpose`, `financialProof`, `recommendationLetter`) are still accepted and downloadable for applications made before the switch.
 
 Response only returns `{ "data": { "id": "..." } }` — no personal data is echoed back to an anonymous caller.
 
@@ -385,7 +387,7 @@ GET    /api/v1/applications/:id                    full detail including documen
 PATCH  /api/v1/applications/:id                     { status?, reviewNotes? } — status one of
                                                      SUBMITTED/UNDER_REVIEW/DOCUMENTS_REQUESTED/ACCEPTED/REJECTED/WAITLISTED/WITHDRAWN
 DELETE /api/v1/applications/:id                     deletes the row and all its uploaded documents
-GET    /api/v1/applications/:id/documents/:field    stream one document (field = one of the 7 file field names above)
+GET    /api/v1/applications/:id/documents/:field    stream one document (field = one of the 8 file field names above)
 ```
 The document-download route **requires the `Authorization` header** — it cannot be used as a plain `<a href>` link (no header) or via `window.open(url)`. Fetch it with the header, get a blob, then open/download that blob client-side.
 

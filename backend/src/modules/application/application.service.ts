@@ -36,10 +36,32 @@ export async function getById(id: string) {
   return item;
 }
 
+/**
+ * The combined documents PDF and the photo are mandatory. Checked here rather
+ * than in the zod schema because files arrive through multer, not the body; a
+ * rejected request has its uploads discarded by the error handler.
+ */
+function assertRequiredDocuments(files: Partial<Record<DocumentField, Express.Multer.File[]>>) {
+  const details = [];
+  const combined = files.combinedDocuments?.[0];
+  if (!combined) {
+    details.push({ field: "combinedDocuments", message: "Upload all documents as a single PDF" });
+  } else if (combined.mimetype !== "application/pdf") {
+    details.push({ field: "combinedDocuments", message: "The documents file must be a PDF" });
+  }
+  if (!files.photo?.[0]) {
+    details.push({ field: "photo", message: "Upload a passport photo" });
+  }
+  if (details.length > 0) {
+    throw AppError.badRequest("Required documents are missing", details);
+  }
+}
+
 export async function create(
   data: CreateApplicationInput,
   files: Partial<Record<DocumentField, Express.Multer.File[]>>,
 ) {
+  assertRequiredDocuments(files);
   const documentPaths = collectDocumentPaths(PRIVATE_UPLOAD_ROOT, files);
   const application = await repo.createApplication({ ...data, documentPaths });
 

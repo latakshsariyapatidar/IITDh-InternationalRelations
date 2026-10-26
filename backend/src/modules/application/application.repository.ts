@@ -80,6 +80,7 @@ export const createApplication = (
   return prisma.studentApplication.create({
     data: {
       ...rest,
+      combinedDocumentsPath: documentPaths.combinedDocuments,
       passportCopyPath: documentPaths.passportCopy,
       photoPath: documentPaths.photo,
       academicTranscriptsPath: documentPaths.academicTranscripts,

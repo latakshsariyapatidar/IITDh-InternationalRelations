@@ -37,12 +37,60 @@ export async function getById(id: string) {
   return item;
 }
 
+// The photo must be under 50 KB, as the office asks.
+const MAX_PHOTO_BYTES = 50 * 1024;
+
+const PROGRAM_LEVEL_FOR = {
+  BTECH: "UNDERGRADUATE",
+  MSC: "POSTGRADUATE",
+  MS: "POSTGRADUATE",
+  PHD: "PHD",
+} as const;
+
+/**
+ * Files arrive through multer, not the body, so the zod schema cannot require
+ * them. A rejected request has its uploads discarded by the error handler.
+ */
+function assertRequiredDocuments(
+  data: CreateExchangeApplicationInput,
+  files: Partial<Record<ExchangeDocumentField, Express.Multer.File[]>>,
+) {
+  const required: [ExchangeDocumentField, string][] = [
+    ["photo", "Upload a photo"],
+    ["passportCopy", "Upload your passport copy"],
+    ["cv", "Upload your CV"],
+    ["academicTranscripts", "Upload your university transcripts"],
+    ["nominationLetter", "Upload the nomination letter from your home institute"],
+  ];
+  if (data.exchangeType === "RESEARCH_INTERNSHIP") {
+    required.push(["acceptanceLetter", "Upload the acceptance letter from your IITDH professor"]);
+  }
+
+  const details = required
+    .filter(([field]) => !files[field]?.[0])
+    .map(([field, message]) => ({ field, message }));
+
+  const photo = files.photo?.[0];
+  if (photo && photo.size > MAX_PHOTO_BYTES) {
+    details.push({ field: "photo", message: "The photo must be smaller than 50 KB" });
+  }
+
+  if (details.length > 0) {
+    throw AppError.badRequest("Required documents are missing", details);
+  }
+}
+
 export async function create(
   data: CreateExchangeApplicationInput,
   files: Partial<Record<ExchangeDocumentField, Express.Multer.File[]>>,
 ) {
+  assertRequiredDocuments(data, files);
   const documentPaths = collectDocumentPaths(EXCHANGE_UPLOAD_ROOT, files);
-  const application = await repo.createExchangeApplication({ ...data, documentPaths });
+  const application = await repo.createExchangeApplication({
+    ...data,
+    programLevel: PROGRAM_LEVEL_FOR[data.programAppliedFor],
+    documentPaths,
+  });
 
   // Best-effort: a failing reminder must never fail the applicant's submission.
   notifyNewExchangeApplication({

@@ -1,17 +1,9 @@
 import { z } from "zod";
 import { calendarDate, formBoolean } from "../../shared/utils/zodHelpers.js";
 import { updateInboundRecordSchema } from "../inbound-shared/inbound-record.schema.js";
+import { isNepalOrBhutanNational } from "../inbound-shared/nationality.js";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"]);
-const EnglishTestTypeEnum = z.enum([
-  "IELTS",
-  "TOEFL",
-  "PTE",
-  "DUOLINGO",
-  "NATIVE_SPEAKER",
-  "OTHER",
-  "NOT_APPLICABLE",
-]);
 const ApplicationStatusEnum = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
@@ -25,6 +17,10 @@ const ApplicationStatusEnum = z.enum([
 // "Other (please specify)". The course catalogue (Program) keeps its own
 // three-value enum and never accepts OTHER.
 const ProgramLevelEnum = z.enum(["UNDERGRADUATE", "POSTGRADUATE", "PHD", "OTHER"]);
+const DisciplineEnum = z.enum(["ENGINEERING", "SCIENCE"]);
+// TOEFL or IELTS is mandatory; the other values of the shared EnglishTestType
+// enum remain only for applications submitted before that rule.
+const AdmissionEnglishTestEnum = z.enum(["TOEFL", "IELTS"]);
 
 export const createApplicationSchema = z
   .object({
@@ -34,8 +30,9 @@ export const createApplicationSchema = z
     gender: GenderEnum,
     nationality: z.string().trim().min(1).max(100),
     countryOfResidence: z.string().trim().min(1).max(100),
-    passportNumber: z.string().trim().min(1).max(50),
-    passportExpiryDate: calendarDate(),
+    passportNumber: z.string().trim().min(1).max(50).optional(),
+    passportExpiryDate: calendarDate().optional(),
+    citizenshipNo: z.string().trim().min(1).max(100).optional(),
     email: z.string().trim().email().max(255),
     phone: z.string().trim().min(1).max(50),
     currentAddress: z.string().trim().min(1),
@@ -46,12 +43,14 @@ export const createApplicationSchema = z
     programLevel: ProgramLevelEnum,
     programLevelOther: z.string().trim().max(200).optional(),
     programAppliedFor: z.string().trim().min(1).max(200),
+    discipline: DisciplineEnum,
     intendedIntake: z.string().trim().min(1).max(50),
     highestQualification: z.string().trim().min(1).max(200),
     previousInstitution: z.string().trim().min(1).max(300),
     previousGradeOrGPA: z.string().trim().min(1).max(100),
-    englishTestType: EnglishTestTypeEnum.default("NOT_APPLICABLE"),
-    englishTestScore: z.string().trim().max(50).optional(),
+    englishTestType: AdmissionEnglishTestEnum,
+    englishTestScore: z.string().trim().min(1).max(50),
+    greScore: z.string().trim().max(50).optional(),
 
     visaCategory: z.string().trim().max(100).optional(),
     // NOT z.coerce.boolean(). This body arrives through multer as multipart
@@ -67,6 +66,23 @@ export const createApplicationSchema = z
         path: ["programLevelOther"],
         message: "Please specify the program level",
       });
+    }
+
+    if (isNepalOrBhutanNational(data.nationality)) {
+      if (!data.citizenshipNo) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["citizenshipNo"],
+          message: "Citizenship number is required for Nepal and Bhutan nationals",
+        });
+      }
+    } else {
+      if (!data.passportNumber) {
+        ctx.addIssue({ code: "custom", path: ["passportNumber"], message: "Passport number is required" });
+      }
+      if (!data.passportExpiryDate) {
+        ctx.addIssue({ code: "custom", path: ["passportExpiryDate"], message: "Passport expiry date is required" });
+      }
     }
   });
 
@@ -84,6 +100,7 @@ export const applicationIdSchema = z.object({ id: z.string().uuid("Invalid ID") 
 export const documentFieldParamSchema = z.object({
   id: z.string().uuid("Invalid ID"),
   field: z.enum([
+    "combinedDocuments",
     "passportCopy",
     "photo",
     "academicTranscripts",

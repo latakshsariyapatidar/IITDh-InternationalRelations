@@ -411,6 +411,7 @@ export default function Applications() {
                   <div><span className="text-xs text-gray-500 block">Country of Residence</span> <p className="font-medium">{selectedApp.countryOfResidence || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Passport Number</span> <p className="font-medium">{selectedApp.passportNumber || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Passport Expiry</span> <p className="font-medium">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Citizenship Number (Nepal / Bhutan)</span> <p className="font-medium">{selectedApp.citizenshipNo || '—'}</p></div>
                   <div className="sm:col-span-2"><span className="text-xs text-gray-500 block">Current Address</span> <p className="font-medium">{selectedApp.currentAddress || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Emergency Contact</span> <p className="font-medium">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p></div>
                   <div><span className="text-xs text-gray-500 block">Submitted On</span> <p className="font-medium">{selectedApp.submittedAt ? new Date(selectedApp.submittedAt).toLocaleDateString() : '—'}</p></div>
@@ -423,12 +424,14 @@ export default function Applications() {
                     <p className="font-medium">{selectedApp.programLevel === 'OTHER' ? `Other (${selectedApp.programLevelOther || ''})` : selectedApp.programLevel}</p>
                   </div>
                   <div><span className="text-xs text-gray-500 block">Program Applied For</span> <p className="font-medium">{selectedApp.programAppliedFor}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Discipline</span> <p className="font-medium">{selectedApp.discipline === 'ENGINEERING' ? 'Engineering' : selectedApp.discipline === 'SCIENCE' ? 'Science' : '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Intended Intake</span> <p className="font-medium">{selectedApp.intendedIntake}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Highest Qualification</span> <p className="font-medium">{selectedApp.highestQualification || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Educational Qualification</span> <p className="font-medium">{selectedApp.highestQualification || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Previous Institution</span> <p className="font-medium">{selectedApp.previousInstitution || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Previous Grade / GPA</span> <p className="font-medium">{selectedApp.previousGradeOrGPA || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">Percentage / CGPA</span> <p className="font-medium">{selectedApp.previousGradeOrGPA || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">English Test</span> <p className="font-medium">{selectedApp.englishTestType || 'N/A'}</p></div>
                   <div><span className="text-xs text-gray-500 block">English Test Score</span> <p className="font-medium">{selectedApp.englishTestScore || '—'}</p></div>
+                  <div><span className="text-xs text-gray-500 block">GRE Score</span> <p className="font-medium">{selectedApp.greScore || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Visa Category</span> <p className="font-medium">{selectedApp.visaCategory || '—'}</p></div>
                   <div><span className="text-xs text-gray-500 block">Requires Visa Sponsorship</span> <p className="font-medium">{selectedApp.requiresVisaSponsorship ? 'Yes' : 'No'}</p></div>
                 </div>
@@ -439,6 +442,9 @@ export default function Applications() {
                 <h4 className="font-semibold text-gray-800 mb-3">Applicant Documents</h4>
                 <div className="flex flex-wrap gap-2">
                   {[
+                    { field: 'combinedDocuments', label: 'All Documents (PDF)' },
+                    // Separate uploads from applications made before the form
+                    // switched to one combined PDF.
                     { field: 'passportCopy', label: 'Passport Copy' },
                     { field: 'photo', label: 'Photo' },
                     { field: 'academicTranscripts', label: 'Academic Transcripts' },
@@ -460,7 +466,7 @@ export default function Applications() {
                       </Button>
                     ))}
                   {![
-                    'passportCopy', 'photo', 'academicTranscripts', 'englishTestScoreCard', 'statementOfPurpose', 'financialProof', 'recommendationLetter'
+                    'combinedDocuments', 'passportCopy', 'photo', 'academicTranscripts', 'englishTestScoreCard', 'statementOfPurpose', 'financialProof', 'recommendationLetter'
                   ].some(field => Boolean(selectedApp[`${field}Path`])) && (
                     <span className="text-xs text-gray-500 italic">No document attachments were uploaded.</span>
                   )}

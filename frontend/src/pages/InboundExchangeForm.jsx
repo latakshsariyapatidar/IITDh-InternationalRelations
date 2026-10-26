@@ -5,6 +5,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { compressDocument, formatBytes } from '../utils/fileCompressor';
 import { extractValidationErrors } from '../utils/formErrors';
+import { isNepalOrBhutanNational } from '../utils/nationality';
 
 const STEPS = [
   "Personal Details",
@@ -14,18 +15,28 @@ const STEPS = [
   "Documents"
 ];
 
+// The photo must be under 50 KB, as the office asks.
+const MAX_PHOTO_BYTES = 50 * 1024;
+
+// The passport must be valid for at least six months from today.
+const minimumPassportExpiry = () => {
+  const date = new Date();
+  date.setMonth(date.getMonth() + 6);
+  return date.toISOString().slice(0, 10);
+};
+
 const STEP_FIELD_MAP = {
-  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate'],
+  0: ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality', 'countryOfResidence', 'passportNumber', 'passportExpiryDate', 'citizenshipNo'],
   1: ['email', 'phone', 'currentAddress', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'],
-  2: ['homeUniversity', 'homeUniversityCountry', 'homeProgramOfStudy', 'programLevel', 'programLevelOther'],
+  2: ['homeUniversity', 'homeUniversityCountry', 'homeProgramOfStudy', 'highestQualification', 'previousGradeOrGPA', 'discipline', 'programAppliedFor', 'englishTestType', 'englishTestScore'],
   3: ['exchangeType', 'exchangeTypeOther', 'proposedDepartment', 'proposedFacultyHost', 'intendedStayFrom', 'intendedStayTo', 'purposeOfVisit', 'visaCategory', 'requiresVisaSponsorship'],
-  4: ['passportCopy', 'photo', 'academicTranscripts', 'englishProficiencyProof', 'statementOfPurpose', 'homeUniversityNoc', 'recommendationLetter']
+  4: ['photo', 'passportCopy', 'cv', 'academicTranscripts', 'nominationLetter', 'acceptanceLetter']
 };
 
 const STEP_DESCRIPTIONS = [
   "Please provide your personal and passport identification details.",
   "Provide your contact information and emergency contact person.",
-  "Tell us about your home university and current program of study.",
+  "Tell us about your home university, your qualifications and the programme you are applying for.",
   "Specify your desired mobility track, department, timeline, and stay details at IIT Dharwad.",
   "Upload clear PDF or image copies of the required supporting documents."
 ];
@@ -39,6 +50,7 @@ const INITIAL_FORM_STATE = {
   countryOfResidence: '',
   passportNumber: '',
   passportExpiryDate: '',
+  citizenshipNo: '',
 
   email: '',
   phone: '',
@@ -50,8 +62,12 @@ const INITIAL_FORM_STATE = {
   homeUniversity: '',
   homeUniversityCountry: '',
   homeProgramOfStudy: '',
-  programLevel: 'UNDERGRADUATE',
-  programLevelOther: '',
+  highestQualification: '',
+  previousGradeOrGPA: '',
+  discipline: '',
+  programAppliedFor: '',
+  englishTestType: '',
+  englishTestScore: '',
 
   exchangeType: 'SEMESTER_EXCHANGE',
   exchangeTypeOther: '',
@@ -75,6 +91,10 @@ export default function InboundExchangeForm() {
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [referenceId, setReferenceId] = useState(null);
+  const nepalOrBhutan = isNepalOrBhutanNational(formData.nationality);
+  // A professor's acceptance letter is needed for research, project work or
+  // an internship.
+  const needsAcceptanceLetter = formData.exchangeType === 'RESEARCH_INTERNSHIP';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -94,7 +114,29 @@ export default function InboundExchangeForm() {
       const originalFile = fileList[0];
       setCompressing(prev => ({ ...prev, [name]: true }));
       try {
-        const compressed = await compressDocument(originalFile);
+        const compressed = name === 'photo'
+          ? await compressDocument(originalFile, { maxWidth: 400, maxHeight: 500, quality: 0.7, skipBelowBytes: MAX_PHOTO_BYTES })
+          : await compressDocument(originalFile);
+        if (name === 'photo' && compressed.size > MAX_PHOTO_BYTES) {
+          setFiles(prev => {
+            const copy = { ...prev };
+            delete copy.photo;
+            return copy;
+          });
+          setCompressionStats(prev => {
+            const copy = { ...prev };
+            delete copy.photo;
+            return copy;
+          });
+          setFieldErrors(prev => ({ ...prev, photo: `The photo is ${formatBytes(compressed.size)} after compression. Please choose a photo smaller than 50 KB.` }));
+          return;
+        }
+        setFieldErrors(prev => {
+          if (!prev[name]) return prev;
+          const next = { ...prev };
+          delete next[name];
+          return next;
+        });
         setFiles(prev => ({ ...prev, [name]: compressed }));
         setCompressionStats(prev => ({
           ...prev,
@@ -158,16 +200,17 @@ export default function InboundExchangeForm() {
     }
 
     // Required files check on Step 5
-    if (!files.passportCopy) {
-      setError("Please upload your Passport Copy.");
-      return;
-    }
-    if (!files.photo) {
-      setError("Please upload your Recent Photograph.");
-      return;
-    }
-    if (!files.academicTranscripts) {
-      setError("Please upload your Academic Transcripts.");
+    const requiredFiles = [
+      ['photo', 'Please upload your photo.'],
+      ['passportCopy', 'Please upload your passport copy.'],
+      ['cv', 'Please upload your CV.'],
+      ['academicTranscripts', 'Please upload your university transcripts.'],
+      ['nominationLetter', 'Please upload the nomination letter from your home institute.'],
+      ...(needsAcceptanceLetter ? [['acceptanceLetter', 'Please upload the acceptance letter from your IITDH professor.']] : []),
+    ];
+    const missing = requiredFiles.find(([name]) => !files[name]);
+    if (missing) {
+      setError(missing[1]);
       return;
     }
 
@@ -178,6 +221,8 @@ export default function InboundExchangeForm() {
     try {
       const payload = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
+        // The citizenship number only applies to Nepal and Bhutan nationals.
+        if (key === 'citizenshipNo' && !nepalOrBhutan) return;
         if (value !== undefined && value !== '') {
           payload.append(key, value);
         }
@@ -203,7 +248,7 @@ export default function InboundExchangeForm() {
       console.error(err);
       // 1.8 Backend allows 5 MB for application documents
       if (err.response?.status === 413) {
-        setError('Uploaded files exceed the server upload limit. Please ensure each file is compressed and under 5MB.');
+        setError('Uploaded files exceed the server upload limit. Each document must be under 5 MB and the photo under 50 KB.');
         return;
       }
 
@@ -254,7 +299,7 @@ export default function InboundExchangeForm() {
     return null;
   };
 
-  const renderFileInput = (name, label, required = false) => {
+  const renderFileInput = (name, label, required = false, accept = '.pdf,.jpg,.jpeg,.png', hint = null) => {
     return (
       <div className={`space-y-2 border border-dashed p-4 rounded-xl transition-colors bg-gray-50/50 ${fieldErrors[name] ? 'border-red-500 bg-red-50/20' : 'border-gray-300 hover:border-brand-purple'}`}>
         <Label className="flex justify-between items-center text-sm font-semibold text-gray-700">
@@ -265,9 +310,10 @@ export default function InboundExchangeForm() {
           name={name} 
           required={currentStep === 4 && required && !files[name]} 
           onChange={handleFileChange}
-          accept=".pdf,.jpg,.jpeg,.png"
+          accept={accept}
           className="cursor-pointer bg-white file:bg-brand-purple file:text-white file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 file:text-xs hover:file:bg-brand-purpleDark"
         />
+        {hint && <p className="text-xs text-gray-500">{hint}</p>}
         {fieldErrors[name] && <p className="text-xs text-red-500">{fieldErrors[name]}</p>}
         {renderFileBadge(name)}
       </div>
@@ -416,13 +462,24 @@ export default function InboundExchangeForm() {
                       <Label>Country of Residence <span className="text-red-500">*</span></Label>
                       <Input required={currentStep === 0} name="countryOfResidence" value={formData.countryOfResidence} onChange={handleInputChange} />
                     </div>
+                    {nepalOrBhutan && (
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>Citizenship Number <span className="text-red-500">*</span></Label>
+                        <Input required={currentStep === 0} name="citizenshipNo" value={formData.citizenshipNo} onChange={handleInputChange} />
+                        <p className="text-xs text-gray-500">Nepal and Bhutan nationals give their citizenship number. Passport details are optional.</p>
+                        {fieldErrors.citizenshipNo && <p className="text-xs text-red-500">{fieldErrors.citizenshipNo}</p>}
+                      </div>
+                    )}
                     <div className="space-y-2">
-                      <Label>Passport Number <span className="text-red-500">*</span></Label>
-                      <Input required={currentStep === 0} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} />
+                      <Label>Passport Number {!nepalOrBhutan && <span className="text-red-500">*</span>}</Label>
+                      <Input required={currentStep === 0 && !nepalOrBhutan} name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} />
+                      {fieldErrors.passportNumber && <p className="text-xs text-red-500">{fieldErrors.passportNumber}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label>Passport Expiry Date <span className="text-red-500">*</span></Label>
-                      <Input required={currentStep === 0} type="date" name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} />
+                      <Label>Passport Expiry Date {!nepalOrBhutan && <span className="text-red-500">*</span>}</Label>
+                      <Input required={currentStep === 0 && !nepalOrBhutan} type="date" min={minimumPassportExpiry()} name="passportExpiryDate" value={formData.passportExpiryDate} onChange={handleInputChange} />
+                      <p className="text-xs text-gray-500">Must be valid for at least 6 months from today.</p>
+                      {fieldErrors.passportExpiryDate && <p className="text-xs text-red-500">{fieldErrors.passportExpiryDate}</p>}
                     </div>
                   </div>
                 </div>
@@ -473,25 +530,51 @@ export default function InboundExchangeForm() {
                       <Input required={currentStep === 2} name="homeProgramOfStudy" value={formData.homeProgramOfStudy} onChange={handleInputChange} placeholder="e.g. B.S. in Computer Science" />
                     </div>
                     <div className="space-y-2">
-                      <Label>Current Level of Study <span className="text-red-500">*</span></Label>
-                      <select 
-                        name="programLevel" 
-                        value={formData.programLevel} 
-                        onChange={handleInputChange}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      >
-                        <option value="UNDERGRADUATE">Undergraduate</option>
-                        <option value="POSTGRADUATE">Postgraduate / Masters</option>
-                        <option value="PHD">Ph.D. Scholar</option>
-                        <option value="OTHER">Other</option>
-                      </select>
+                      <Label>Educational Qualification <span className="text-red-500">*</span></Label>
+                      <Input required={currentStep === 2} name="highestQualification" value={formData.highestQualification} onChange={handleInputChange} placeholder="e.g. Higher secondary (12th grade)" />
+                      {fieldErrors.highestQualification && <p className="text-xs text-red-500">{fieldErrors.highestQualification}</p>}
                     </div>
-                    {formData.programLevel === 'OTHER' && (
-                      <div className="space-y-2 md:col-span-2">
-                        <Label>Specify Current Level of Study <span className="text-red-500">*</span></Label>
-                        <Input required={currentStep === 2 && formData.programLevel === 'OTHER'} name="programLevelOther" value={formData.programLevelOther} onChange={handleInputChange} placeholder="e.g. Postdoctoral Researcher" />
-                      </div>
-                    )}
+                    <div className="space-y-2">
+                      <Label>CGPA / ECTS Obtained <span className="text-red-500">*</span></Label>
+                      <Input required={currentStep === 2} name="previousGradeOrGPA" value={formData.previousGradeOrGPA} onChange={handleInputChange} placeholder="e.g. 7.8 CGPA" />
+                      <p className="text-xs text-gray-500">Minimum 60%, 6.0 CGPA or 3 ECTS.</p>
+                      {fieldErrors.previousGradeOrGPA && <p className="text-xs text-red-500">{fieldErrors.previousGradeOrGPA}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Discipline <span className="text-red-500">*</span></Label>
+                      <select required={currentStep === 2} name="discipline" value={formData.discipline} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                        <option value="">Select a discipline</option>
+                        <option value="ENGINEERING">Engineering</option>
+                        <option value="SCIENCE">Science</option>
+                        <option value="HUMANITIES">Humanities</option>
+                      </select>
+                      {fieldErrors.discipline && <p className="text-xs text-red-500">{fieldErrors.discipline}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Program Applying For <span className="text-red-500">*</span></Label>
+                      <select required={currentStep === 2} name="programAppliedFor" value={formData.programAppliedFor} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                        <option value="">Select a program</option>
+                        <option value="BTECH">B.Tech</option>
+                        <option value="MSC">M.Sc</option>
+                        <option value="MS">MS</option>
+                        <option value="PHD">PhD</option>
+                      </select>
+                      {fieldErrors.programAppliedFor && <p className="text-xs text-red-500">{fieldErrors.programAppliedFor}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>English Proficiency (TOEFL / IELTS) <span className="text-red-500">*</span></Label>
+                      <select required={currentStep === 2} name="englishTestType" value={formData.englishTestType} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                        <option value="">Select a test</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="IELTS">IELTS</option>
+                      </select>
+                      {fieldErrors.englishTestType && <p className="text-xs text-red-500">{fieldErrors.englishTestType}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>TOEFL / IELTS Score <span className="text-red-500">*</span></Label>
+                      <Input required={currentStep === 2} name="englishTestScore" value={formData.englishTestScore} onChange={handleInputChange} />
+                      {fieldErrors.englishTestScore && <p className="text-xs text-red-500">{fieldErrors.englishTestScore}</p>}
+                    </div>
                   </div>
                 </div>
 
@@ -568,13 +651,12 @@ export default function InboundExchangeForm() {
                 {/* STEP 5: Documents */}
                 <div className={currentStep === 4 ? 'block animate-in fade-in slide-in-from-right-4 duration-500' : 'hidden'}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {renderFileInput('passportCopy', 'Passport Copy (Info pages)', true)}
-                    {renderFileInput('photo', 'Recent Passport-size Photograph', true)}
-                    {renderFileInput('academicTranscripts', 'Academic Transcripts', true)}
-                    {renderFileInput('nominationLetter', 'Nomination Letter from Home University')}
-                    {renderFileInput('statementOfPurpose', 'Statement of Purpose / Research Proposal')}
-                    {renderFileInput('financialProof', 'Proof of Financial Support')}
-                    {renderFileInput('recommendationLetter', 'Letter of Recommendation')}
+                    {renderFileInput('photo', 'Photo', true, '.jpg,.jpeg,.png', 'Must be smaller than 50 KB.')}
+                    {renderFileInput('passportCopy', nepalOrBhutan ? 'Passport or Citizenship ID Card' : 'Official Passport', true, undefined, nepalOrBhutan ? null : 'Valid for at least 6 months.')}
+                    {renderFileInput('cv', 'Curriculum Vitae (CV)', true)}
+                    {renderFileInput('academicTranscripts', 'University Transcripts', true)}
+                    {renderFileInput('nominationLetter', 'Nomination Letter from Home Institute', true)}
+                    {renderFileInput('acceptanceLetter', 'Acceptance Letter from IITDH Professor', needsAcceptanceLetter, undefined, 'For research, project work or internship.')}
                   </div>
                 </div>
 

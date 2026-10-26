@@ -1,5 +1,5 @@
 import { prisma } from "../../config/prisma.js";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, ProgramLevel } from "@prisma/client";
 import type {
   CreateExchangeApplicationInput,
   UpdateExchangeApplicationStatusInput,
@@ -80,7 +80,10 @@ export const findExchangeApplicationById = (id: string) =>
   prisma.inboundExchangeApplication.findUnique({ where: { id } });
 
 export const createExchangeApplication = (
-  data: CreateExchangeApplicationInput & { documentPaths: Record<string, string> },
+  data: CreateExchangeApplicationInput & {
+    programLevel: ProgramLevel;
+    documentPaths: Record<string, string>;
+  },
 ) => {
   const { documentPaths, ...rest } = data;
   return prisma.inboundExchangeApplication.create({
@@ -93,6 +96,8 @@ export const createExchangeApplication = (
       statementOfPurposePath: documentPaths.statementOfPurpose,
       financialProofPath: documentPaths.financialProof,
       recommendationLetterPath: documentPaths.recommendationLetter,
+      cvPath: documentPaths.cv,
+      acceptanceLetterPath: documentPaths.acceptanceLetter,
     },
   });
 };

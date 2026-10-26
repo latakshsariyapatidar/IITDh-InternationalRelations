@@ -331,6 +331,14 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
+// Degree admission offers Engineering and Science; inbound exchange also
+// Humanities.
+enum Discipline {
+  ENGINEERING
+  SCIENCE
+  HUMANITIES
+}
+
 model StudentApplication {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
@@ -341,8 +349,11 @@ model StudentApplication {
   gender                   Gender
   nationality              String   @db.VarChar(100)
   countryOfResidence       String   @db.VarChar(100)
-  passportNumber           String   @db.VarChar(50)
-  passportExpiryDate       DateTime @db.Date
+  // Required for everyone except Nepal and Bhutan nationals, who give their
+  // citizenship number (citizenshipNo, below) instead. Enforced in
+  // application.schema.ts.
+  passportNumber           String?   @db.VarChar(50)
+  passportExpiryDate       DateTime? @db.Date
   email                    String   @db.VarChar(255)
   phone                    String   @db.VarChar(50)
   currentAddress           String   @db.Text
@@ -355,18 +366,24 @@ model StudentApplication {
   // Set only when programLevel is OTHER — the "others (please specify)" box.
   programLevelOther    String?         @db.VarChar(200)
   programAppliedFor    String          @db.VarChar(200)
+  // Null only on applications submitted before the field was added.
+  discipline           Discipline?
   intendedIntake       String          @db.VarChar(50)
   highestQualification String          @db.VarChar(200)
   previousInstitution  String          @db.VarChar(300)
   previousGradeOrGPA   String          @db.VarChar(100)
   englishTestType      EnglishTestType @default(NOT_APPLICABLE)
   englishTestScore     String?         @db.VarChar(50)
+  greScore             String?         @db.VarChar(50)
 
   // Visa / immigration
   visaCategory            String? @db.VarChar(100)
   requiresVisaSponsorship Boolean @default(true)
 
-  // Uploaded documents — private storage, server-relative paths only
+  // Uploaded documents — private storage, server-relative paths only.
+  // The form now takes every document as one PDF (combinedDocuments) plus
+  // the photo; the other columns hold uploads from before that change.
+  combinedDocumentsPath    String? @db.VarChar(500)
   passportCopyPath         String? @db.VarChar(500)
   photoPath                String? @db.VarChar(500)
   academicTranscriptsPath  String? @db.VarChar(500)
@@ -385,6 +402,7 @@ model StudentApplication {
   dateOfJoining        DateTime? @db.Date
   exitDate             DateTime? @db.Date
   facultyAdvisor       String?   @db.VarChar(200)
+  // Given by the applicant at submission when a Nepal or Bhutan national.
   citizenshipNo        String?   @db.VarChar(100)
   passportIssueDate    DateTime? @db.Date
   passportPlaceOfIssue String?   @db.VarChar(200)
@@ -437,8 +455,11 @@ model InboundExchangeApplication {
   gender                   Gender
   nationality              String   @db.VarChar(100)
   countryOfResidence       String   @db.VarChar(100)
-  passportNumber           String   @db.VarChar(50)
-  passportExpiryDate       DateTime @db.Date
+  // Required for everyone except Nepal and Bhutan nationals, who give their
+  // citizenship number (citizenshipNo, below) instead. Enforced in
+  // inbound-exchange.schema.ts.
+  passportNumber           String?   @db.VarChar(50)
+  passportExpiryDate       DateTime? @db.Date
   email                    String   @db.VarChar(255)
   phone                    String   @db.VarChar(50)
   currentAddress           String   @db.Text
@@ -450,6 +471,14 @@ model InboundExchangeApplication {
   homeUniversity        String       @db.VarChar(300)
   homeUniversityCountry String       @db.VarChar(100)
   homeProgramOfStudy    String       @db.VarChar(200)
+  // Null only on applications submitted before these fields were added.
+  highestQualification  String?      @db.VarChar(200)
+  previousGradeOrGPA    String?      @db.VarChar(100)
+  discipline            Discipline?
+  // BTECH | MSC | MS | PHD; programLevel is derived from it.
+  programAppliedFor     String?      @db.VarChar(20)
+  englishTestType       EnglishTestType?
+  englishTestScore      String?      @db.VarChar(50)
   exchangeType          ExchangeType
   exchangeTypeOther     String?      @db.VarChar(200)
   programLevel          ProgramLevel
@@ -472,6 +501,9 @@ model InboundExchangeApplication {
   statementOfPurposePath   String? @db.VarChar(500)
   financialProofPath       String? @db.VarChar(500)
   recommendationLetterPath String? @db.VarChar(500)
+  cvPath                   String? @db.VarChar(500)
+  // Acceptance letter from the IITDH professor hosting a research internship.
+  acceptanceLetterPath     String? @db.VarChar(500)
 
   // Office record — the "Internship Sem exch Program" register columns.
   rollNumber           String?   @db.VarChar(50)
@@ -481,6 +513,7 @@ model InboundExchangeApplication {
   dateOfJoining        DateTime? @db.Date
   exitDate             DateTime? @db.Date
   facultyAdvisor       String?   @db.VarChar(200)
+  // Given by the applicant at submission when a Nepal or Bhutan national.
   citizenshipNo        String?   @db.VarChar(100)
   passportIssueDate    DateTime? @db.Date
   passportPlaceOfIssue String?   @db.VarChar(200)

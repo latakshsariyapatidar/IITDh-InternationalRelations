@@ -55,6 +55,7 @@ export interface InboundExportVariant {
 }
 
 export const ADMISSION_DOCUMENT_COLUMNS: readonly InboundDocumentColumn[] = [
+  { field: "combinedDocuments", pathColumn: "combinedDocumentsPath", header: "All Documents (PDF)" },
   { field: "passportCopy", pathColumn: "passportCopyPath", header: "Passport Copy" },
   { field: "photo", pathColumn: "photoPath", header: "Photo" },
   { field: "academicTranscripts", pathColumn: "academicTranscriptsPath", header: "Transcripts" },
@@ -72,6 +73,8 @@ export const EXCHANGE_DOCUMENT_COLUMNS: readonly InboundDocumentColumn[] = [
   { field: "statementOfPurpose", pathColumn: "statementOfPurposePath", header: "Statement of Purpose" },
   { field: "financialProof", pathColumn: "financialProofPath", header: "Financial Proof" },
   { field: "recommendationLetter", pathColumn: "recommendationLetterPath", header: "Recommendation Letter" },
+  { field: "cv", pathColumn: "cvPath", header: "CV" },
+  { field: "acceptanceLetter", pathColumn: "acceptanceLetterPath", header: "Professor Acceptance Letter" },
 ];
 
 export const ADMISSION_EXPORT_VARIANT: InboundExportVariant = {
@@ -97,8 +100,9 @@ export interface InboundExportRecord {
   lastName: string;
   nationality: string;
   phone: string;
-  passportNumber: string;
-  passportExpiryDate: Date;
+  // Null for Nepal and Bhutan nationals, who give a citizenship number instead.
+  passportNumber: string | null;
+  passportExpiryDate: Date | null;
   rollNumber: string | null;
   instituteEmail: string | null;
   sponsoringAgency: string | null;
