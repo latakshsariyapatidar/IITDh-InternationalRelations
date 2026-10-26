@@ -88,41 +88,18 @@ body::-webkit-scrollbar,
   --color-neutral-lavenderMuted: #9a8ba6;
   --font-sans: "Hanken Grotesk", system-ui, sans-serif;
 
-  /* The hero's scroll-down cue (ScrollDownArrow.jsx): a highlight runs
-     down the line, and the dot below fills as it arrives. Same duration, so
-     the two stay in step. */
-  --animate-scroll-line: scroll-line 2.2s ease-in-out infinite;
-  --animate-scroll-dot: scroll-dot 2.2s ease-in-out infinite;
+  /* The hero's scroll cue (ScrollDownArrow.jsx): the arrow drifts down a few
+     pixels and back, slowly enough to read as a hint rather than a signal. */
+  --animate-scroll-nudge: scroll-nudge 2.4s ease-in-out infinite;
 
-  @keyframes scroll-line {
-    0% {
-      transform: translateY(-100%);
-    }
-
-    100% {
-      transform: translateY(200%);
-    }
-  }
-
-  @keyframes scroll-dot {
-
+  @keyframes scroll-nudge {
     0%,
-    55% {
-      background-color: transparent;
-      border-color: rgb(255 255 255 / 0.75);
-      box-shadow: none;
-    }
-
-    70% {
-      background-color: var(--color-saffron);
-      border-color: var(--color-saffron);
-      box-shadow: 0 0 10px rgb(217 164 65 / 0.6);
-    }
-
     100% {
-      background-color: transparent;
-      border-color: rgb(255 255 255 / 0.75);
-      box-shadow: none;
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(4px);
     }
   }
 }

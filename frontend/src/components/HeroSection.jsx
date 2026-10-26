@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom'
 import CTAButton from './ui/CTAButton'
 import PhotoFrame from './ui/PhotoFrame'
+import ScrollDownArrow from './ui/ScrollDownArrow'
 
 // Mapping routes to specific high-res institute campus photos
 // Note the exact casing and extensions: Institute1-5 are .jpg (capital I), institute6-10 are .webp (lowercase i)
@@ -81,6 +82,7 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
           />
         </div>
       </div>
+      <ScrollDownArrow />
     </div>
   )
 }

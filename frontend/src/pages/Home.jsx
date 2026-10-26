@@ -7,6 +7,7 @@ import { resolveMediaUrl } from "../utils/media";
 import PhotoFrame from "../components/ui/PhotoFrame";
 import ArchFrame from "../components/ui/ArchFrame";
 import CTAButton from "../components/ui/CTAButton";
+import ScrollDownArrow from "../components/ui/ScrollDownArrow";
 import { RiArrowRightUpLine, RiMapPinLine, RiDoubleQuotesL } from "@remixicon/react";
 
 // Where a visitor most likely wants to go first, by who they are.
@@ -135,18 +136,6 @@ export default function Home() {
     <div>
       {/* ── Hero: the office's name beside a view of the campus ──────────── */}
       <section className="relative overflow-hidden bg-plum-deep text-white">
-        {/* A faint meridian grid: the office faces the rest of the world */}
-        <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 700">
-          <g fill="none" stroke="currentColor" strokeWidth="1">
-            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-              <ellipse key={i} cx="900" cy="350" rx={60 + i * 95} ry="520" />
-            ))}
-            {[-3, -2, -1, 0, 1, 2, 3].map((i) => (
-              <line key={i} x1="0" x2="1200" y1={350 + i * 95} y2={350 + i * 95} />
-            ))}
-          </g>
-        </svg>
-
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pt-14 pb-16 sm:px-6 md:grid-cols-12 lg:px-8 lg:pt-20 lg:pb-24">
           <div className="md:col-span-7">
             <p className="text-saffron text-base font-medium">
@@ -201,6 +190,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <ScrollDownArrow tone="dark" />
       </section>
 
       {/* ── Routes: where to start, by who you are ─────────────────────────── */}

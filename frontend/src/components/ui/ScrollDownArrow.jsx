@@ -1,21 +1,21 @@
 import { useRef } from 'react'
+import { RiArrowDownLine } from '@remixicon/react'
 import { headerOffset } from '../../utils/scroll'
 
+const TONES = {
+  light: 'text-quiet hover:text-plum-deep focus-visible:ring-plum/40',
+  dark: 'text-white/60 hover:text-white focus-visible:ring-white/60',
+}
+
 /**
- * A scroll cue at the bottom of a hero, telling visitors the page continues
- * below:
- *
- *    S C R O L L   D O W N
- *            │
- *            │      a purple highlight runs down the line,
- *            ○      and the dot fills as it arrives
+ * A quiet cue at the bottom of a hero that the page continues below: the
+ * word "Scroll" over a small arrow that drifts a few pixels. `tone` matches
+ * the hero behind it: "light" on porcelain, "dark" on plum.
  *
  * Place it as a direct child of the (relatively positioned) hero; a click
- * scrolls to whatever follows the hero, just below the header. Text, line and
- * dot share one centre; the text's padding-left equals its letter-spacing,
- * which is otherwise added after the last letter and pulls the text left.
+ * scrolls to whatever follows the hero, just below the header.
  */
-export default function ScrollDownArrow({ className = '' }) {
+export default function ScrollDownArrow({ tone = 'light', className = '' }) {
   const wrapperRef = useRef(null)
 
   const scrollPastHero = () => {
@@ -29,21 +29,16 @@ export default function ScrollDownArrow({ className = '' }) {
   return (
     <div
       ref={wrapperRef}
-      className={`pointer-events-none absolute inset-x-0 bottom-3 sm:bottom-5 z-10 flex justify-center ${className}`}
+      className={`pointer-events-none absolute inset-x-0 bottom-3 z-10 hidden justify-center md:flex ${className}`}
     >
       <button
         type="button"
         onClick={scrollPastHero}
-        aria-label="Scroll down"
-        className="pointer-events-auto flex cursor-pointer flex-col items-center rounded-sm px-2 py-1 text-white/85 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        aria-label="Scroll to content"
+        className={`pointer-events-auto flex cursor-pointer flex-col items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${TONES[tone]}`}
       >
-        <span className="pl-[0.35em] text-[10px] sm:text-[11px] font-semibold uppercase leading-none tracking-[0.35em] drop-shadow-sm">
-          Scroll down
-        </span>
-        <span aria-hidden="true" className="relative mt-2.5 block h-8 sm:h-12 w-0.5 overflow-hidden rounded-full bg-white/35">
-          <span className="absolute inset-x-0 top-0 h-1/2 rounded-full bg-gradient-to-b from-transparent via-brand-purple to-neutral-lavenderMuted motion-safe:animate-scroll-line motion-reduce:hidden" />
-        </span>
-        <span aria-hidden="true" className="mt-1.5 block h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-white/75 motion-safe:animate-scroll-dot" />
+        Scroll
+        <RiArrowDownLine size={16} aria-hidden="true" className="motion-safe:animate-scroll-nudge" />
       </button>
     </div>
   )
