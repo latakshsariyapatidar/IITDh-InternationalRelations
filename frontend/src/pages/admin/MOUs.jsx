@@ -104,6 +104,16 @@ export default function MOUs() {
     }
   };
 
+  const handleToggleVisibility = async (mou) => {
+    try {
+      const nextVal = mou.isPublic === false ? true : false;
+      await apiClient.patch(`/mous/${mou.id}`, { isPublic: nextVal });
+      fetchData();
+    } catch (err) {
+      alert('Failed to update visibility: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const handleDownloadDoc = async (id, title) => {
     try {
       const res = await apiClient.get(`/mous/${id}/document`, { responseType: 'blob' });
@@ -247,11 +257,14 @@ export default function MOUs() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-700 font-semibold">Visibility</Label>
+            <Label className="text-gray-700 font-semibold">Visibility on Website</Label>
             <select className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple" value={formData.isPublic} onChange={e=>setFormData({...formData, isPublic: e.target.value})}>
-              <option value="true">Public (Visible on Website)</option>
-              <option value="false">Private (Campus Only)</option>
+              <option value="true">Published on Website (Campus-Only Document Access)</option>
+              <option value="false">Draft / Hidden (Internal only, not on website)</option>
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Agreements published on the website are displayed in the Active MOUs directory, and their signed documents are strictly gated to verified @iitdh.ac.in Google accounts.
+            </p>
           </div>
 
           <div className="space-y-2 md:col-span-2">
@@ -417,9 +430,20 @@ export default function MOUs() {
                   </TableCell>
                   <TableCell>
                     {item.isPublic !== false ? (
-                      <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs font-medium border border-blue-200">Public</span>
+                      <span className="inline-flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-xs font-semibold border border-blue-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        Published
+                      </span>
                     ) : (
-                      <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs font-medium border border-amber-200">Campus Only</span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVisibility(item)}
+                        title="Click to publish this MOU to the Active MOUs page on the website"
+                        className="inline-flex items-center gap-1.5 text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-full text-xs font-semibold border border-amber-300 cursor-pointer transition-colors shadow-2xs"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        Hidden (Click to Publish)
+                      </button>
                     )}
                   </TableCell>
                   <TableCell>

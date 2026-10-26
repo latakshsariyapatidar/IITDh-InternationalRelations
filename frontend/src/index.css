@@ -3,13 +3,16 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
-*{
+
+* {
   font-family: var(--font-sans);
 }
 
 /* Headings typography. Like the rule above this is unlayered, so it wins
    over font utilities; it outranks the * rule by specificity. */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-heading);
 }
 
@@ -53,18 +56,37 @@ body::-webkit-scrollbar,
      the two stay in step. */
   --animate-scroll-line: scroll-line 2.2s ease-in-out infinite;
   --animate-scroll-dot: scroll-dot 2.2s ease-in-out infinite;
+
   @keyframes scroll-line {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(200%); }
+    0% {
+      transform: translateY(-100%);
+    }
+
+    100% {
+      transform: translateY(200%);
+    }
   }
+
   @keyframes scroll-dot {
-    0%, 55% { background-color: transparent; border-color: rgb(255 255 255 / 0.75); box-shadow: none; }
+
+    0%,
+    55% {
+      background-color: transparent;
+      border-color: rgb(255 255 255 / 0.75);
+      box-shadow: none;
+    }
+
     70% {
       background-color: var(--color-brand-purple);
       border-color: var(--color-neutral-lavenderMuted);
       box-shadow: 0 0 10px rgb(201 143 207 / 0.7);
     }
-    100% { background-color: transparent; border-color: rgb(255 255 255 / 0.75); box-shadow: none; }
+
+    100% {
+      background-color: transparent;
+      border-color: rgb(255 255 255 / 0.75);
+      box-shadow: none;
+    }
   }
 }
 
@@ -187,6 +209,7 @@ body::-webkit-scrollbar,
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0%);
   }
@@ -196,6 +219,7 @@ body::-webkit-scrollbar,
   from {
     transform: translateY(0%);
   }
+
   to {
     transform: translateY(-100%);
   }
@@ -205,6 +229,7 @@ body::-webkit-scrollbar,
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -214,6 +239,7 @@ body::-webkit-scrollbar,
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -223,6 +249,7 @@ body::-webkit-scrollbar,
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
@@ -230,7 +257,7 @@ body::-webkit-scrollbar,
 
 @theme inline {
   /* Loaded from Google Fonts in index.html */
-  --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-heading: "Geist", system-ui, -apple-system, sans-serif;
   --font-sans: "Lato", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -345,9 +372,11 @@ body::-webkit-scrollbar,
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }

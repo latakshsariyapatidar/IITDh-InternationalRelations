@@ -141,7 +141,7 @@ export default function Partners() {
       // 1.9 Stop swallowing errors so error banner can appear
       const [fetchedPartners, fetchedMous] = await Promise.all([
         fetchAllPages('/partners', 'partners', { pageSize: 100 }),
-        fetchAllPages('/mous', 'mous', { pageSize: 100, params: { isPublic: true } }),
+        fetchAllPages('/mous', 'mous', { pageSize: 100 }),
       ])
 
       setPartners(fetchedPartners)

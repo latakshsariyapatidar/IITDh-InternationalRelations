@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -8,6 +9,7 @@ import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { resolveLogoUrl } from '../../utils/media';
 import { optionalText } from '../../utils/formPayload';
 import { formatApiError } from '../../utils/formErrors';
+import { compressDocument } from '../../utils/fileCompressor';
 
 export default function Partners() {
   const [data, setData] = useState([]);
@@ -27,6 +29,15 @@ export default function Partners() {
   // Track replacement file deletion safely
   const [initialLogoUrl, setInitialLogoUrl] = useState('');
   const [newlyUploadedLogo, setNewlyUploadedLogo] = useState('');
+
+  // Partner MOUs and document upload state
+  const [partnerMous, setPartnerMous] = useState([]);
+  const [loadingMous, setLoadingMous] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [showAddMouSection, setShowAddMouSection] = useState(false);
+  const [newMouTitle, setNewMouTitle] = useState('');
+  const [newMouSignedDate, setNewMouSignedDate] = useState('');
+  const [newMouFile, setNewMouFile] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -66,10 +77,103 @@ export default function Partners() {
     fetchPartners();
   }, [page, typeFilter, countryFilter]);
 
+  const fetchPartnerMous = async (partnerId) => {
+    if (!partnerId) {
+      setPartnerMous([]);
+      return;
+    }
+    setLoadingMous(true);
+    try {
+      const res = await apiClient.get(`/mous?partnerId=${partnerId}&limit=50`);
+      setPartnerMous(res.data?.data?.mous || []);
+    } catch (err) {
+      console.error('Failed to fetch partner MOUs:', err);
+    } finally {
+      setLoadingMous(false);
+    }
+  };
+
+  const handleUploadDocumentForMou = async (mouId, rawFile) => {
+    if (!rawFile || !mouId) return;
+    setUploadingDoc(true);
+    try {
+      const optimized = await compressDocument(rawFile);
+      const fd = new FormData();
+      fd.append('file', optimized);
+      await apiClient.post(`/mous/${mouId}/document`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert('MOU document uploaded successfully!');
+      fetchPartnerMous(currentId);
+    } catch (err) {
+      alert('Document upload failed: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setUploadingDoc(false);
+    }
+  };
+
+  const handleCreateMouForPartner = async (partnerId, partnerName, rawFile, mouTitle, signedDate) => {
+    if (!partnerId) return;
+    setUploadingDoc(true);
+    try {
+      const payload = {
+        partnerId,
+        title: mouTitle?.trim() || `${partnerName} Bilateral Agreement`,
+        signedDate: signedDate || new Date().toISOString().split('T')[0],
+        status: 'ACTIVE',
+        isPublic: true,
+      };
+      const res = await apiClient.post('/mous', payload);
+      const createdMouId = res.data?.data?.id;
+
+      if (rawFile && createdMouId) {
+        const optimized = await compressDocument(rawFile);
+        const fd = new FormData();
+        fd.append('file', optimized);
+        await apiClient.post(`/mous/${createdMouId}/document`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      alert('MOU created and published successfully!');
+      setShowAddMouSection(false);
+      setNewMouTitle('');
+      setNewMouSignedDate('');
+      setNewMouFile(null);
+      fetchPartnerMous(partnerId);
+    } catch (err) {
+      alert('Failed to create MOU: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setUploadingDoc(false);
+    }
+  };
+
+  const handleDownloadMouDoc = async (mouId, title) => {
+    try {
+      const res = await apiClient.get(`/mous/${mouId}/document`, { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `MOU_${(title || mouId).replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to download document: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const openCreate = () => {
     setCurrentId(null);
     setInitialLogoUrl('');
     setNewlyUploadedLogo('');
+    setPartnerMous([]);
+    setShowAddMouSection(false);
+    setNewMouTitle('');
+    setNewMouSignedDate('');
+    setNewMouFile(null);
     setFormData({
       name: '',
       country: '',
@@ -90,6 +194,11 @@ export default function Partners() {
     setCurrentId(item.id);
     setInitialLogoUrl(item.logoUrl || '');
     setNewlyUploadedLogo('');
+    setShowAddMouSection(false);
+    setNewMouTitle('');
+    setNewMouSignedDate('');
+    setNewMouFile(null);
+    fetchPartnerMous(item.id);
     setFormData({
       name: item.name,
       country: item.country,
@@ -343,6 +452,204 @@ export default function Partners() {
               )}
             </div>
           </div>
+
+          {/* Section: Signed MOU Document & Agreement */}
+          <div className="space-y-4 md:col-span-2 border-t pt-5 mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <Label className="text-base font-bold text-gray-900 block">
+                  Partner MOU & Signed Document
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Manage bilateral agreements and upload signed MOU documents for this partner. Documents are accessible to verified @iitdh.ac.in accounts.
+                </p>
+              </div>
+              {currentId && !showAddMouSection && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setNewMouTitle(`${formData.name} Bilateral Agreement`);
+                    setNewMouSignedDate(new Date().toISOString().split('T')[0]);
+                    setShowAddMouSection(true);
+                  }}
+                  className="text-xs text-brand-purple border-brand-purple/40 hover:bg-brand-purpleLight/30 cursor-pointer self-start sm:self-auto"
+                >
+                  + Add / Upload MOU Document
+                </Button>
+              )}
+            </div>
+
+            {!currentId ? (
+              <div className="bg-purple-50/60 border border-purple-100 rounded-xl p-4 text-xs text-purple-900 leading-relaxed">
+                <span className="font-semibold">Note:</span> Save this partner first to attach signed MOU documents, or create and manage bilateral agreements directly in the{' '}
+                <Link to="/admin/mous" className="font-bold underline text-brand-purple">
+                  MOUs section
+                </Link>.
+              </div>
+            ) : loadingMous ? (
+              <div className="text-xs text-gray-500 py-3">Loading associated MOUs...</div>
+            ) : (
+              <div className="space-y-3">
+                {partnerMous.length === 0 && !showAddMouSection ? (
+                  <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-6 text-center">
+                    <p className="text-xs text-gray-500 mb-3">No MOU document is currently attached to this partner.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setNewMouTitle(`${formData.name} Bilateral Agreement`);
+                        setNewMouSignedDate(new Date().toISOString().split('T')[0]);
+                        setShowAddMouSection(true);
+                      }}
+                      className="text-xs font-semibold text-brand-purple border-brand-purple/40 hover:bg-purple-50 cursor-pointer"
+                    >
+                      Attach Signed MOU Document Now
+                    </Button>
+                  </div>
+                ) : (
+                  partnerMous.map((mou) => (
+                    <div
+                      key={mou.id}
+                      className="bg-gray-50/80 border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="font-bold text-sm text-gray-900 truncate">{mou.title}</span>
+                          <span
+                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                              mou.isPublic !== false
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}
+                          >
+                            {mou.isPublic !== false ? 'Published on Website' : 'Hidden Draft'}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+                          <span>Signed: {mou.signedDate ? mou.signedDate.split('T')[0] : '—'}</span>
+                          <span>
+                            Status: <strong className="text-gray-700">{mou.status}</strong>
+                          </span>
+                          <span>
+                            Document:{' '}
+                            {mou.hasDocument ? (
+                              <span className="text-emerald-600 font-semibold">✓ Signed PDF Uploaded</span>
+                            ) : (
+                              <span className="text-red-500 font-semibold">✕ No File Uploaded</span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {mou.hasDocument && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadMouDoc(mou.id, mou.title)}
+                            className="text-xs text-brand-purple cursor-pointer"
+                          >
+                            Download PDF
+                          </Button>
+                        )}
+                        <label className="inline-flex items-center">
+                          <span className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-purple text-white hover:bg-brand-purpleDark cursor-pointer shadow-xs transition-colors">
+                            {uploadingDoc ? 'Uploading...' : mou.hasDocument ? 'Replace PDF' : 'Upload PDF'}
+                          </span>
+                          <input
+                            type="file"
+                            accept=".pdf"
+                            className="hidden"
+                            disabled={uploadingDoc}
+                            onChange={(e) => handleUploadDocumentForMou(mou.id, e.target.files?.[0])}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {/* Inline Add MOU Box */}
+                {showAddMouSection && (
+                  <div className="bg-purple-50/50 border border-brand-purpleLight/80 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-brand-purpleDark">
+                        Add New MOU & Attach Document
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddMouSection(false)}
+                        className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs font-semibold text-gray-700">MOU Title</Label>
+                        <Input
+                          value={newMouTitle}
+                          onChange={(e) => setNewMouTitle(e.target.value)}
+                          placeholder="e.g. Academic Exchange Agreement"
+                          className="h-8 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold text-gray-700">Signed Date</Label>
+                        <Input
+                          type="date"
+                          value={newMouSignedDate}
+                          onChange={(e) => setNewMouSignedDate(e.target.value)}
+                          className="h-8 text-xs bg-white"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label className="text-xs font-semibold text-gray-700">Signed Document (PDF)</Label>
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => setNewMouFile(e.target.files?.[0])}
+                          className="h-8 text-xs bg-white cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAddMouSection(false)}
+                        className="text-xs"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={uploadingDoc}
+                        onClick={() =>
+                          handleCreateMouForPartner(
+                            currentId,
+                            formData.name,
+                            newMouFile,
+                            newMouTitle,
+                            newMouSignedDate
+                          )
+                        }
+                        className="bg-brand-purple hover:bg-brand-purpleDark text-white text-xs cursor-pointer shadow-xs"
+                      >
+                        {uploadingDoc ? 'Saving MOU...' : 'Create MOU & Attach PDF'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </AdminFormLayout>
     );
@@ -472,6 +779,12 @@ export default function Partners() {
                     )}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
+                    <Link
+                      to={`/admin/mous?partnerId=${item.id}`}
+                      className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md border border-brand-purple/30 text-brand-purple hover:bg-brand-purpleLight/30 transition-colors"
+                    >
+                      MOUs
+                    </Link>
                     <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
                   </TableCell>
