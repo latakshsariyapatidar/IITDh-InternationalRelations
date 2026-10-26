@@ -29,7 +29,6 @@ const QUICK_LINKS = [
   { label: 'Opportunities', to: '/opportunities' },
   { label: 'FAQs', to: '/international-admissions#faqs' },
   { label: 'Campus Map', to: '/contact#campus-map' },
-  { label: 'IITDH Faculty Research Profiles', to: '/about#faculty' },
   { label: 'Feedback', to: '/contact#feedback' },
   { label: 'Students Council', to: '/life' },
   { label: 'IITDh Student Portal', to: '/students' },

@@ -264,6 +264,9 @@ model Contact {
   email     String      @db.VarChar(255)
   phone     String?     @db.VarChar(50)
   address   String?     @db.VarChar(500)
+  // Shown on the public Contact page; a card without one falls back to the
+  // name's initial.
+  photoUrl  String?     @db.VarChar(500)
   isActive  Boolean     @default(true)
   createdAt DateTime    @default(now()) @db.Timestamptz(3)
   updatedAt DateTime    @updatedAt @db.Timestamptz(3)

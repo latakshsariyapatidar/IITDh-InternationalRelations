@@ -191,7 +191,7 @@ Base path: `/api/v1/uploads` — admin-only (all routes require `authenticate`).
 ```
 POST /api/v1/uploads/image/:folder
 ```
-`:folder` must be one of: `partners`, `faculty`, `team`, `testimonials`, `gallery`, `events`, `site-content`. Field name in the form must be `file`. Accepts JPEG/PNG/WEBP/GIF, max 5MB. Response: `{ "data": { "url": "/uploads/partners/6f2c....png" } }`.
+`:folder` must be one of: `partners`, `faculty`, `contacts`, `team`, `testimonials`, `gallery`, `events`, `site-content`. Field name in the form must be `file`. Accepts JPEG/PNG/WEBP/GIF, max 5MB. Response: `{ "data": { "url": "/uploads/partners/6f2c....png" } }`.
 
 **Upload a document**
 ```
@@ -299,7 +299,8 @@ List query: `page`, `limit` (max 50, default 10), `type`, `isPublic`, and **`upc
 ### Contacts — `/api/v1/contacts`
 ```ts
 { type: "CHAIRPERSON" | "IRO_OFFICE" | "MOBILITY" | "ADMISSION",
-  name?: string, title: string, email: string, phone?: string, address?: string, isActive?: boolean }
+  name?: string, title: string, email: string, phone?: string, address?: string,
+  photoUrl?: string | null (URL or "/uploads/contacts/<file>" from POST /uploads/image/contacts), isActive?: boolean }
 ```
 No pagination on the list endpoint (small, fixed dataset) — just `isActive` as an optional filter.
 

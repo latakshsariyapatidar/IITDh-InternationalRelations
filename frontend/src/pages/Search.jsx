@@ -74,12 +74,6 @@ const quickLinks = [
     keywords: ['map', 'location'],
   },
   {
-    title: 'Faculty Research Profiles',
-    path: '/about#faculty',
-    description: 'Directory of IITDH faculty research profiles.',
-    keywords: ['faculty', 'research'],
-  },
-  {
     title: 'Feedback',
     path: '/contact#feedback',
     description: 'Share feedback with the International Relations Office.',

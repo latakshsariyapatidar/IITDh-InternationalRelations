@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import AdminFormLayout from '../../components/admin/AdminFormLayout';
 import { optionalText } from '../../utils/formPayload';
 import { formatApiError } from '../../utils/formErrors';
+import { resolveMediaUrl } from '../../utils/media';
 
 export default function Contacts() {
   const [data, setData] = useState([]);
@@ -16,7 +17,10 @@ export default function Contacts() {
   const [currentId, setCurrentId] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
   
-  const [formData, setFormData] = useState({ type: 'IRO_OFFICE', name: '', title: '', email: '', phone: '', address: '', isActive: 'true' });
+  // The photo currently stored on the record being edited.
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState('');
+
+  const [formData, setFormData] = useState({ type: 'IRO_OFFICE', name: '', title: '', email: '', phone: '', address: '', photoUrl: '', isActive: 'true' });
 
   const fetchData = async () => {
     setLoading(true);
@@ -36,7 +40,8 @@ export default function Contacts() {
 
   const openCreate = () => {
     setCurrentId(null);
-    setFormData({ type: 'IRO_OFFICE', name: '', title: '', email: '', phone: '', address: '', isActive: 'true' });
+    setFormData({ type: 'IRO_OFFICE', name: '', title: '', email: '', phone: '', address: '', photoUrl: '', isActive: 'true' });
+    setSavedPhotoUrl('');
     setIsFormOpen(true);
   };
 
@@ -49,9 +54,48 @@ export default function Contacts() {
       email: item.email,
       phone: item.phone || '',
       address: item.address || '',
+      photoUrl: item.photoUrl || '',
       isActive: item.isActive ? 'true' : 'false',
     });
+    setSavedPhotoUrl(item.photoUrl || '');
     setIsFormOpen(true);
+  };
+
+  // A photo this form uploaded but hasn't saved is referenced by nothing, so it
+  // can be deleted straight away. The saved photo is deleted only after Save
+  // succeeds, so cancelling never leaves the record pointing at a missing file.
+  const discardUnsavedPhoto = async (url) => {
+    if (!url || url === savedPhotoUrl || !url.startsWith('/uploads')) return;
+    try {
+      await apiClient.delete(`/uploads?url=${encodeURIComponent(url)}`);
+    } catch (err) {
+      console.error('Failed to delete unsaved photo', err);
+    }
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/uploads/image/contacts', fd);
+      const newUrl = res.data?.data?.url;
+      await discardUnsavedPhoto(formData.photoUrl);
+      setFormData(prev => ({ ...prev, photoUrl: newUrl }));
+    } catch (err) {
+      console.error(err);
+      alert('Photo upload failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    await discardUnsavedPhoto(formData.photoUrl);
+    setFormData(prev => ({ ...prev, photoUrl: '' }));
+  };
+
+  const handleCancel = async () => {
+    await discardUnsavedPhoto(formData.photoUrl);
+    setIsFormOpen(false);
   };
 
   const handleDelete = async (id) => {
@@ -78,11 +122,19 @@ export default function Contacts() {
         name: optionalText(formData.name, isEdit),
         phone: optionalText(formData.phone, isEdit),
         address: optionalText(formData.address, isEdit),
+        photoUrl: formData.photoUrl || null,
         isActive: formData.isActive === 'true'
       };
 
       if (currentId) await apiClient.patch(`/contacts/${currentId}`, payload);
       else await apiClient.post('/contacts', payload);
+      if (savedPhotoUrl && savedPhotoUrl !== formData.photoUrl && savedPhotoUrl.startsWith('/uploads')) {
+        try {
+          await apiClient.delete(`/uploads?url=${encodeURIComponent(savedPhotoUrl)}`);
+        } catch (err) {
+          console.error('Failed to delete replaced photo', err);
+        }
+      }
       setIsFormOpen(false);
       fetchData();
     } catch (err) {
@@ -99,7 +151,7 @@ export default function Contacts() {
         title={currentId ? 'Edit Contact' : 'New Contact'}
         subtitle="Manage the details of this contact."
         stepName="Contact Info"
-        onCancel={() => setIsFormOpen(false)}
+        onCancel={handleCancel}
         onSave={handleSave}
         loading={saveLoading}
       >
@@ -174,6 +226,29 @@ export default function Contacts() {
           </div>
           
           <div className="space-y-2 md:col-span-2">
+            <Label className="text-gray-700 font-semibold">Photo (Optional)</Label>
+            <div className="flex items-start gap-4">
+              <div className="flex-1 space-y-2">
+                <Input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="border-gray-300 focus-visible:ring-brand-purple cursor-pointer"
+                  onChange={e => handleImageUpload(e.target.files[0])}
+                />
+                <p className="text-xs text-gray-500">Shown on the public Contact Us page. Without one, the card shows the name's initial. JPEG, PNG, WEBP or GIF.</p>
+              </div>
+              {formData.photoUrl && (
+                <div className="shrink-0 flex flex-col items-center gap-1">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-200 bg-white">
+                    <img src={resolveMediaUrl(formData.photoUrl)} className="w-full h-full object-cover" alt="Preview"/>
+                  </div>
+                  <button type="button" onClick={handleRemovePhoto} className="text-xs text-red-600 hover:underline">Remove photo</button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
             <Label className="text-gray-700 font-semibold">Address (Optional)</Label>
             <textarea 
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-colors resize-none" 
@@ -214,7 +289,23 @@ export default function Contacts() {
                       {item.type}
                     </span>
                   </TableCell>
-                  <TableCell className="font-medium text-gray-900">{item.name ? `${item.name} - ` : ''}{item.title}</TableCell>
+                  <TableCell className="font-medium text-gray-900">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden bg-white flex items-center justify-center shrink-0">
+                        {item.photoUrl ? (
+                          <img
+                            src={resolveMediaUrl(item.photoUrl)}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {e.target.style.display='none'}}
+                          />
+                        ) : (
+                          <span className="text-gray-400 font-bold text-xs">{(item.name || item.title).charAt(0)}</span>
+                        )}
+                      </div>
+                      <span>{item.name ? `${item.name} - ` : ''}{item.title}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-blue-600 hover:underline"><a href={`mailto:${item.email}`}>{item.email}</a></TableCell>
                   <TableCell>
                     {item.isActive ? (

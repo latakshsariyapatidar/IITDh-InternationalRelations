@@ -4,6 +4,7 @@ import { RiMailLine, RiPhoneLine, RiMapPinLine, RiExternalLinkLine } from '@remi
 
 import { useState, useEffect } from 'react'
 import apiClient from '../api/client'
+import { resolveMediaUrl } from '../utils/media'
 
 const FALLBACK_CONTACTS = [
   { name: 'Dr. Sagnik Sen', title: 'Chairperson, International Relations Office', email: 'chairperson.iro@iitdh.ac.in', phone: '', address: '' },
@@ -62,9 +63,19 @@ export default function Contact() {
             <ul className="grid gap-6 md:grid-cols-2">
               {contacts.map((contact, idx) => (
                 <li key={contact.id || idx} className="flex gap-5 rounded-2xl border border-mist bg-white p-6">
-                  <div aria-hidden="true" className="flex h-16 w-14 shrink-0 items-end justify-center overflow-hidden rounded-t-full bg-plum-tint pb-2 font-heading! text-2xl text-plum">
-                    {(contact.name || contact.title || '?').replace(/^(Dr|Prof|Mr|Ms|Mrs)\.?\s+/i, '').charAt(0)}
-                  </div>
+                  {contact.photoUrl ? (
+                    <div className="h-24 w-20 shrink-0 overflow-hidden rounded-t-full bg-plum-tint">
+                      <img
+                        src={resolveMediaUrl(contact.photoUrl)}
+                        alt={contact.name || contact.title}
+                        className="h-full w-full object-cover object-top"
+                      />
+                    </div>
+                  ) : (
+                    <div aria-hidden="true" className="flex h-16 w-14 shrink-0 items-end justify-center overflow-hidden rounded-t-full bg-plum-tint pb-2 font-heading! text-2xl text-plum">
+                      {(contact.name || contact.title || '?').replace(/^(Dr|Prof|Mr|Ms|Mrs)\.?\s+/i, '').charAt(0)}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     {contact.name && (
                       <h3 className="text-xl font-medium leading-snug text-plum-deep">{contact.name}</h3>

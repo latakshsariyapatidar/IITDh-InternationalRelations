@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ContactType } from "@prisma/client";
 import {
+  clearableHttpUrlOrPath,
   partialForUpdate,
   prismaEnum,
   queryBoolean,
@@ -19,6 +20,9 @@ export const createContactSchema = z.object({
   email: z.string().email("Invalid email").max(255),
   phone: z.string().trim().max(50).optional(),
   address: z.string().trim().max(500).optional(),
+  // httpUrlOrPath rather than a regex so a protocol-relative "//host/x" can't
+  // pass as a local upload path. See team.schema.ts.
+  photoUrl: clearableHttpUrlOrPath(),
   isActive: z.boolean().default(true),
 });
 

@@ -6,6 +6,7 @@ export const UPLOAD_ROOT = path.join(process.cwd(), "uploads");
 export const IMAGE_FOLDERS = [
   "partners",
   "faculty",
+  "contacts",
   "team",
   "testimonials",
   "gallery",
