@@ -1005,59 +1005,79 @@ export default function Partners() {
       {/* MOU Document Viewer / Downloader Modal */}
       {readyMou && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100 gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 text-brand-purple flex items-center justify-center shrink-0">
-                  <RiLinksLine size={20} />
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl flex flex-col border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-start justify-between pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-purple-50 text-brand-purple flex items-center justify-center shrink-0 shadow-xs">
+                  <RiLinksLine size={22} />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 leading-snug">
                     {readyMou.partnerName ? `MOU: ${readyMou.partnerName}` : 'MOU Document'}
                   </h3>
-                  <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    Verified IIT Dharwad Access
+                  <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1.5 mt-0.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Verified IIT Dharwad Campus Access
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={readyMou.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-brand-purpleLight/40 hover:bg-brand-purpleLight/70 text-brand-purpleDark text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1"
-                >
-                  <RiExternalLinkLine size={14} />
-                  <span className="hidden sm:inline">Open in</span> New Tab
-                </a>
-                <a
-                  href={readyMou.url}
-                  download={readyMou.fileName}
-                  className="px-3 py-1.5 bg-brand-purple hover:bg-brand-purpleDark text-white text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1 shadow-xs"
-                >
-                  <RiFileDownloadLine size={14} />
-                  Download
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setReadyMou(null)}
-                  className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                  aria-label="Close"
-                >
-                  ✕
-                </button>
+              <button
+                type="button"
+                onClick={() => setReadyMou(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Document Details Card */}
+            <div className="my-5 p-5 rounded-2xl bg-gradient-to-br from-brand-cream/50 to-purple-50/40 border border-brand-purpleLight/40 flex items-center gap-4">
+              <div className="w-12 h-14 rounded-xl bg-red-50 border border-red-200/80 text-red-600 flex flex-col items-center justify-center shrink-0 shadow-2xs">
+                <span className="text-[10px] font-black uppercase tracking-wider text-red-500">PDF</span>
+                <RiFileDownloadLine size={20} className="text-red-600 mt-0.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-gray-900 truncate" title={readyMou.fileName}>
+                  {readyMou.fileName}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Official signed Memorandum of Understanding
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-emerald-100/70 text-emerald-800">
+                    Ready to View
+                  </span>
+                  <span className="text-[11px] text-gray-400">• Authenticated</span>
+                </div>
               </div>
             </div>
 
-            {/* Embedded PDF Viewer */}
-            <div className="flex-1 mt-4 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 min-h-[420px] max-h-[68vh]">
-              <iframe
-                src={readyMou.url}
-                className="w-full h-full min-h-[420px]"
-                title="MOU Document Preview"
-              />
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href={readyMou.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-3 px-4 bg-brand-purple hover:bg-brand-purpleDark text-white text-sm font-bold rounded-xl transition-all inline-flex items-center justify-center gap-2 shadow-xs hover:shadow-md cursor-pointer"
+              >
+                <RiExternalLinkLine size={18} />
+                Open PDF Viewer
+              </a>
+              <a
+                href={readyMou.url}
+                download={readyMou.fileName}
+                className="py-3 px-5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-xl transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RiFileDownloadLine size={18} />
+                Download
+              </a>
             </div>
+
+            <p className="text-[11px] text-center text-gray-400 mt-3.5">
+              "Open PDF Viewer" launches the document full-screen in your browser's native PDF reader.
+            </p>
           </div>
         </div>
       )}
