@@ -13,19 +13,25 @@ export default function CTAButton({
   disabled = false
 }) {
   const variants = {
-    primary: 'bg-brand-marigold text-brand-purpleDark hover:bg-brand-marigoldDark font-bold shadow-lg hover:shadow-xl',
-    secondary: 'bg-brand-purple text-white hover:bg-brand-purpleHover font-bold shadow-lg hover:shadow-xl',
-    outline: 'bg-transparent text-brand-purple border-2 border-brand-purple font-bold hover:bg-brand-purple hover:text-white',
-    ghost: 'bg-transparent text-brand-purple hover:bg-brand-purpleLight font-semibold'
+    // Filled plum: the main action on light surfaces
+    primary: 'bg-plum text-white hover:bg-plum-deep',
+    // Outlined plum: the second action beside a primary one
+    secondary: 'bg-transparent text-plum ring-1 ring-inset ring-plum/35 hover:bg-plum-tint hover:ring-plum/60',
+    outline: 'bg-transparent text-plum ring-1 ring-inset ring-plum/35 hover:bg-plum-tint hover:ring-plum/60',
+    // Saffron: the main action on dark plum or ink surfaces
+    accent: 'bg-saffron text-plum-deep hover:bg-[#e3b358]',
+    // Outlined white: the second action on dark surfaces
+    inverse: 'bg-transparent text-white ring-1 ring-inset ring-white/40 hover:bg-white/10 hover:ring-white/70',
+    ghost: 'bg-transparent text-plum hover:bg-plum-tint'
   }
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm rounded-md',
-    md: 'px-6 py-3 text-base rounded-lg',
-    lg: 'px-8 py-4 text-lg rounded-lg'
+    sm: 'h-9 px-4 text-sm',
+    md: 'h-11 px-6 text-[0.95rem]',
+    lg: 'h-12 px-7 text-base'
   }
 
-  const baseStyles = `inline-flex items-center justify-center gap-2 transition-all duration-300 ${
+  const baseStyles = `inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 ${
     disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
   } ${sizes[size] || sizes.md} ${variants[variant] || variants.primary} ${className}`
 
@@ -57,6 +63,7 @@ export default function CTAButton({
 
   return (
     <button
+      type="button"
       onClick={disabled ? null : onClick}
       disabled={disabled}
       className={baseStyles}
@@ -66,4 +73,3 @@ export default function CTAButton({
     </button>
   )
 }
-

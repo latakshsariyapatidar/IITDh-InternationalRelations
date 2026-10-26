@@ -16,10 +16,29 @@ h3 {
   font-family: var(--font-heading);
 }
 
+/* Spans and links inside a heading keep the heading face (the * rule above
+   would otherwise reset them to the UI face). */
+:is(h1, h2, h3) * {
+  font-family: inherit;
+}
+
+/* The admin panel is a working tool: its headings stay in the UI face. */
+.admin-panel h1,
+.admin-panel h2,
+.admin-panel h3 {
+  font-family: var(--font-sans);
+}
+
 /* Native jumps to a section (#links, scrollIntoView) stop below the sticky
    header instead of under it. --site-header-h is measured in Layout.jsx. */
 html {
   scroll-padding-top: calc(var(--site-header-h, 0px) + 8px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 html,
@@ -38,20 +57,42 @@ body::-webkit-scrollbar,
 }
 
 @theme {
-  --color-brand-cream: #f9f4e8;
-  --color-brand-purple: #89288f;
-  --color-brand-purpleHover: #6d1d72;
-  --color-brand-purpleDark: #5e1c64;
-  --color-brand-purpleLight: #e7d1e9;
-  --color-brand-marigold: #ef9f27;
-  --color-brand-marigoldDark: #d58816;
-  --color-neutral-canvas: #ffffff;
-  --color-neutral-textDark: #5e1c64;
-  --color-neutral-lavenderSoft: #e7d1e9;
-  --color-neutral-lavenderMuted: #c98fcf;
-  --font-sans: "Lato", system-ui, sans-serif;
+  /* ── Palette ───────────────────────────────────────────────────────────
+     Royal Plum   – brand anchor, ties the site to IIT Dharwad
+     Global Ink   – the international voice: partners, exchange, research
+     Muted Saffron– the institute's orange, used sparingly as an accent
+     Cool Mist    – borders and quiet surfaces
+     Porcelain    – the page canvas                                       */
+  --color-plum: #402052;
+  --color-plum-deep: #2a1538;
+  --color-plum-tint: #f1ecf3;
+  --color-ink: #243c56;
+  --color-ink-deep: #172838;
+  --color-ink-tint: #e7ecf2;
+  --color-saffron: #d9a441;
+  --color-saffron-deep: #8c6418;
+  --color-saffron-tint: #f7eed9;
+  --color-mist: #e8e9ed;
+  --color-porcelain: #faf9f6;
+  --color-body: #3b3f4a;
+  --color-quiet: #686d7a;
 
-  /* The hero's scroll-down cue (ScrollDownArrow.jsx): a purple highlight runs
+  /* Legacy names, kept so every existing page (admin included) picks up the
+     new palette without touching its markup. */
+  --color-brand-cream: #faf9f6;
+  --color-brand-purple: #402052;
+  --color-brand-purpleHover: #33193f;
+  --color-brand-purpleDark: #2a1538;
+  --color-brand-purpleLight: #e8e9ed;
+  --color-brand-marigold: #d9a441;
+  --color-brand-marigoldDark: #8c6418;
+  --color-neutral-canvas: #f2f2f5;
+  --color-neutral-textDark: #2a1538;
+  --color-neutral-lavenderSoft: #e8e9ed;
+  --color-neutral-lavenderMuted: #9a8ba6;
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+
+  /* The hero's scroll-down cue (ScrollDownArrow.jsx): a highlight runs
      down the line, and the dot below fills as it arrives. Same duration, so
      the two stay in step. */
   --animate-scroll-line: scroll-line 2.2s ease-in-out infinite;
@@ -77,9 +118,9 @@ body::-webkit-scrollbar,
     }
 
     70% {
-      background-color: var(--color-brand-purple);
-      border-color: var(--color-neutral-lavenderMuted);
-      box-shadow: 0 0 10px rgb(201 143 207 / 0.7);
+      background-color: var(--color-saffron);
+      border-color: var(--color-saffron);
+      box-shadow: 0 0 10px rgb(217 164 65 / 0.6);
     }
 
     100% {
@@ -96,28 +137,241 @@ body::-webkit-scrollbar,
   }
 
   .marquee-track {
-    animation: partners-marquee 26s linear infinite;
+    animation: partners-marquee 60s linear infinite;
     will-change: transform;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Old-style figures read better inside running text; lining, tabular
+     figures line up in tables and dates. */
+  .nums-tabular {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* Long-form copy: comfortable measure and rhythm. */
+  .prose-copy {
+    max-width: 68ch;
+    line-height: 1.7;
+  }
+
+  .prose-copy > * + * {
+    margin-top: 1em;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ── Page-change curtain (PageRoutes.jsx) ───────────────────────────────
+   A deep-plum panel with an arched top rises from below to cover the page
+   (cover), the route changes underneath, then the panel lifts and fades
+   away (reveal). The arch's height scales with the screen, so it reads as
+   a doorway on a phone and on a wide monitor alike.                      */
 .barba-curtain {
+  --arch: clamp(72px, 18vh, 220px);
+  --screen: 100vh;
   position: fixed;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
-  background: #5e1c64;
+}
+
+@supports (height: 100dvh) {
+  .barba-curtain {
+    --screen: 100dvh;
+  }
 }
 
 .barba-curtain-hidden {
   display: none;
 }
 
-/* Admin panel tables: column-heading rows in the brand purple. Unlayered, so
+.barba-curtain-panel {
+  position: absolute;
+  left: -15vw;
+  right: -15vw;
+  top: 0;
+  /* Arched at both ends: the top edge leads on the way in, the bottom edge
+     trails on the way out. */
+  height: calc(var(--screen) + var(--arch) * 2);
+  background: var(--color-plum-deep);
+  border-radius: 50% / var(--arch);
+  will-change: transform, opacity;
+}
+
+.barba-curtain-content {
+  position: absolute;
+  left: 15vw;
+  right: 15vw;
+  top: var(--arch);
+  height: var(--screen);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.6rem, 1.6vh, 1rem);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.barba-curtain-logo {
+  width: clamp(52px, 9vw, 84px);
+  height: auto;
+}
+
+.barba-curtain-wordmark {
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 3.2vw, 1.75rem);
+  line-height: 1.2;
+  color: #ffffff;
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+.barba-curtain-rule {
+  display: block;
+  width: clamp(32px, 6vw, 56px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-saffron);
+  transform-origin: left center;
+}
+
+.barba-curtain-cover .barba-curtain-panel {
+  animation: barba-cover 0.46s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.barba-curtain-cover .barba-curtain-content {
+  animation: barba-content-in 0.46s ease-out forwards;
+}
+
+.barba-curtain-cover .barba-curtain-rule {
+  animation: barba-rule 0.46s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.barba-curtain-reveal .barba-curtain-panel {
+  animation: barba-reveal 0.42s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.barba-curtain-reveal .barba-curtain-content {
+  animation: barba-content-out 0.42s ease-in forwards;
+}
+
+@keyframes barba-cover {
+  from {
+    transform: translateY(var(--screen));
+  }
+
+  to {
+    transform: translateY(calc(var(--arch) * -1));
+  }
+}
+
+@keyframes barba-reveal {
+  from {
+    transform: translateY(calc(var(--arch) * -1));
+  }
+
+  to {
+    transform: translateY(calc((var(--screen) + var(--arch) * 2) * -1));
+  }
+}
+
+@keyframes barba-content-out {
+  from {
+    opacity: 1;
+  }
+
+  40%,
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes barba-content-in {
+
+  0%,
+  45% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes barba-rule {
+
+  0%,
+  50% {
+    transform: scaleX(0);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Reduced motion: no sweep, just a brief cross-fade. */
+@media (prefers-reduced-motion: reduce) {
+  .barba-curtain-panel {
+    border-radius: 0;
+  }
+
+  .barba-curtain-cover .barba-curtain-panel {
+    animation: barba-fade-in 0.2s linear forwards;
+  }
+
+  .barba-curtain-reveal .barba-curtain-panel {
+    animation: barba-fade-out 0.2s linear forwards;
+  }
+
+  .barba-curtain-cover .barba-curtain-content,
+  .barba-curtain-cover .barba-curtain-rule,
+  .barba-curtain-reveal .barba-curtain-content {
+    animation: none;
+  }
+}
+
+@keyframes barba-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--arch) * -1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(calc(var(--arch) * -1));
+  }
+}
+
+@keyframes barba-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(calc(var(--arch) * -1));
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--arch) * -1));
+  }
+}
+
+/* Admin panel tables: column-heading rows in the brand plum. Unlayered, so
    it wins over the pages' own bg-gray-50 and the table component's
    text-foreground / row-hover utilities without touching any page. */
 .admin-panel [data-slot="table-header"] {
@@ -134,117 +388,6 @@ body::-webkit-scrollbar,
   color: #ffffff;
 }
 
-.barba-curtain-cover {
-  animation: barba-cover-up 0.325s cubic-bezier(0.76, 0, 0.24, 1) forwards;
-}
-
-.barba-curtain-reveal {
-  animation: barba-reveal-up 0.325s cubic-bezier(0.76, 0, 0.24, 1) forwards;
-}
-
-.barba-curtain-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-  text-align: center;
-  padding: 1rem;
-}
-
-.barba-curtain-logo {
-  width: clamp(68px, 10vw, 105px);
-  height: auto;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.28));
-}
-
-.barba-curtain-wordmark {
-  letter-spacing: 0.26em;
-  font-size: clamp(0.7rem, 1.6vw, 1.1rem);
-  color: white;
-  opacity: 0.96;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-.barba-curtain-loader {
-  width: clamp(54px, 7vw, 74px);
-  height: auto;
-}
-
-.barba-loader-track {
-  fill: none;
-  stroke: rgba(0, 0, 0, 0.22);
-  stroke-width: 5;
-}
-
-.barba-loader-ring {
-  fill: none;
-  stroke: #ef9f27;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 62 226;
-  transform-origin: center;
-  animation: barba-ring-spin 1.05s linear infinite;
-}
-
-.barba-loader-orbit {
-  transform-origin: 50px 50px;
-  animation: barba-dot-orbit 1.35s linear infinite;
-}
-
-.barba-loader-dot {
-  fill: #ffffff;
-}
-
-.barba-curtain-loading {
-  font-size: clamp(0.72rem, 1.4vw, 0.92rem);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-@keyframes barba-cover-up {
-  from {
-    transform: translateY(100%);
-  }
-
-  to {
-    transform: translateY(0%);
-  }
-}
-
-@keyframes barba-reveal-up {
-  from {
-    transform: translateY(0%);
-  }
-
-  to {
-    transform: translateY(-100%);
-  }
-}
-
-@keyframes barba-ring-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes barba-dot-orbit {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes partners-marquee {
   from {
     transform: translateX(0);
@@ -257,8 +400,8 @@ body::-webkit-scrollbar,
 
 @theme inline {
   /* Loaded from Google Fonts in index.html */
-  --font-heading: "Geist", system-ui, -apple-system, sans-serif;
-  --font-sans: "Lato", system-ui, sans-serif;
+  --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -299,39 +442,40 @@ body::-webkit-scrollbar,
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* shadcn tokens, mapped onto the site palette (admin panel, dialogs, inputs). */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #faf9f6;
+  --foreground: #22202a;
+  --card: #ffffff;
+  --card-foreground: #22202a;
+  --popover: #ffffff;
+  --popover-foreground: #22202a;
+  --primary: #402052;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f5;
+  --secondary-foreground: #2a1538;
+  --muted: #f2f2f5;
+  --muted-foreground: #686d7a;
+  --accent: #f1ecf3;
+  --accent-foreground: #2a1538;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: #e3e4e9;
+  --input: #dcdde3;
+  --ring: #402052;
+  --chart-1: #402052;
+  --chart-2: #243c56;
+  --chart-3: #d9a441;
+  --chart-4: #7a6a88;
+  --chart-5: #8a9bb0;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #22202a;
+  --sidebar-primary: #402052;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1ecf3;
+  --sidebar-accent-foreground: #2a1538;
+  --sidebar-border: #e3e4e9;
+  --sidebar-ring: #402052;
 }
 
 .dark {
@@ -374,10 +518,36 @@ body::-webkit-scrollbar,
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 
   html {
     @apply font-sans;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-saffron-tint);
+    color: var(--color-plum-deep);
+  }
+
+  /* One visible keyboard focus style across the site. */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-saffron);
+    outline-offset: 2px;
   }
 }

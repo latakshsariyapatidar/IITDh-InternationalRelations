@@ -3,35 +3,33 @@ import Card from './Card'
 export default function ContactCard({ title, name, email, phone, address }) {
   return (
     <Card>
-      <h3 className="text-xl font-bold text-gray-900 mb-4">{title}</h3>
-      {name && (
-        <div className="mb-3">
-          <p className="text-sm text-gray-600">Name</p>
-          <p className="font-semibold text-gray-900">{name}</p>
-        </div>
-      )}
-      {email && (
-        <div className="mb-3">
-          <p className="text-sm text-gray-600">Email</p>
-          <a href={`mailto:${email}`} className="text-blue-700 hover:underline">
-            {email}
-          </a>
-        </div>
-      )}
-      {phone && (
-        <div className="mb-3">
-          <p className="text-sm text-gray-600">Phone</p>
-          <a href={`tel:${phone}`} className="text-blue-700 hover:underline">
-            {phone}
-          </a>
-        </div>
-      )}
-      {address && (
-        <div>
-          <p className="text-sm text-gray-600">Address</p>
-          <p className="text-gray-900">{address}</p>
-        </div>
-      )}
+      <h3 className="text-xl font-medium text-plum-deep mb-4">{title}</h3>
+      <dl className="space-y-3 text-sm">
+        {name && (
+          <div>
+            <dt className="text-quiet">Name</dt>
+            <dd className="font-semibold text-plum-deep">{name}</dd>
+          </div>
+        )}
+        {email && (
+          <div>
+            <dt className="text-quiet">Email</dt>
+            <dd><a href={`mailto:${email}`} className="text-plum underline decoration-saffron/60 underline-offset-4 hover:decoration-plum">{email}</a></dd>
+          </div>
+        )}
+        {phone && (
+          <div>
+            <dt className="text-quiet">Phone</dt>
+            <dd><a href={`tel:${phone}`} className="text-plum underline decoration-saffron/60 underline-offset-4 hover:decoration-plum">{phone}</a></dd>
+          </div>
+        )}
+        {address && (
+          <div>
+            <dt className="text-quiet">Address</dt>
+            <dd className="text-body">{address}</dd>
+          </div>
+        )}
+      </dl>
     </Card>
   )
 }

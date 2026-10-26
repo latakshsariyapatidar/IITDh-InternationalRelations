@@ -2,11 +2,174 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
 import CTAButton from '../components/ui/CTAButton'
+import DetailRows from '../components/ui/DetailRows'
 import FAQAccordion from '../components/FAQAccordion'
 import { fetchAllPages } from '../api/fetchAllPages'
-import { RiGraduationCapLine, RiListCheck2, RiChatQuoteLine, RiQuestionAnswerLine, RiBookOpenLine, RiExchangeFundsLine, RiArrowRightLine } from '@remixicon/react'
+import { RiArrowRightLine, RiArrowRightUpLine, RiMailLine, RiPhoneLine } from '@remixicon/react'
+
+// In-page contents, in reading order.
+const SECTIONS = [
+  { id: 'study-in-india', label: 'Study in India' },
+  { id: 'self-financed', label: 'Self-financed' },
+  { id: 'embassy', label: 'Embassy' },
+  { id: 'fees', label: 'Fee structure' },
+  { id: 'programs', label: 'Programmes' },
+  { id: 'admission-contacts', label: 'Contacts' },
+  { id: 'faqs', label: 'FAQs' },
+]
+
+const FEE_SUMMARY = (
+  <>
+    Application processing fee <strong className="font-semibold text-plum-deep">USD 10</strong>, plus Institute fees (see the{' '}
+    <a href="#fees">fee structure</a>), plus an International Relations fee of{' '}
+    <strong className="font-semibold text-plum-deep">USD 100</strong> after admission.
+  </>
+)
+
+const ENGLISH = 'The medium of instruction across all courses is English. Applicants should have a functional knowledge of English: the ability to read, write, understand and speak the language.'
+
+// Fees Structure (2026-2027): PhD and M.Tech (Research), international students.
+// Columns: First semester, Spring semester, Autumn semester; each GEN / PwD. Amounts in ₹.
+const FEE_GROUPS = [
+  {
+    code: 'A', title: 'One-time fee',
+    rows: [
+      ['A1', 'Admission', ['300', '300', '', '', '', '']],
+      ['A2', 'Academic service charges', ['1,200', '1,200', '', '', '', '']],
+      ['A3', 'Convocation fee', ['3,000', '3,000', '', '', '', '']],
+      ['A4', 'Alumni lifetime membership', ['2,000', '2,000', '', '', '', '']],
+    ],
+    total: ['Total (A1 to A4)', ['6,500', '6,500', '', '', '', '']],
+  },
+  {
+    code: 'B', title: 'Refundable deposit',
+    rows: [
+      ['B1', 'Library deposit', ['1,000', '1,000', '', '', '', '']],
+      ['B2', 'Institute deposit', ['5,000', '5,000', '', '', '', '']],
+    ],
+    total: ['Total (B1 to B2)', ['6,000', '6,000', '', '', '', '']],
+  },
+  {
+    code: 'C', title: 'Per-semester fee',
+    rows: [
+      ['C1', 'Registration fee', ['1,500', '1,500', '1,500', '1,500', '1,500', '1,500']],
+      ['C2*', 'Tuition fee for international students', ['35,000', '', '35,000', '', '35,000', '']],
+      ['C3', 'Examination fee', ['2,000', '2,000', '2,000', '2,000', '2,000', '2,000']],
+      ['C4', 'Library fee', ['500', '500', '500', '500', '500', '500']],
+    ],
+    total: ['Total (C1 to C4)', ['39,000', '4,000', '39,000', '4,000', '39,000', '4,000']],
+  },
+]
+const FEE_ACADEMIC_TOTAL = ['Total academic components', ['51,500', '16,500', '39,000', '4,000', '39,000', '4,000']]
+const FEE_NON_ACADEMIC = [
+  {
+    code: 'D', title: 'Per-semester fee',
+    rows: [
+      ['D1', 'Gymkhana fee', ['3,000', '3,000', '3,000', '3,000', '3,000', '3,000']],
+      ['D2', 'Medical and wellness fee', ['2,500', '2,500', '2,500', '2,500', '2,500', '2,500']],
+      ['D3', 'Student benevolent fund', ['1,000', '1,000', '1,000', '1,000', '1,000', '1,000']],
+      ['D4', 'Hostel establishment and service charges', ['2,500', '2,500', '2,500', '2,500', '2,500', '2,500']],
+      ['D5', 'Mess establishment and service charges', ['1,500', '1,500', '1,500', '1,500', '1,500', '1,500']],
+      ['D6', "Students' activity establishment charges", ['2,000', '2,000', '2,000', '2,000', '2,000', '2,000']],
+      ['D7', 'Hostel room rent for international students', ['20,000', '20,000', '20,000', '20,000', '20,000', '20,000']],
+      ['D8', 'Electricity and water charges*', ['2,500', '2,500', '2,500', '2,500', '2,500', '2,500']],
+      ['D9', 'Mess advance*', ['24,500', '24,500', '24,500', '24,500', '24,500', '24,500']],
+    ],
+    total: ['Total (D1 to D9)', ['59,500', '59,500', '59,500', '59,500', '59,500', '59,500']],
+  },
+  {
+    code: 'E', title: 'Medical insurance premium (annually)',
+    rows: [['E', 'Medical insurance premium', ['1,500', '1,500', '', '', '1,500', '1,500']]],
+  },
+  {
+    code: 'F', title: 'Refundable deposit',
+    rows: [['F1', 'Hostel deposit', ['5,000', '5,000', '', '', '', '']]],
+  },
+]
+const FEE_NON_ACADEMIC_TOTAL = ['Total non-academic components (D+E+F)', ['66,000', '66,000', '59,500', '59,500', '61,000', '61,000']]
+const FEE_GRAND_TOTAL = ['Total', ['1,17,500', '82,500', '98,500', '63,500', '1,00,000', '65,000']]
+
+function FeeCells({ values, strong = false }) {
+  return values.map((v, i) => (
+    <td
+      key={i}
+      className={`px-3 py-2.5 text-right nums-tabular whitespace-nowrap ${i % 2 === 0 ? 'border-l border-mist' : ''} ${strong ? 'font-semibold text-plum-deep' : 'text-body'}`}
+    >
+      {v || <span className="text-quiet/50" aria-label="not applicable">–</span>}
+    </td>
+  ))
+}
+
+function FeeGroup({ group }) {
+  return (
+    <>
+      <tr className="bg-porcelain">
+        <th colSpan={8} scope="rowgroup" className="px-3 py-2 text-left text-xs font-semibold text-quiet">
+          {group.code}. {group.title}
+        </th>
+      </tr>
+      {group.rows.map(([code, label, values]) => (
+        <tr key={code} className="border-t border-mist">
+          <td className="px-3 py-2.5 text-quiet nums-tabular">{code}</td>
+          <th scope="row" className="px-3 py-2.5 text-left font-normal text-body">{label}</th>
+          <FeeCells values={values} />
+        </tr>
+      ))}
+      {group.total && (
+        <tr className="border-t border-mist">
+          <td />
+          <th scope="row" className="px-3 py-2.5 text-left font-semibold text-plum-deep">{group.total[0]}</th>
+          <FeeCells values={group.total[1]} strong />
+        </tr>
+      )}
+    </>
+  )
+}
+
+function TotalRow({ row, emphasis = false }) {
+  return (
+    <tr className={emphasis ? 'bg-plum text-white' : 'border-y border-plum/20 bg-plum-tint'}>
+      <td />
+      <th scope="row" className={`px-3 py-3 text-left font-semibold ${emphasis ? 'text-white' : 'text-plum-deep'}`}>{row[0]}</th>
+      {row[1].map((v, i) => (
+        <td key={i} className={`px-3 py-3 text-right font-semibold nums-tabular whitespace-nowrap ${i % 2 === 0 ? `border-l ${emphasis ? 'border-white/15' : 'border-plum/10'}` : ''} ${emphasis ? 'text-white' : 'text-plum-deep'}`}>
+          {v}
+        </td>
+      ))}
+    </tr>
+  )
+}
+
+/** One admission route: its name and essentials on the left, the full sheet on the right. */
+function RouteSheet({ id, title, summary, facts, action, rows, tone = 'plum' }) {
+  return (
+    <section id={id} className="scroll-mt-16 py-16 md:py-20 border-t border-mist first:border-t-0">
+      <div className="grid gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <div className="lg:sticky lg:top-[calc(var(--site-header-h,140px)+5rem)]">
+            <h2 className={`text-3xl md:text-[2.25rem] leading-[1.1] font-medium tracking-[-0.01em] ${tone === 'ink' ? 'text-ink' : 'text-plum-deep'}`}>{title}</h2>
+            <p className="mt-3 text-quiet leading-relaxed">{summary}</p>
+            {facts && (
+              <dl className="mt-6 space-y-3 text-sm">
+                {facts.map(([k, v]) => (
+                  <div key={k}>
+                    <dt className="text-quiet">{k}</dt>
+                    <dd className="font-semibold text-plum-deep">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {action && <div className="mt-7">{action}</div>}
+          </div>
+        </div>
+        <div className="lg:col-span-8">
+          <DetailRows rows={rows} />
+        </div>
+      </div>
+    </section>
+  )
+}
 
 export default function Admission() {
   const [faqs, setFaqs] = useState([])
@@ -40,6 +203,12 @@ export default function Admission() {
     PHD: programs.filter(p => p.level === 'PHD'),
   }
 
+  const programColumns = [
+    { key: 'UNDERGRADUATE', title: 'Undergraduate', empty: 'No undergraduate programs listed.', accent: 'bg-saffron' },
+    { key: 'POSTGRADUATE', title: 'Postgraduate', empty: 'No postgraduate programs listed.', accent: 'bg-plum' },
+    { key: 'PHD', title: 'Doctoral (Ph.D.)', empty: 'No doctoral programs listed.', accent: 'bg-ink' },
+  ]
+
   return (
     <div>
       <HeroSection
@@ -51,276 +220,374 @@ export default function Admission() {
       />
 
       {/* Which application is for me? Block */}
-      <section className="bg-brand-purple/5 border-y border-brand-purple/10 py-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <span className="text-xs font-semibold tracking-wider uppercase text-brand-purple bg-brand-purple/10 px-3 py-1 rounded-full">
-              Guide
-            </span>
-            <h2 className="text-2xl font-bold text-gray-900 mt-2">Which application is for me?</h2>
-            <p className="text-gray-600 text-sm mt-1">Select the correct application route based on your intended period and type of study.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-brand-purple transition-colors">
-              <div>
-                <div className="flex items-center gap-3 mb-3 text-brand-purple">
-                  <RiGraduationCapLine size={28} />
-                  <h3 className="text-lg font-bold text-gray-900">Full-Time Degree Programs</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                  For international applicants seeking a full-time graduating degree: <strong>B.Tech, M.Tech, M.Sc, MS, or Ph.D.</strong> at IIT Dharwad.
-                </p>
-              </div>
-              <Link
-                to="/international-admissions/apply"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-brand-purple text-white text-sm font-medium hover:bg-brand-purpleDark transition-colors"
-              >
-                Apply for Degree Program <RiArrowRightLine size={16} />
-              </Link>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-brand-marigold transition-colors">
-              <div>
-                <div className="flex items-center gap-3 mb-3 text-brand-marigold">
-                  <RiExchangeFundsLine size={28} />
-                  <h3 className="text-lg font-bold text-gray-900">Inbound Exchange & Mobility</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                  For international students visiting for a <strong>semester exchange, research internship, summer program, or visiting student</strong> status.
-                </p>
-              </div>
-              <Link
-                to="/international-mobility/apply"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
-              >
-                Apply for Inbound Exchange <RiArrowRightLine size={16} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="STUDY IN INDIA Applications"
-          subtitle="Apply via the Study in India portal"
-          badge={<RiGraduationCapLine size={24} />}
-        />
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">About the Program</h3>
-            <p className="text-gray-700 leading-relaxed text-sm">
-              Study in India (SII) is the flagship international education initiative of the Ministry of Education (MoE), Government of India. The programme is open to students from across the globe, with strong participation from South Asia (SAARC), Africa, Southeast Asia, Central Asia, and the Middle East.
-            </p>
-            <p className="text-gray-700 leading-relaxed text-sm mt-3">
-              The Study in India portal serves as a comprehensive single-window platform for international students to explore programs, submit applications, and receive admission offers.
-            </p>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Application Details</h3>
-            <ul className="space-y-3 text-sm text-gray-700">
-              <li><strong>Eligibility:</strong> The medium of instruction is English. Candidates must have a functional knowledge of English (read, write, understand, and speak). Qualification as per IIT Dharwad rules.</li>
-              <li><strong>Application Procedure:</strong> Apply through the <a href="https://www.studyinindia.gov.in/admission/Registrations" className="text-brand-purple hover:underline" target="_blank" rel="noopener noreferrer">Study in India portal</a>.</li>
-              <li><strong>Funding Details:</strong> The selected applicant has to pay fees as per IIT Dharwad fee structure.</li>
-              <li><strong>Application Deadline:</strong> Please visit the SII website.</li>
-            </ul>
-          </Card>
-        </div>
-      </section>
-
-      <section className="bg-neutral-canvas py-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="bg-white border-b border-mist py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Self-Financed Applications"
-            subtitle="Apply directly through the International Relations Office"
+            title="Which application is for me?"
+            subtitle="Select the correct application route based on your intended period and type of study."
           />
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Program Details</h3>
-              <p className="text-gray-700 leading-relaxed text-sm mb-4">
-                International students who want to pursue a full time Masters can go through IIT Dharwad Departments and Programs offered and apply through the International Relations Office.
-              </p>
-              <h4 className="font-bold text-brand-purple mb-2">Eligibility</h4>
-              <ul className="space-y-2 text-sm text-gray-700 mb-4 list-disc pl-5">
-                <li>For Masters by Technology (MTech): Bachelor’s degree in relevant area</li>
-                <li>For Masters by Science (MSc): Bachelor’s degree in relevant area</li>
-                <li>Functional knowledge of English is required.</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Application Procedure</h3>
-              <ul className="space-y-2 text-sm text-gray-700 mb-4">
-                <li>1. Interested students can apply directly through our online application portal or submit their application package to the International Relations Office.</li>
-                <li>2. Shortlisted candidates will be called for an interview.</li>
-                <li>3. Admission is subject to the recommendations by the selection committee.</li>
-              </ul>
-              <div className="mb-4">
-                <CTAButton label="Submit Online Application" to="/international-admissions/apply" variant="primary" size="sm" />
+          <div className="grid gap-6 md:grid-cols-2">
+            <Link
+              to="/international-admissions/apply"
+              className="group flex flex-col justify-between gap-8 rounded-2xl bg-plum p-8 text-white transition-colors hover:bg-plum-deep"
+            >
+              <div>
+                <h3 className="text-2xl font-medium">Full-time degree programmes</h3>
+                <p className="mt-3 text-white/75 leading-relaxed">
+                  For international applicants seeking a full-time graduating degree: <strong className="font-semibold text-white">B.Tech, M.Tech, M.Sc, MS, or Ph.D.</strong> at IIT Dharwad.
+                </p>
               </div>
-              <div className="bg-brand-purpleLight/30 p-4 rounded-lg mt-4">
-                <p className="font-semibold text-brand-purpleDark text-sm mb-2">Documents to be submitted (as single PDF):</p>
-                <ul className="list-disc pl-5 text-sm text-gray-700">
-                  <li>Grade cards (10th, 12th and UG)</li>
-                  <li>Statement of Purpose (SOP)</li>
-                  <li>Recommendation by two members</li>
-                  <li>Work experience / Publications (If any)</li>
-                  <li>Passport copy/ID card (in case of Nepal and Bhutan citizens)</li>
-                  <li>Passport photo</li>
-                </ul>
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
+                Apply for Degree Program <RiArrowRightLine size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
+
+            <Link
+              to="/international-mobility/apply"
+              className="group flex flex-col justify-between gap-8 rounded-2xl bg-ink p-8 text-white transition-colors hover:bg-ink-deep"
+            >
+              <div>
+                <h3 className="text-2xl font-medium">Inbound exchange and mobility</h3>
+                <p className="mt-3 text-white/75 leading-relaxed">
+                  For international students visiting for a <strong className="font-semibold text-white">semester exchange, research internship, summer program, or visiting student</strong> status.
+                </p>
               </div>
-            </Card>
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
+                Apply for Inbound Exchange <RiArrowRightLine size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Embassies & Funding"
-          subtitle="Additional avenues for admission"
+      {/* In-page contents: stays under the header while reading */}
+      <nav
+        aria-label="On this page"
+        className="sticky top-[var(--site-header-h,140px)] z-30 border-b border-mist bg-porcelain/95 backdrop-blur"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ul className="scrollbar-hide -mx-4 flex gap-1 overflow-x-auto px-4 py-2.5 sm:mx-0 sm:px-0">
+            {SECTIONS.map((s) => (
+              <li key={s.id} className="shrink-0">
+                <a href={`#${s.id}`} className="block rounded-full px-3.5 py-1.5 text-sm font-medium text-body hover:bg-white hover:text-plum-deep hover:ring-1 hover:ring-mist">
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <RouteSheet
+          id="study-in-india"
+          title="Study in India applications"
+          summary="Apply via the Study in India portal, the Government of India's single window for international students."
+          facts={[['Programmes', 'Masters and PhD'], ['Apply through', 'studyinindia.gov.in']]}
+          action={<CTAButton label="Register on Study in India" href="https://www.studyinindia.gov.in/admission/Registrations" />}
+          rows={[
+            {
+              label: 'About the programme',
+              content: (
+                <>
+                  <p>
+                    Study in India (SII) is the flagship international education initiative of the Ministry of Education (MoE), Government of India, launched on 18 April 2018 to position India as a preferred global destination for higher education.
+                  </p>
+                  <p>
+                    India is home to one of the world's largest higher education systems, with more than 1,200 universities and over 45,000 colleges. The programme encourages international students to study at premier Indian institutions, including the IITs, NITs and Central Universities, and is open to students from across the globe, with strong participation from South Asia (SAARC), Africa, Southeast Asia, Central Asia, and the Middle East.
+                  </p>
+                  <p>The Study in India portal is a single window where international students can:</p>
+                  <ul>
+                    <li>Explore academic programmes offered by participating institutions</li>
+                    <li>Submit online applications for admission</li>
+                    <li>Receive admission offers</li>
+                    <li>Apply for a student visa through the integrated system</li>
+                    <li>Complete required immigration and FRRO-related formalities</li>
+                  </ul>
+                  <p>Website: <a href="https://www.studyinindia.gov.in/home" target="_blank" rel="noopener noreferrer">studyinindia.gov.in</a></p>
+                </>
+              ),
+            },
+            {
+              label: 'Eligibility',
+              content: (
+                <>
+                  <p>The eligibility criteria and qualifications are as per IIT Dharwad rules and regulations.</p>
+                  <p>{ENGLISH}</p>
+                </>
+              ),
+            },
+            {
+              label: 'Application procedure',
+              content: <p>Apply through the <a href="https://www.studyinindia.gov.in/admission/Registrations" target="_blank" rel="noopener noreferrer">Study in India portal</a>.</p>,
+            },
+            { label: 'Funding details', content: <p>The selected applicant pays fees as per the IIT Dharwad fee structure.</p> },
+            { label: 'Application deadline', content: <p>Please visit the <a href="https://www.studyinindia.gov.in/home" target="_blank" rel="noopener noreferrer">SII website</a>.</p> },
+            { label: "FAQs", content: <p><a href="https://www.studyinindia.gov.in/faqs" target="_blank" rel="noopener noreferrer">Study in India FAQs</a></p> },
+            { label: 'Fee structure', content: <p>{FEE_SUMMARY}</p> },
+          ]}
         />
-        <div className="grid md:grid-cols-2 gap-8">
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Embassies</h3>
-            <p className="text-gray-700 leading-relaxed text-sm mb-4">
-              International students who want to pursue a full time Masters or PhD program can apply through their respective Embassies for the International Relations Office at IIT Dharwad.
-            </p>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li><strong>Procedure & Funding:</strong> As per your Embassy guidelines.</li>
-              <li><strong>Deadlines:</strong> As per your Embassy guidelines.</li>
-            </ul>
-          </Card>
-          <Card>
-            <h3 className="text-xl font-bold text-brand-purpleDark mb-4">Fee Structure (2026-2027)</h3>
-            <p className="text-gray-700 leading-relaxed text-sm mb-4">
-              <strong>Application processing fee:</strong> 10 USD<br/>
-              <strong>Institute Fees:</strong> To be decided (for MS/PhD and M.Tech/M.Sc)<br/>
-              <strong>International relations fees (after admission):</strong> 100 USD
-            </p>
-            <div className="bg-brand-marigold/20 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-brand-purpleDark">Financial Assistance</p>
-              <p className="text-sm text-gray-700 mt-1">
-                Meritorious self-financed students can apply for financial assistance/fee waiver specifying a valid reason. The institute will decide the level of scholarship that can be given.
-              </p>
+
+        <RouteSheet
+          id="self-financed"
+          title="Self-financed applications"
+          summary="Apply directly through the International Relations Office for a full-time Masters by coursework, or a PhD."
+          facts={[['Programmes', 'M.Tech, M.Sc and PhD'], ['Masters applications', '1 February to 30 April']]}
+          action={<CTAButton label="Submit Online Application" to="/international-admissions/apply" />}
+          rows={[
+            {
+              label: 'About the programme',
+              content: (
+                <p>
+                  International students who want to pursue a full-time Masters can go through IIT Dharwad's{' '}
+                  <a href="https://www.iitdh.ac.in" target="_blank" rel="noopener noreferrer">departments and programmes</a> and apply through the International Relations Office.
+                </p>
+              ),
+            },
+            {
+              label: 'Eligibility',
+              content: (
+                <>
+                  <ul>
+                    <li>Masters by Technology (M.Tech): Bachelor's degree in a relevant area</li>
+                    <li>Masters by Science (M.Sc): Bachelor's degree in a relevant area</li>
+                    <li>60% or a CGPA of 6.0 and above</li>
+                    <li>TOEFL or IELTS score required; GRE optional</li>
+                  </ul>
+                  <p>{ENGLISH}</p>
+                </>
+              ),
+            },
+            {
+              label: 'Application procedure',
+              content: (
+                <>
+                  <ol>
+                    <li>Fill in the application form and submit it to the International Relations Office with the required documents.</li>
+                    <li>Shortlisted candidates are called for an interview by the respective department, coordinated by the International Relations Office.</li>
+                    <li>Admission is subject to the recommendations of the selection committee's own selection process.</li>
+                  </ol>
+                  <div className="mt-5 rounded-xl bg-porcelain p-5 ring-1 ring-inset ring-mist">
+                    <p className="font-semibold text-plum-deep">Documents to submit, scanned into a single PDF</p>
+                    <ul>
+                      <li>Grade cards (10th, 12th and UG)</li>
+                      <li>Statement of Purpose (SOP)</li>
+                      <li>Recommendation by two members</li>
+                      <li>Work experience (if any)</li>
+                      <li>Publications (if any)</li>
+                      <li>Passport copy, or ID card for citizens of Nepal and Bhutan</li>
+                      <li>Passport photo</li>
+                    </ul>
+                  </div>
+                </>
+              ),
+            },
+            {
+              label: 'Funding details',
+              content: (
+                <p>
+                  Meritorious students can apply for financial assistance or a fee waiver, specifying a valid reason. The institute will decide the level of scholarship that can be given to the student.
+                </p>
+              ),
+            },
+            {
+              label: 'Application deadline',
+              content: (
+                <>
+                  <p><strong className="font-semibold text-plum-deep">Masters:</strong> applications open 1 February to 30 April every year. The programme begins in the last week of July.</p>
+                  <p><strong className="font-semibold text-plum-deep">PhD:</strong> 1 February to 30 April for the July intake; 1 July to 30 September for the January intake.</p>
+                  <p className="text-sm text-quiet">Dates are subject to change.</p>
+                </>
+              ),
+            },
+            { label: 'Fee structure', content: <p>{FEE_SUMMARY}</p> },
+          ]}
+        />
+
+        <RouteSheet
+          id="embassy"
+          title="Embassy applications"
+          summary="Apply for a full-time Masters or PhD through your country's Embassy."
+          facts={[['Programmes', 'Masters and PhD'], ['Deadlines and funding', 'As per your Embassy']]}
+          rows={[
+            {
+              label: 'About the programme',
+              content: <p>International students who want to pursue a full-time Masters or PhD programme can apply through their respective Embassies to the International Relations Office at IIT Dharwad.</p>,
+            },
+            {
+              label: 'Eligibility',
+              content: (
+                <>
+                  <p>As per IIT Dharwad rules and regulations.</p>
+                  <p>{ENGLISH}</p>
+                </>
+              ),
+            },
+            {
+              label: 'Application procedure',
+              content: <p>As per your Embassy guidelines. The IIT Dharwad application form is also available through the <Link to="/international-admissions/apply">online application</Link>.</p>,
+            },
+            { label: 'Funding details', content: <p>As per your Embassy guidelines.</p> },
+            { label: 'Application deadline', content: <p>As per your Embassy guidelines.</p> },
+            {
+              label: 'FAQs',
+              content: (
+                <>
+                  <p className="font-semibold text-plum-deep">Will I get an additional scholarship from IIT Dharwad apart from what I receive from my Embassy?</p>
+                  <p>No. Additional scholarships are not given to Embassy-sponsored students.</p>
+                  <p className="font-semibold text-plum-deep">What if a programme is not sponsored by the Embassy?</p>
+                  <p>Deserving students who are not sponsored by their Embassy can apply directly to IIT Dharwad under the <a href="#self-financed">self-financed</a> category.</p>
+                </>
+              ),
+            },
+            { label: 'Fee structure', content: <p>{FEE_SUMMARY}</p> },
+          ]}
+        />
+      </div>
+
+      {/* Fee structure */}
+      <section id="fees" className="scroll-mt-16 bg-white border-y border-mist py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Fee structure, 2026–27"
+            subtitle="What international students pay, in addition to the USD 10 application processing fee and the USD 100 International Relations fee due after admission."
+          />
+
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <h3 className="text-xl font-medium text-plum-deep">PhD and M.Tech (Research)</h3>
+              <p className="mt-1 text-sm text-quiet">Amounts in Indian rupees (₹). GEN: general category; PwD: persons with disabilities.</p>
+              <div className="mt-5 overflow-x-auto rounded-2xl border border-mist">
+                <table className="w-full min-w-[46rem] text-sm">
+                  <caption className="sr-only">Fee structure 2026–27 for international PhD and M.Tech (Research) students, in rupees</caption>
+                  <thead>
+                    <tr className="bg-plum-deep text-white">
+                      <th rowSpan={2} scope="col" className="px-3 py-3 text-left font-semibold w-12">No.</th>
+                      <th rowSpan={2} scope="col" className="px-3 py-3 text-left font-semibold">Particulars</th>
+                      <th colSpan={2} scope="colgroup" className="border-l border-white/15 px-3 pt-3 pb-1 text-right font-semibold">First semester</th>
+                      <th colSpan={2} scope="colgroup" className="border-l border-white/15 px-3 pt-3 pb-1 text-right font-semibold">Spring semester</th>
+                      <th colSpan={2} scope="colgroup" className="border-l border-white/15 px-3 pt-3 pb-1 text-right font-semibold">Autumn semester</th>
+                    </tr>
+                    <tr className="bg-plum-deep text-white/70 text-xs">
+                      {['GEN', 'PwD', 'GEN', 'PwD', 'GEN', 'PwD'].map((h, i) => (
+                        <th key={i} scope="col" className={`px-3 pb-2.5 text-right font-medium ${i % 2 === 0 ? 'border-l border-white/15' : ''}`}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {FEE_GROUPS.map((g) => <FeeGroup key={g.code} group={g} />)}
+                    <TotalRow row={FEE_ACADEMIC_TOTAL} />
+                    {FEE_NON_ACADEMIC.map((g) => <FeeGroup key={g.code} group={g} />)}
+                    <TotalRow row={FEE_NON_ACADEMIC_TOTAL} />
+                    <TotalRow row={FEE_GRAND_TOTAL} emphasis />
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </Card>
+
+            <aside className="lg:col-span-4 space-y-6">
+              <div className="rounded-2xl bg-porcelain p-6 ring-1 ring-inset ring-mist">
+                <h3 className="text-xl font-medium text-plum-deep">M.Tech and M.Sc</h3>
+                <p className="mt-2 text-body">The 2026–27 fee structure for international M.Tech and M.Sc students is to be decided.</p>
+              </div>
+              <div className="rounded-2xl bg-saffron-tint p-6">
+                <h3 className="text-xl font-medium text-plum-deep">Financial assistance</h3>
+                <p className="mt-2 text-body">
+                  Meritorious self-financed students can apply for financial assistance or a fee waiver, specifying a valid reason. The institute decides the level of scholarship.
+                </p>
+              </div>
+              <p className="text-sm text-quiet">
+                Fees are paid directly to the Institute's bank account. Embassy-sponsored students receive no additional scholarship from IIT Dharwad.
+              </p>
+            </aside>
+          </div>
         </div>
       </section>
 
       {/* Programs Catalogue (3.10) */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Academic Programs Catalogue"
-          subtitle="Explore academic degree offerings open to international candidates"
-          badge={<RiBookOpenLine size={24} />}
-        />
-        {loadingPrograms ? (
-          <div className="text-center py-8 text-gray-500">Loading programs catalogue...</div>
-        ) : programs.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No programs listed currently.</div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Undergraduate */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                <h3 className="font-bold text-gray-900 text-lg">Undergraduate</h3>
-                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                  {programsByLevel.UNDERGRADUATE.length}
-                </span>
-              </div>
-              {programsByLevel.UNDERGRADUATE.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">No undergraduate programs listed.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {programsByLevel.UNDERGRADUATE.map((p) => (
-                    <li key={p.id}>
-                      <a
-                        href={p.redirectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
-                      >
-                        <span>{p.name}</span>
-                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+      <section id="programs" className="scroll-mt-16 py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Academic programmes catalogue"
+            subtitle="Explore academic degree offerings open to international candidates"
+          />
+          {loadingPrograms ? (
+            <p className="py-8 text-quiet">Loading programs catalogue...</p>
+          ) : programs.length === 0 ? (
+            <p className="py-8 text-quiet">No programs listed currently.</p>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-3">
+              {programColumns.map((col) => (
+                <div key={col.key} className="rounded-2xl border border-mist bg-white p-6">
+                  <div className="mb-4 flex items-center gap-2.5 border-b border-mist pb-4">
+                    <span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ${col.accent}`} />
+                    <h3 className="text-xl font-medium text-plum-deep">{col.title}</h3>
+                    <span className="ml-auto text-sm text-quiet nums-tabular">{programsByLevel[col.key].length}</span>
+                  </div>
+                  {programsByLevel[col.key].length === 0 ? (
+                    <p className="text-sm text-quiet">{col.empty}</p>
+                  ) : (
+                    <ul className="-mx-2">
+                      {programsByLevel[col.key].map((p) => (
+                        <li key={p.id}>
+                          <a
+                            href={p.redirectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center justify-between gap-3 rounded-lg px-2 py-2 text-[0.95rem] text-body hover:bg-porcelain hover:text-plum-deep"
+                          >
+                            <span>{p.name}</span>
+                            <RiArrowRightUpLine size={16} aria-hidden="true" className="shrink-0 text-quiet group-hover:text-plum" />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
-
-            {/* Postgraduate */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                <h3 className="font-bold text-gray-900 text-lg">Postgraduate</h3>
-                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-700">
-                  {programsByLevel.POSTGRADUATE.length}
-                </span>
-              </div>
-              {programsByLevel.POSTGRADUATE.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">No postgraduate programs listed.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {programsByLevel.POSTGRADUATE.map((p) => (
-                    <li key={p.id}>
-                      <a
-                        href={p.redirectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
-                      >
-                        <span>{p.name}</span>
-                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* PhD */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                <h3 className="font-bold text-gray-900 text-lg">Doctoral (Ph.D.)</h3>
-                <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700">
-                  {programsByLevel.PHD.length}
-                </span>
-              </div>
-              {programsByLevel.PHD.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">No doctoral programs listed.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {programsByLevel.PHD.map((p) => (
-                    <li key={p.id}>
-                      <a
-                        href={p.redirectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-gray-800 hover:text-brand-purple flex items-center justify-between group"
-                      >
-                        <span>{p.name}</span>
-                        <RiArrowRightLine size={16} className="text-gray-400 group-hover:text-brand-purple shrink-0 transition-transform group-hover:translate-x-0.5" />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
-      <section id="faqs" className="bg-neutral-canvas py-16">
-        <div className="max-w-3xl mx-auto px-4">
+      {/* Contacts */}
+      <section id="admission-contacts" className="scroll-mt-16 bg-white border-y border-mist py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Frequently Asked Questions"
-            subtitle="Find answers to common questions"
-            badge={<RiQuestionAnswerLine size={24} />}
+            title="Applications and general queries"
+            subtitle="Write to us about eligibility, documents or the status of your application."
           />
-          <FAQAccordion items={faqs} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-mist p-6">
+              <h3 className="text-xl font-medium text-plum-deep">Inbound Coordinator</h3>
+              <p className="text-sm text-quiet">International admissions and inbound programmes</p>
+              <ul className="mt-5 space-y-2 text-[0.95rem]">
+                <li className="flex items-center gap-2.5"><RiMailLine size={17} aria-hidden="true" className="text-saffron-deep" /><a href="mailto:inbound.iro@iitdh.ac.in" className="text-plum hover:underline underline-offset-4">inbound.iro@iitdh.ac.in</a></li>
+                <li className="flex items-center gap-2.5"><RiPhoneLine size={17} aria-hidden="true" className="text-saffron-deep" /><a href="tel:+919444536574" className="text-body hover:text-plum nums-tabular">+91 94445 36574</a></li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-mist p-6">
+              <h3 className="text-xl font-medium text-plum-deep">Prof. Sagnik Sen</h3>
+              <p className="text-sm text-quiet">Chairperson, International Relations</p>
+              <ul className="mt-5 space-y-2 text-[0.95rem]">
+                <li className="flex items-center gap-2.5"><RiMailLine size={17} aria-hidden="true" className="text-saffron-deep" /><a href="mailto:chairperson.iro@iitdh.ac.in" className="text-plum hover:underline underline-offset-4">chairperson.iro@iitdh.ac.in</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faqs" className="py-20 md:py-24">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+          <div className="lg:col-span-4">
+            <SectionHeader
+              title="Frequently asked questions"
+              subtitle="Find answers to common questions"
+            />
+          </div>
+          <div className="lg:col-span-8">
+            <FAQAccordion items={faqs} />
+          </div>
         </div>
       </section>
     </div>

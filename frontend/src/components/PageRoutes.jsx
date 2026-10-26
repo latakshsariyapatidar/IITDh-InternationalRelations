@@ -62,8 +62,9 @@ import Opportunities from '../pages/Opportunities'
 import VisitorsForm from '../pages/VisitorsForm'
 import InboundExchangeForm from '../pages/InboundExchangeForm'
 
-const COVER_DURATION = 325
-const REVEAL_DURATION = 325
+// Keep in step with the barba-* keyframes in index.css
+const COVER_DURATION = 460
+const REVEAL_DURATION = 420
 
 function delay(ms) {
   return new Promise((resolve) => {
@@ -204,6 +205,11 @@ export default function PageRoutes() {
         return
       }
 
+      // A #link within the current page scrolls natively, without a curtain.
+      if (url.hash && url.pathname === window.location.pathname && url.search === window.location.search) {
+        return
+      }
+
       event.preventDefault()
       void runTransition(url.href)
     }
@@ -226,22 +232,18 @@ export default function PageRoutes() {
     <div className="relative min-h-screen" data-barba="wrapper">
       <TitleAndScrollManager />
       <div className="relative min-h-screen" data-barba="container" data-barba-namespace="iro">
+        {/* Page change: an arched plum panel rises over the page, then lifts away */}
         <div className={curtainClassName} key={curtainKey} aria-hidden="true">
-          <div className="barba-curtain-content">
-            <img
-              src="/IITDh Logo.svg"
-              alt="IIT Dharwad"
-              className="barba-curtain-logo"
-            />
-            <div className="barba-curtain-wordmark ">International Relations Office</div>
-            <svg
-              className="barba-curtain-loader"
-              viewBox="0 0 100 100"
-              role="presentation"
-            >
-              <circle className="barba-loader-track" cx="50" cy="50" r="36" />
-              <circle className="barba-loader-ring" cx="50" cy="50" r="36" />
-            </svg>
+          <div className="barba-curtain-panel">
+            <div className="barba-curtain-content">
+              <img
+                src="/IITDh logo white.svg"
+                alt=""
+                className="barba-curtain-logo"
+              />
+              <div className="barba-curtain-wordmark">International Relations Office</div>
+              <span className="barba-curtain-rule" />
+            </div>
           </div>
         </div>
 

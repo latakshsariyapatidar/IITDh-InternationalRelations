@@ -1,6 +1,4 @@
 import HeroSection from '../components/HeroSection'
-import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
@@ -9,8 +7,7 @@ import {
   RiFilePaperLine,
   RiFileTextLine,
   RiGlobalLine,
-  RiDownloadCloud2Line,
-  RiFilter3Line
+  RiDownloadLine
 } from '@remixicon/react'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
@@ -82,13 +79,13 @@ export default function Downloads() {
 
   const getCategoryIcon = (category) => {
     const icons = {
-      ADMISSION_FORM: <RiFilePaper2Line size={32} className="text-brand-purple" />,
-      VISA_GUIDE: <RiGlobalLine size={32} className="text-brand-purple" />,
-      MOU_DOCUMENT: <RiFilePaperLine size={32} className="text-brand-purple" />,
-      BROCHURE: <RiBookReadLine size={32} className="text-brand-purple" />,
-      OTHER: <RiFileTextLine size={32} className="text-brand-purple" />,
+      ADMISSION_FORM: <RiFilePaper2Line size={22} />,
+      VISA_GUIDE: <RiGlobalLine size={22} />,
+      MOU_DOCUMENT: <RiFilePaperLine size={22} />,
+      BROCHURE: <RiBookReadLine size={22} />,
+      OTHER: <RiFileTextLine size={22} />,
     }
-    return icons[category] || <RiFileTextLine size={32} className="text-brand-purple" />
+    return icons[category] || <RiFileTextLine size={22} />
   }
 
   const groupedDownloads = downloads.reduce((acc, current) => {
@@ -119,121 +116,104 @@ export default function Downloads() {
       />
 
       {/* Filter Tabs */}
-      <section className="bg-white border-b border-gray-200 sticky top-16 z-20 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 overflow-x-auto">
-          <div className="flex items-center gap-1.5 shrink-0 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            <RiFilter3Line size={16} />
-            <span>Category:</span>
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.key}
-                type="button"
-                onClick={() => handleCategorySelect(c.key)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedCategory === c.key
-                    ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
+      <div className="sticky top-[var(--site-header-h,140px)] z-20 border-b border-mist bg-porcelain/95 backdrop-blur">
+        <div role="group" aria-label="Category" className="scrollbar-hide mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => handleCategorySelect(c.key)}
+              aria-pressed={selectedCategory === c.key}
+              className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === c.key
+                  ? 'bg-plum text-white'
+                  : 'bg-white text-body ring-1 ring-inset ring-mist hover:text-plum-deep hover:ring-plum/30'
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {loading ? (
-        <div className="py-24 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-purple border-t-transparent mb-3" />
-          <p className="text-sm font-medium text-gray-500">Loading resources...</p>
-        </div>
-      ) : downloadSections.length > 0 ? (
-        downloadSections.map((section, sectionIdx) => (
-          <section key={section.category || sectionIdx} className={sectionIdx % 2 === 0 ? '' : 'bg-gray-50'}>
-            <div className="max-w-7xl mx-auto px-4 py-12">
-              <div className="flex items-center justify-between mb-8 pb-3 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-brand-purpleDark">{section.title}</h2>
-                <span className="text-xs font-semibold text-gray-500 bg-white px-2.5 py-1 rounded-full border border-gray-200">
-                  {section.items.length} {section.items.length === 1 ? 'file' : 'files'}
-                </span>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {section.items.map((item, idx) => {
-                  const resolvedUrl = resolveMediaUrl(item.fileUrl)
-                  return (
-                    <Card key={idx} className="hover:border-brand-purpleLight/60 border border-gray-100 flex flex-col h-full bg-white shadow-xs hover:shadow-md transition-all">
-                      <div className="flex items-start gap-4 h-full flex-col p-2">
-                        <div className="flex items-start gap-4 w-full">
-                          <div className="flex-shrink-0 mt-1 bg-brand-purpleLight/20 p-3 rounded-xl">{item.icon}</div>
-                          <div className="flex-grow">
-                            <h3 className="text-base font-bold text-brand-purpleDark mb-1.5 leading-snug">{item.name}</h3>
-                            {item.desc && <p className="text-xs text-gray-600 mb-3 line-clamp-3">{item.desc}</p>}
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
+        {loading ? (
+          <p className="py-16 text-center text-quiet">Loading resources...</p>
+        ) : downloadSections.length > 0 ? (
+          <div className="space-y-16">
+            {downloadSections.map((section, sectionIdx) => (
+              <section key={section.category || sectionIdx} aria-labelledby={`dl-${section.category}`}>
+                <div className="mb-5 flex items-baseline justify-between gap-4">
+                  <h2 id={`dl-${section.category}`} className="text-3xl font-medium text-plum-deep">{section.title}</h2>
+                  <span className="text-sm text-quiet nums-tabular">
+                    {section.items.length} {section.items.length === 1 ? 'file' : 'files'}
+                  </span>
+                </div>
+                <ul className="divide-y divide-mist overflow-hidden rounded-2xl border border-mist bg-white">
+                  {section.items.map((item, idx) => {
+                    const resolvedUrl = resolveMediaUrl(item.fileUrl)
+                    return (
+                      <li key={idx} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6">
+                        <div className="flex min-w-0 flex-1 items-start gap-4">
+                          <span aria-hidden="true" className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plum-tint text-plum">{item.icon}</span>
+                          <div className="min-w-0">
+                            <h3 className="text-lg font-medium leading-snug text-plum-deep">{item.name}</h3>
+                            {item.desc && <p className="mt-1 text-sm text-quiet line-clamp-2">{item.desc}</p>}
                           </div>
                         </div>
-                        <div className="flex items-center justify-between w-full mt-auto pt-4 border-t border-gray-100">
-                          <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                            {item.size}
-                          </span>
+                        <div className="flex shrink-0 items-center gap-4 pl-15 sm:pl-0">
+                          <span className="text-xs font-semibold text-quiet">{item.size}</span>
                           {resolvedUrl ? (
                             <a
                               href={resolvedUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-brand-purple hover:text-brand-purpleDark font-semibold text-xs flex items-center gap-1.5 bg-brand-purpleLight/20 px-3 py-1.5 rounded-lg transition-colors"
+                              className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-plum/30 transition-colors hover:bg-plum hover:text-white"
                             >
-                              <RiDownloadCloud2Line size={16} /> Download
+                              <RiDownloadLine size={16} aria-hidden="true" /> Download
                             </a>
                           ) : (
-                            <span className="text-xs text-gray-400">File unavailable</span>
+                            <span className="text-sm text-quiet">File unavailable</span>
                           )}
                         </div>
-                      </div>
-                    </Card>
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-        ))
-      ) : (
-        <div className="py-24 text-center text-gray-500">
-          <p className="font-semibold text-base mb-1">No resources found</p>
-          <p className="text-xs text-gray-400">
-            {selectedCategory !== 'ALL'
-              ? 'Try selecting "All Resources" to view all available files.'
-              : 'No documents are currently available for public download.'}
-          </p>
-        </div>
-      )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-mist bg-white p-12 text-center">
+            <p className="text-lg font-medium text-plum-deep">No resources found</p>
+            <p className="mt-1 text-sm text-quiet">
+              {selectedCategory !== 'ALL'
+                ? 'Try selecting "All Resources" to view all available files.'
+                : 'No documents are currently available for public download.'}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Contact for Custom Requests */}
-      <section className="bg-neutral-canvas py-16 border-t border-gray-200">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <SectionHeader
-            title="Can't Find What You Need?"
-            subtitle="Contact the International Relations Office for customized documentation"
-          />
-          <Card className="text-center max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-xs border border-gray-200">
-            <p className="text-sm text-gray-700 mb-4">
-              We can provide customized documents and additional resources for your specific academic or administrative needs.
+      <section className="bg-white border-t border-mist py-16 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-12 md:items-end lg:px-8">
+          <div className="md:col-span-7">
+            <h2 className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep">Can't find what you need?</h2>
+            <p className="mt-3 text-lg text-quiet">
+              Contact the International Relations Office for customized documentation. We can provide documents and additional resources for your specific academic or administrative needs.
             </p>
-            <div className="space-y-1.5 text-sm text-gray-700">
-              <p>
-                <strong>Email:</strong>{' '}
-                <a href="mailto:iro@iitdh.ac.in" className="text-brand-purple hover:underline">
-                  iro@iitdh.ac.in
-                </a>
-              </p>
-              <p>
-                <strong>Phone:</strong>{' '}
-                <a href="tel:+91-8364-241-200" className="text-brand-purple hover:underline">
-                  +91-8364-241-200
-                </a>
-              </p>
+          </div>
+          <dl className="space-y-2 md:col-span-5 md:text-right">
+            <div>
+              <dt className="sr-only">Email</dt>
+              <dd><a href="mailto:iro@iitdh.ac.in" className="font-heading! text-2xl text-plum underline decoration-saffron underline-offset-[6px] hover:decoration-plum">iro@iitdh.ac.in</a></dd>
             </div>
-          </Card>
+            <div>
+              <dt className="sr-only">Phone</dt>
+              <dd><a href="tel:+91-8364-241-200" className="text-body hover:text-plum nums-tabular">+91-8364-241-200</a></dd>
+            </div>
+          </dl>
         </div>
       </section>
     </div>

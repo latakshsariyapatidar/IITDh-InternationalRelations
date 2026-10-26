@@ -7,23 +7,23 @@ export default function Card({
   title = null
 }) {
   const variants = {
-    default: 'bg-white border border-brand-purpleLight/60',
-    light: 'bg-brand-purpleLight/30 border border-brand-purpleLight/70',
-    primary: 'bg-brand-purpleDark text-white border border-brand-marigold/20',
-    accent: 'bg-brand-cream text-white border border-brand-purple',
-    outline: 'bg-transparent border border-brand-purpleDark'
+    default: 'bg-white border border-mist',
+    light: 'bg-porcelain border border-mist',
+    primary: 'bg-plum-deep text-white border border-plum',
+    ink: 'bg-ink-deep text-white border border-ink',
+    accent: 'bg-saffron-tint border border-saffron/40',
+    outline: 'bg-transparent border border-plum/30'
   }
 
-  const hoverClass = hover
-    ? 'hover:shadow-lg hover:border-brand-purple transition-all duration-300'
-    : ''
+  const onDark = variant === 'primary' || variant === 'ink'
+  const hoverClass = hover ? 'transition-colors duration-200 hover:border-plum/25' : ''
 
   return (
-    <div className={`${variants[variant] || variants.default} rounded-xl shadow-sm ${hoverClass} p-6 mix-blend-normal ${className}`}>
+    <div className={`${variants[variant] || variants.default} rounded-2xl ${hoverClass} p-6 ${className}`}>
       {(icon || title) && (
         <div className="flex items-center gap-3 mb-4">
-          {icon && <span className="text-3xl drop-shadow-sm">{icon}</span>}
-          {title && <h3 className={`text-lg font-medium tracking-tight ${variant === 'primary' ? 'text-white' : 'text-brand-purpleDark'}`}>{title}</h3>}
+          {icon && <span className={`shrink-0 ${onDark ? 'text-saffron' : 'text-saffron-deep'}`}>{icon}</span>}
+          {title && <h3 className={`text-xl font-medium leading-snug ${onDark ? 'text-white' : 'text-plum-deep'}`}>{title}</h3>}
         </div>
       )}
       {children}

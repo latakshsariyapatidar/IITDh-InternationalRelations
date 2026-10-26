@@ -1,17 +1,26 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
-import CTAButton from '../components/ui/CTAButton'
+import ArchFrame from '../components/ui/ArchFrame'
 import { useState, useEffect } from 'react'
-import { RiHandHeartLine, RiUserStarLine, RiGroupLine, RiExternalLinkLine } from '@remixicon/react'
+import { RiExternalLinkLine, RiMailLine } from '@remixicon/react'
 import DOMPurify from 'dompurify'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { useSiteContent } from '../contexts/SiteContentContext'
 import { resolveMediaUrl } from '../utils/media'
 
+const AMBITIONS = [
+  'International student admissions to full time taught and research programs',
+  'Semester abroad student exchanges with partner institutes, research internships, immersion programs, study tours, project work',
+  'Twinning arrangements to collaboratively design and offer programs, and jointly award degrees',
+  'Course-specific tie-ups and blended teaching-learning',
+  'Visiting faculty exchanges',
+  'Joint Research & Development on projects of relevance to either/both/all concerned countries',
+]
+
 export default function About() {
   const [team, setTeam] = useState([]);
   const [faculty, setFaculty] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const { getContent } = useSiteContent();
 
@@ -48,203 +57,219 @@ export default function About() {
         title="About Us"
         subtitle="International Collaborations and International Academic Programs"
         backgroundImage="/institute/Institute1.jpg"
-        cta={{ label: 'Learn More', onClick: () => document.querySelector('section').scrollIntoView({ behavior: 'smooth' }) }}
+        cta={{ label: 'Learn More', onClick: () => document.getElementById('about-intro')?.scrollIntoView({ behavior: 'smooth' }) }}
       />
 
       {/* Intro Section (3.8 reads about.intro from site content) */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        {aboutIntro ? (
-          <div className="prose max-w-none text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-            {aboutIntro}
+      <section id="about-intro" className="bg-white border-b border-mist py-20 md:py-24">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+          <div className="lg:col-span-4">
+            <h2 className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep">
+              Internationalisation at IIT Dharwad
+            </h2>
+            {/* The office's two verticals */}
+            <dl className="mt-8 space-y-4">
+              <div className="border-l-2 border-plum pl-4">
+                <dt className="font-heading! text-lg text-plum-deep">International Collaborations</dt>
+                <dd className="text-sm text-quiet">Partnerships, MoUs and joint research</dd>
+              </div>
+              <div className="border-l-2 border-ink pl-4">
+                <dt className="font-heading! text-lg text-ink">International Academic Programs</dt>
+                <dd className="text-sm text-quiet">Admissions, exchange and mobility</dd>
+              </div>
+            </dl>
           </div>
-        ) : (
-          <div className="prose max-w-none text-gray-700 leading-relaxed space-y-4 text-lg">
-            <p>
-              Internationalisation is an inherent aspect of the Indian Institutes and the International Relations Office at IIT Dharwad is committed to achieving its goals through a focused approach, supported by two verticals, <strong>“International Collaborations and International Academic Programs”</strong>.
-            </p>
-            <p>
-              We look forward to welcoming the international community to our midst, in the spirit of mutually beneficial partnerships. To broaden the experience -- both yours and ours -- of academic and cultural life, to be better equipped to participate in multicultural, globalised workspaces; and to contribute meaningfully to a dynamic, more integrated world.
-            </p>
-            <p>
-              The departments and centers of IIT Dharwad are responsible for teaching, research, and industrial consultancy. With our excellent faculty, students who excel both in academics and extra-curricular activities, dedicated staff members, and state-of-the-art research facilities, the first decade of our existence is proving to be an exciting phase. Going forward, we expect to have:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>International student admissions to full time taught and research programs</li>
-              <li>Semester abroad student exchanges with partner institutes, research internships, immersion programs, study tours, project work.</li>
-              <li>Twinning arrangements to collaboratively design and offer programs, and jointly award degrees</li>
-              <li>Course-specific tie-ups and blended teaching-learning</li>
-              <li>Visiting faculty exchanges</li>
-              <li>Joint Research & Development on projects of relevance to either/both/ all concerned countries to offer just an indicative list.</li>
-            </ul>
+
+          <div className="lg:col-span-7 lg:col-start-6">
+            {aboutIntro ? (
+              <div className="prose-copy text-[1.05rem] text-body whitespace-pre-wrap">
+                {aboutIntro}
+              </div>
+            ) : (
+              <div className="prose-copy text-[1.05rem] text-body">
+                <p>
+                  Internationalisation is an inherent aspect of the Indian Institutes and the International Relations Office at IIT Dharwad is committed to achieving its goals through a focused approach, supported by two verticals, <strong className="font-semibold text-plum-deep">“International Collaborations and International Academic Programs”</strong>.
+                </p>
+                <p>
+                  We look forward to welcoming the international community to our midst, in the spirit of mutually beneficial partnerships. To broaden the experience — both yours and ours — of academic and cultural life, to be better equipped to participate in multicultural, globalised workspaces; and to contribute meaningfully to a dynamic, more integrated world.
+                </p>
+                <p>
+                  The departments and centers of IIT Dharwad are responsible for teaching, research, and industrial consultancy. With our excellent faculty, students who excel both in academics and extra-curricular activities, dedicated staff members, and state-of-the-art research facilities, the first decade of our existence is proving to be an exciting phase. Going forward, we expect to have:
+                </p>
+              </div>
+            )}
+
+            {!aboutIntro && (
+              <ul className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-mist bg-mist sm:grid-cols-2">
+                {AMBITIONS.map((item) => (
+                  <li key={item} className="bg-porcelain p-5 text-[0.95rem] leading-relaxed text-body">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-        )}
+        </div>
       </section>
 
       {/* Chairperson Message (3.8 reads about.chairpersonMessage from site content) */}
-      <section className="bg-neutral-canvas py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 items-start">
-            <div className="md:col-span-1 bg-white rounded-xl aspect-[3/4] flex flex-col items-center justify-center border-2 border-brand-purpleLight/50 p-4 shadow-sm overflow-hidden">
-                <div className="w-full h-full rounded-lg flex items-center justify-center mb-4 overflow-hidden">
-                  <img src="https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Chairperson_zja8c3.png" alt="Chairperson" className="w-full h-full object-cover object-top" />
-                </div>
-                <h3 className="text-xl font-bold text-brand-purple mb-1 text-center">Chairperson</h3>
-                <p className="text-sm text-brand-marigold font-semibold text-center">International Relations Office</p>
-            </div>
-            <div className="md:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-brand-purpleLight/50">
-              <SectionHeader
-                title="Chairperson's Welcome Note"
-                centered={false}
-                badge={<RiHandHeartLine size={24} />}
-              />
-              {chairpersonMessage ? (
-                <div className="space-y-4 text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-                  {chairpersonMessage}
-                </div>
-              ) : (
-                <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
-                  <p><strong>Dear International Community,</strong></p>
-                  <p>
-                    A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.
-                  </p>
-                  <p>
-                    It is our pleasure to welcome students, faculty members, researchers, and academic partners from around the world to our vibrant and growing academic community. At IIT Dharwad, we believe that international engagement is built through meaningful academic collaboration, mutual respect, and shared learning.
-                  </p>
-                  <p>
-                    The International Relations Office serves as a bridge between the Institute and the global academic community. We are committed to facilitating international partnerships, student and faculty mobility, collaborative research, academic exchanges, and other initiatives that foster global learning and intercultural understanding. Our team strives to ensure that every international visitor experiences a smooth transition and feels welcomed, supported, and connected throughout their journey at the Institute.
-                  </p>
-                  <p>
-                    Beyond academics, IIT Dharwad offers an opportunity to experience India's rich cultural heritage while being part of an innovative and inclusive campus environment. We encourage you to engage with our students and faculty, explore new ideas, build lasting friendships, and contribute your unique perspectives to our academic community.
-                  </p>
-                  <p>
-                    We look forward to welcoming you to IIT Dharwad and to building enduring partnerships that advance knowledge, innovation, and global cooperation.
-                  </p>
-                  <p className="pt-4">
-                    With warm regards,<br/>
-                    <strong>Chairperson</strong><br/>
-                    International Relations Office<br/>
-                    Indian Institute of Technology Dharwad
-                  </p>
-                </div>
-              )}
-            </div>
+      <section className="py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-12 lg:px-8">
+          <div className="md:col-span-4">
+            <ArchFrame
+              src="https://res.cloudinary.com/db69ffwwa/image/upload/v1784037495/Chairperson_zja8c3.png"
+              alt="Chairperson, International Relations Office"
+              imgClassName="object-cover object-top"
+              className="aspect-[4/5] w-full max-w-[18rem]"
+            />
+            <p className="mt-6 font-heading! text-xl text-plum-deep">Chairperson</p>
+            <p className="text-sm text-quiet">International Relations Office</p>
+          </div>
+
+          <div className="md:col-span-8 lg:col-span-7 lg:col-start-6">
+            <h2 className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep">
+              Chairperson's welcome note
+            </h2>
+            {chairpersonMessage ? (
+              <div className="mt-8 prose-copy text-[1.05rem] text-body whitespace-pre-wrap">
+                {chairpersonMessage}
+              </div>
+            ) : (
+              <div className="mt-8 prose-copy text-[1.05rem] text-body">
+                <p className="font-heading! text-xl text-plum-deep">Dear International Community,</p>
+                <p>
+                  A warm welcome to the International Relations Office at the Indian Institute of Technology Dharwad.
+                </p>
+                <p>
+                  It is our pleasure to welcome students, faculty members, researchers, and academic partners from around the world to our vibrant and growing academic community. At IIT Dharwad, we believe that international engagement is built through meaningful academic collaboration, mutual respect, and shared learning.
+                </p>
+                <p>
+                  The International Relations Office serves as a bridge between the Institute and the global academic community. We are committed to facilitating international partnerships, student and faculty mobility, collaborative research, academic exchanges, and other initiatives that foster global learning and intercultural understanding. Our team strives to ensure that every international visitor experiences a smooth transition and feels welcomed, supported, and connected throughout their journey at the Institute.
+                </p>
+                <p>
+                  Beyond academics, IIT Dharwad offers an opportunity to experience India's rich cultural heritage while being part of an innovative and inclusive campus environment. We encourage you to engage with our students and faculty, explore new ideas, build lasting friendships, and contribute your unique perspectives to our academic community.
+                </p>
+                <p>
+                  We look forward to welcoming you to IIT Dharwad and to building enduring partnerships that advance knowledge, innovation, and global cooperation.
+                </p>
+                <p className="pt-2">
+                  With warm regards,<br />
+                  <strong className="font-semibold text-plum-deep">Chairperson</strong><br />
+                  International Relations Office<br />
+                  Indian Institute of Technology Dharwad
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Faculty */}
       {faculty.length > 0 && (
-        <section id="faculty" className="bg-white py-16">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <p className="text-brand-purple text-xs font-bold tracking-widest uppercase mb-3 flex items-center justify-center gap-2">
-                <RiUserStarLine size={16} /> Faculty
-              </p>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Our Faculty Leaders</h2>
-              <div className="w-24 h-1 bg-brand-marigold mx-auto"></div>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <section id="faculty" className="bg-white border-y border-mist py-20 md:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Our Faculty Leaders"
+              subtitle="Faculty who lead and champion the office's international work."
+            />
+
+            <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {faculty.filter(f => f.isActive).map((member) => (
-                <div key={member.id} className="bg-neutral-canvas/40 rounded-2xl p-6 border border-brand-purpleLight/30 hover:shadow-md transition-all text-center flex flex-col group">
-                  <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 border-2 border-brand-purple/20 group-hover:border-brand-marigold transition-colors mb-4 shadow-sm shrink-0 overflow-hidden">
+                <li key={member.id} className="flex flex-col">
+                  <div className="aspect-[4/5] w-full max-w-[12rem] overflow-hidden rounded-t-full bg-mist">
                     {member.photoUrl ? (
-                      <img 
-                        src={resolveMediaUrl(member.photoUrl)} 
+                      <img
+                        src={resolveMediaUrl(member.photoUrl)}
                         alt={member.name}
-                        className="w-full h-full rounded-full object-cover"
+                        className="h-full w-full object-cover object-top"
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
                     ) : (
-                      <div className="w-full h-full rounded-full bg-brand-purpleLight/30 flex items-center justify-center text-brand-purpleDark font-bold text-xl">
+                      <div className="flex h-full w-full items-center justify-center font-heading! text-4xl text-plum/40">
                         {member.name.charAt(0)}
                       </div>
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                  <h3 className="mt-5 text-xl font-medium leading-snug text-plum-deep">
                     {member.redirectUrl ? (
-                      <a 
-                        href={member.redirectUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="hover:text-brand-purple hover:underline inline-flex items-center gap-1"
+                      <a
+                        href={member.redirectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 hover:text-plum hover:underline decoration-saffron underline-offset-4"
                       >
                         {member.name}
-                        <RiExternalLinkLine size={14} className="text-gray-400 group-hover:text-brand-purple" />
+                        <RiExternalLinkLine size={15} aria-label="Research profile, opens in a new tab" className="text-quiet" />
                       </a>
                     ) : (
                       member.name
                     )}
                   </h3>
-                  {member.designation && <p className="text-sm text-brand-purple font-semibold mb-2">{member.designation}</p>}
-                  {member.department && <p className="text-xs text-gray-500 mb-4">{member.department}</p>}
+                  {member.designation && <p className="mt-1 text-sm font-medium text-plum">{member.designation}</p>}
+                  {member.department && <p className="mt-0.5 text-sm text-quiet">{member.department}</p>}
                   {member.email && (
-                    <a href={`mailto:${member.email}`} className="text-sm text-blue-600 hover:underline mt-auto inline-block">
+                    <a href={`mailto:${member.email}`} className="mt-3 inline-flex items-center gap-1.5 text-sm text-body break-all hover:text-plum">
+                      <RiMailLine size={15} aria-hidden="true" className="shrink-0 text-saffron-deep" />
                       {member.email}
                     </a>
                   )}
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
       )}
 
       {/* IR Students Team */}
       {team.length > 0 && (
-        <section className="bg-brand-purpleDark py-16 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-5"></div>
-          <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <div className="text-center mb-12">
-              <p className="text-brand-marigold text-xs font-bold tracking-widest uppercase mb-3 flex items-center justify-center gap-2">
-                <RiGroupLine size={16} /> Team
-              </p>
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">IITDH Students for International Relations</h2>
-              <p className="text-gray-100 max-w-2xl mx-auto">Student heads driving international initiatives</p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="py-20 md:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="IITDH Students for International Relations"
+              subtitle="Student heads driving international initiatives"
+            />
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {team.filter(t => t.isActive).map((member) => (
-                <Card key={member.id} variant="default" className="flex flex-col h-full bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-colors group overflow-hidden">
-                  <div className="text-center flex-grow flex flex-col pt-4 w-full max-w-full">
-                    <div className="bg-white/10 rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center border-2 border-brand-marigold shrink-0 relative overflow-hidden text-gray-200 shadow-lg">
+                <article key={member.id} className="flex flex-col rounded-2xl border border-mist bg-white p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-14 shrink-0 overflow-hidden rounded-t-full bg-mist">
                       {member.photoUrl ? (
-                        <img 
-                          src={resolveMediaUrl(member.photoUrl)} 
+                        <img
+                          src={resolveMediaUrl(member.photoUrl)}
                           alt={member.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover object-top"
                           onError={(e) => { e.target.style.display = 'none'; }}
                         />
                       ) : (
-                        <div className="text-2xl font-bold text-brand-marigold">{member.name.charAt(0)}</div>
+                        <div className="flex h-full w-full items-center justify-center font-heading! text-2xl text-plum/50">{member.name.charAt(0)}</div>
                       )}
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
-                    <p className="text-sm text-brand-marigold font-bold mb-1">{member.role}</p>
-
-                    {member.email && (
-                      <a href={`mailto:${member.email}`} className="text-xs text-blue-300 hover:text-white transition-colors mb-3">
-                        {member.email}
-                      </a>
-                    )}
-
-                    {member.responsibilities && member.responsibilities !== '<p><br></p>' && (
-                      <div 
-                        className="text-xs text-gray-300 leading-relaxed px-4 mt-2 mb-4 text-left prose prose-invert prose-sm max-w-none w-full break-words overflow-hidden [&_ol]:pl-4 [&_ul]:pl-4"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(member.responsibilities) }}
-                      />
-                    )}
-                    
-                    
-                    {member.year && (
-                      <div className="mt-auto pt-4 flex justify-center">
-                        <span className="px-3 py-1 bg-white/10 rounded-full text-xs text-white/80 border border-white/10">
-                          {member.year}
-                        </span>
-                      </div>
-                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-medium leading-snug text-plum-deep">{member.name}</h3>
+                      <p className="text-sm font-medium text-saffron-deep">{member.role}</p>
+                    </div>
                   </div>
-                </Card>
+
+                  {member.email && (
+                    <a href={`mailto:${member.email}`} className="mt-4 text-sm text-body break-all hover:text-plum">
+                      {member.email}
+                    </a>
+                  )}
+
+                  {member.responsibilities && member.responsibilities !== '<p><br></p>' && (
+                    <div
+                      className="mt-4 border-t border-mist pt-4 text-sm leading-relaxed text-quiet max-w-none break-words [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4 [&_li]:mt-1"
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(member.responsibilities) }}
+                    />
+                  )}
+
+                  {member.year && (
+                    <p className="mt-auto pt-4 text-xs text-quiet">
+                      {member.year}
+                    </p>
+                  )}
+                </article>
               ))}
             </div>
           </div>

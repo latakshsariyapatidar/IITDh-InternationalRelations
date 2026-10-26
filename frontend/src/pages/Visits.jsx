@@ -1,8 +1,7 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { RiMapPinLine } from '@remixicon/react'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
 
@@ -26,47 +25,39 @@ const formatEventDate = (startDate, endDate) => {
 
 function EventCard({ event }) {
   return (
-    <div className="bg-white rounded-2xl border border-brand-purpleLight/60 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
-      {event.imageUrl ? (
-        <div className="aspect-video w-full overflow-hidden bg-brand-purpleLight/30 relative">
+    <article className="flex flex-col overflow-hidden rounded-2xl border border-mist bg-white">
+      {event.imageUrl && (
+        <div className="aspect-[16/10] w-full overflow-hidden bg-mist">
           <img
             src={resolveMediaUrl(event.imageUrl)}
             alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="h-full w-full object-cover"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
-            {formatEventDate(event.startDate, event.endDate)}
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 bg-brand-purpleLight/30 border-b border-brand-purpleLight/50">
-          <div className="bg-white inline-block px-3 py-1 rounded-md text-brand-purple font-bold text-xs shadow-sm">
-            {formatEventDate(event.startDate, event.endDate)}
-          </div>
         </div>
       )}
-      <div className="p-6 flex-1 flex flex-col">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-marigold/20 text-brand-marigoldDark">
-            {EVENT_TYPE_LABELS[event.type] || event.type}
-          </span>
-          {event.location && (
-            <span className="text-xs text-gray-500 flex items-center gap-1">
-              📍 {event.location}
-            </span>
-          )}
-        </div>
-        <h3 className="text-lg font-bold text-brand-purpleDark mb-2 group-hover:text-brand-marigoldDark transition-colors">
+      <div className="flex flex-1 flex-col p-6">
+        <p className="text-sm font-semibold text-plum nums-tabular">{formatEventDate(event.startDate, event.endDate)}</p>
+        <h3 className="mt-2 text-xl font-medium leading-snug text-plum-deep">
           {event.title}
         </h3>
         {event.description && (
-          <p className="text-neutral-textDark/70 text-sm whitespace-pre-wrap line-clamp-4">
+          <p className="mt-3 flex-1 text-sm leading-relaxed text-quiet whitespace-pre-wrap line-clamp-4">
             {event.description}
           </p>
         )}
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-mist pt-4 text-xs text-quiet">
+          <span className="rounded-full bg-saffron-tint px-2.5 py-1 font-semibold text-saffron-deep">
+            {EVENT_TYPE_LABELS[event.type] || event.type}
+          </span>
+          {event.location && (
+            <span className="flex items-center gap-1">
+              <RiMapPinLine size={14} aria-hidden="true" /> {event.location}
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -136,103 +127,93 @@ export default function Visits() {
         backgroundImage="/institute/institute8.webp"
       />
 
-      {/* Upcoming Visits */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Delegation Visits"
-          subtitle="Recent and scheduled international delegations hosted at IIT Dharwad"
-        />
+      {/* Delegation visits: a timeline, newest first */}
+      <section className="py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Delegation Visits"
+            subtitle="Recent and scheduled international delegations hosted at IIT Dharwad"
+          />
 
-        {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading visits...</div>
-        ) : visits.length > 0 ? (
-          <div className="grid md:grid-cols-1 gap-6">
-            {visits.map((visit) => (
-              <Card key={visit.id} className="group hover:border-brand-purple/40 transition-colors">
-                <div className="grid md:grid-cols-12 gap-6 items-center">
-                  {visit.imageUrl && (
-                    <div className="md:col-span-3 rounded-lg overflow-hidden aspect-video bg-neutral-canvas flex items-center justify-center">
-                      <img
-                        src={resolveMediaUrl(visit.imageUrl)}
-                        alt={visit.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                    </div>
-                  )}
-                  <div className={visit.imageUrl ? "md:col-span-9" : "md:col-span-12"}>
-                    <div className="grid md:grid-cols-2 gap-4 items-start">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-brand-purple mb-1">Dates</p>
-                        <p className="font-semibold text-neutral-textDark mb-3">
-                          {new Date(visit.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          {visit.endDate && ` - ${new Date(visit.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+          {loading ? (
+            <p className="py-12 text-quiet">Loading visits...</p>
+          ) : visits.length > 0 ? (
+            <ol className="relative border-l border-mist lg:ml-40">
+              {visits.map((visit) => (
+                <li key={visit.id} className="relative pb-12 pl-8 last:pb-0 lg:pl-10">
+                  <span aria-hidden="true" className="absolute -left-[5px] top-2 h-2.5 w-2.5 rounded-full bg-saffron ring-4 ring-porcelain" />
+                  {/* Date sits in the left margin on large screens */}
+                  <p className="text-sm font-semibold text-plum nums-tabular lg:absolute lg:-left-40 lg:top-0.5 lg:w-32 lg:text-right">
+                    {new Date(visit.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {visit.endDate && <span className="block font-normal text-quiet">to {new Date(visit.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+                  </p>
+                  <div className="mt-2 grid gap-6 lg:mt-0 md:grid-cols-12">
+                    <div className={visit.imageUrl ? 'md:col-span-8' : 'md:col-span-12'}>
+                      <h3 className="text-2xl font-medium leading-snug text-plum-deep">{visit.title}</h3>
+                      {visit.organisation && (
+                        <p className="mt-1 text-[0.95rem] font-medium text-body">
+                          {visit.organisation}{visit.country ? `, ${visit.country}` : ''}
                         </p>
-
-                        <p className="text-xs font-semibold uppercase tracking-wider text-brand-purple mb-1">
-                          {visit.type === 'visitor' ? 'Visitor / Delegation' : 'Event / Delegation'}
-                        </p>
-                        <p className="font-bold text-neutral-textDark text-lg mb-1 group-hover:text-brand-purple transition-colors">
-                          {visit.title}
-                        </p>
-                        {visit.organisation && (
-                          <p className="text-sm font-medium text-gray-600 mb-2">
-                            {visit.organisation}{visit.country ? `, ${visit.country}` : ''}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-brand-purple mb-1">Purpose / Details</p>
-                        <p className="text-neutral-textDark/80 mb-3 whitespace-pre-wrap line-clamp-3 text-sm">
+                      )}
+                      {visit.description && (
+                        <p className="mt-3 max-w-2xl text-[0.95rem] leading-relaxed text-body whitespace-pre-wrap line-clamp-4">
                           {visit.description}
                         </p>
-
-                        {visit.location && (
-                          <>
-                            <p className="text-xs font-semibold uppercase tracking-wider text-brand-purple mb-1">Host / Location</p>
-                            <p className="text-neutral-textDark font-medium text-sm">{visit.location}</p>
-                          </>
-                        )}
-                      </div>
+                      )}
+                      {visit.location && (
+                        <p className="mt-3 flex items-center gap-1.5 text-sm text-quiet">
+                          <RiMapPinLine size={15} aria-hidden="true" /> {visit.location}
+                        </p>
+                      )}
                     </div>
+                    {visit.imageUrl && (
+                      <div className="md:col-span-4 aspect-[4/3] overflow-hidden rounded-2xl bg-mist">
+                        <img
+                          src={resolveMediaUrl(visit.imageUrl)}
+                          alt={visit.title}
+                          className="h-full w-full object-cover"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-gray-500">No visits currently available.</div>
-        )}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="rounded-2xl border border-dashed border-mist bg-white p-10 text-center text-quiet">No visits currently available.</p>
+          )}
+        </div>
       </section>
 
       {/* Other events: conferences, workshops, exchanges and the rest */}
-      <section id="events" className="bg-brand-cream/40 border-y border-brand-purpleLight/40 py-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <section id="events" className="bg-white border-y border-mist py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Events"
             subtitle="Conferences, workshops, exchanges and other events at IIT Dharwad"
           />
 
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading events...</div>
+            <p className="py-12 text-quiet">Loading events...</p>
           ) : otherEvents.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No events currently available.</div>
+            <p className="py-12 text-quiet">No events currently available.</p>
           ) : (
-            <div className="space-y-12">
+            <div className="space-y-14">
               <div>
-                <h3 className="text-xl font-bold text-brand-purpleDark mb-5">Upcoming & Ongoing</h3>
+                <h3 className="mb-6 text-2xl font-medium text-plum-deep">Upcoming and ongoing</h3>
                 {upcomingEvents.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {upcomingEvents.map((event) => <EventCard key={event.id} event={event} />)}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm">No upcoming events scheduled at the moment.</p>
+                  <p className="text-quiet">No upcoming events scheduled at the moment.</p>
                 )}
               </div>
 
               {pastEvents.length > 0 && (
                 <div>
-                  <h3 className="text-xl font-bold text-brand-purpleDark mb-5">Past Events</h3>
+                  <h3 className="mb-6 text-2xl font-medium text-plum-deep">Past events</h3>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {pastEvents.map((event) => <EventCard key={event.id} event={event} />)}
                   </div>
@@ -244,33 +225,47 @@ export default function Visits() {
       </section>
 
       {/* Visitor Information (the footer's "Guesthouse" link lands here) */}
-      <section id="visitor-info" className="bg-neutral-canvas py-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <section id="visitor-info" className="py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Visitor Information"
             subtitle="Everything visiting delegations need to know"
           />
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <h3 className="text-xl font-bold text-neutral-textDark mb-4">Campus Access</h3>
-              <ul className="space-y-3 text-neutral-textDark/80 text-sm">
-                <li><strong>Entry Process:</strong> Security gate clearance coordinated via IRO through host faculty</li>
-                <li><strong>Parking:</strong> Visitor parking available near the main gate</li>
-                <li><strong>Reception:</strong> Main reception in Building 1</li>
-                <li><strong>Facilities:</strong> High-speed campus Wi-Fi access credentials provided on arrival</li>
-                <li><strong>Transportation:</strong> Campus shuttle service available</li>
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Local Information</h3>
-              <ul className="space-y-3 text-gray-700 text-sm">
-                <li><strong>Nearest Airport:</strong> Hubballi Airport (90 km)</li>
-                <li><strong>Railway Station:</strong> Dharwad Railway Station (8 km)</li>
-                <li><strong>Hotels:</strong> Institute Guest House on campus and city hotels in Dharwad/Hubballi</li>
-                <li><strong>Currency:</strong> Indian Rupee (INR)</li>
-                <li><strong>Climate:</strong> Moderate, pleasant during Oct-Feb</li>
-              </ul>
-            </Card>
+          <div className="grid gap-12 md:grid-cols-2">
+            {[
+              {
+                title: 'Campus access',
+                items: [
+                  ['Entry process', 'Security gate clearance coordinated via IRO through host faculty'],
+                  ['Parking', 'Visitor parking available near the main gate'],
+                  ['Reception', 'Main reception in Building 1'],
+                  ['Facilities', 'High-speed campus Wi-Fi access credentials provided on arrival'],
+                  ['Transportation', 'Campus shuttle service available'],
+                ],
+              },
+              {
+                title: 'Local information',
+                items: [
+                  ['Nearest airport', 'Hubballi Airport (about 15 km)'],
+                  ['Railway station', 'Dharwad Railway Station (8 km); Hubballi Junction for long-distance trains'],
+                  ['Hotels', 'Institute Guest House on campus and city hotels in Dharwad/Hubballi'],
+                  ['Currency', 'Indian Rupee (INR)'],
+                  ['Climate', 'Moderate, pleasant during Oct-Feb'],
+                ],
+              },
+            ].map((group) => (
+              <div key={group.title}>
+                <h3 className="text-2xl font-medium text-plum-deep">{group.title}</h3>
+                <dl className="mt-5 divide-y divide-mist border-y border-mist">
+                  {group.items.map(([term, text]) => (
+                    <div key={term} className="grid gap-1 py-3.5 sm:grid-cols-[10rem_1fr] sm:gap-6">
+                      <dt className="font-semibold text-plum-deep">{term}</dt>
+                      <dd className="text-body">{text}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
           </div>
         </div>
       </section>

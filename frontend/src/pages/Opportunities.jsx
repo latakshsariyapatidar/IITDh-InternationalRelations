@@ -2,17 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { fetchAllPages } from '../api/fetchAllPages';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/ui/SectionHeader';
-import { 
-  RiSearchLine, 
-  RiCloseLine, 
-  RiCalendarLine, 
-  RiMapPinLine, 
-  RiBuildingLine, 
-  RiExternalLinkLine, 
-  RiFilter3Line, 
+import {
+  RiSearchLine,
+  RiCloseLine,
+  RiCalendarLine,
+  RiExternalLinkLine,
   RiAttachmentLine,
-  RiUserLine,
-  RiSparklingLine,
   RiArrowRightLine,
   RiArrowLeftSLine,
   RiArrowRightSLine
@@ -46,7 +41,7 @@ function FlagIcon({ code }) {
       src={`https://flagcdn.com/h80/${code.trim().toLowerCase()}.png`}
       height="14"
       alt={`${code} flag`}
-      className="h-3.5 w-auto rounded-[2px] shadow-2xs inline-block align-middle mr-1"
+      className="h-3.5 w-auto rounded-[2px] ring-1 ring-black/5 inline-block align-middle"
       onError={(e) => { e.currentTarget.style.display = 'none'; }}
     />
   );
@@ -147,14 +142,16 @@ export default function Opportunities() {
   const totalCount = filteredOpps.length;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
   const pageOpps = filteredOpps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const filtersActive = searchQuery || selectedCategory !== 'ALL' || selectedAudience !== 'ALL';
 
   return (
-    <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
+    <div>
       {/* Hero Header */}
       <HeroSection
         title="Opportunities"
         subtitle="Explore international scholarships, research fellowships, semester exchanges, and collaborative grants curated by the International Relations Office."
         backgroundImage="/institute/institute10.webp"
+        tone="ink"
         cta={{
           label: 'Explore Opportunities',
           onClick: () => {
@@ -165,32 +162,31 @@ export default function Opportunities() {
       />
 
       {/* Main Content Area */}
-      <section id="opportunities-feed" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="opportunities-feed" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
         <SectionHeader
           title="Global Opportunities & Calls"
           subtitle="Discover and filter through scholarships, fellowships, and academic exchanges available for students and faculty"
-          badge={<RiSparklingLine size={18} />}
-          badgeText="Active Opportunities"
         />
 
         {/* Search and Filters Bar */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-brand-purpleLight/60 mb-10 space-y-5">
-          {/* Top Row: Search Input & Audience Selector */}
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="mb-10 space-y-4">
+          <div className="flex flex-col gap-3 md:flex-row">
             {/* Search Input */}
             <div className="relative flex-1">
-              <RiSearchLine size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-purple/50 pointer-events-none" />
+              <RiSearchLine size={20} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-quiet" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => changeSearch(e.target.value)}
                 placeholder="Search opportunities..."
-                className="w-full pl-11 pr-10 py-3 rounded-xl border border-brand-purpleLight/70 bg-brand-cream/20 text-sm text-brand-purpleDark placeholder:text-brand-purpleDark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple transition-all"
+                aria-label="Search opportunities"
+                className="h-12 w-full rounded-full border border-mist bg-white pl-12 pr-11 text-[0.95rem] text-plum-deep placeholder:text-quiet focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => changeSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-purple/50 hover:text-brand-purple p-1 cursor-pointer transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 text-quiet hover:text-plum-deep"
                   aria-label="Clear search"
                 >
                   <RiCloseLine size={18} />
@@ -198,16 +194,18 @@ export default function Opportunities() {
               )}
             </div>
 
-            {/* Audience Filter Pills */}
-            <div className="flex items-center gap-1.5 bg-brand-cream/70 p-1.5 rounded-xl border border-brand-purpleLight/40 self-start md:self-auto shrink-0">
+            {/* Audience Filter: a segmented control */}
+            <div role="group" aria-label="Audience" className="flex shrink-0 self-start rounded-full bg-white p-1 ring-1 ring-inset ring-mist md:self-auto">
               {AUDIENCES.map((aud) => (
                 <button
                   key={aud.id}
+                  type="button"
                   onClick={() => changeAudience(aud.id)}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  aria-pressed={selectedAudience === aud.id}
+                  className={`h-10 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors ${
                     selectedAudience === aud.id
-                      ? 'bg-brand-purple text-white shadow-xs font-bold'
-                      : 'text-brand-purpleDark/75 hover:text-brand-purpleDark hover:bg-white/60'
+                      ? 'bg-ink text-white'
+                      : 'text-body hover:text-ink-deep'
                   }`}
                 >
                   {aud.label}
@@ -216,21 +214,20 @@ export default function Opportunities() {
             </div>
           </div>
 
-          {/* Bottom Row: Category Filter Tags */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="text-brand-purpleDark/60 flex items-center gap-1 font-semibold shrink-0 mr-1">
-              <RiFilter3Line size={14} className="text-brand-purple" /> Filter:
-            </span>
+          {/* Category Filter Tags */}
+          <div role="group" aria-label="Category" className="scrollbar-hide -mx-4 flex gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
             {CATEGORIES.map((cat) => {
               const isSelected = selectedCategory === cat.id;
               return (
                 <button
                   key={cat.id}
+                  type="button"
                   onClick={() => changeCategory(cat.id)}
-                  className={`shrink-0 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer ${
+                  aria-pressed={isSelected}
+                  className={`shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                     isSelected
-                      ? 'bg-brand-purple text-white shadow-xs'
-                      : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/40 hover:text-brand-purpleDark border border-brand-purpleLight/40'
+                      ? 'bg-ink-tint text-ink-deep ring-1 ring-inset ring-ink/40'
+                      : 'text-body ring-1 ring-inset ring-mist hover:text-ink-deep hover:ring-ink/30'
                   }`}
                 >
                   {cat.label}
@@ -240,14 +237,15 @@ export default function Opportunities() {
           </div>
 
           {/* Active Filter Status & Reset */}
-          {(searchQuery || selectedCategory !== 'ALL' || selectedAudience !== 'ALL') && (
-            <div className="flex items-center justify-between pt-3 border-t border-brand-purpleLight/30 text-xs text-brand-purpleDark/75">
-              <span>
-                Showing <strong>{pageOpps.length}</strong> of {totalCount} matching result{totalCount === 1 ? '' : 's'}
+          {filtersActive && (
+            <div className="flex items-center justify-between border-t border-mist pt-3 text-sm text-quiet">
+              <span aria-live="polite">
+                Showing <strong className="font-semibold text-plum-deep">{pageOpps.length}</strong> of {totalCount} matching result{totalCount === 1 ? '' : 's'}
               </span>
               <button
+                type="button"
                 onClick={clearAllFilters}
-                className="text-brand-purple hover:text-brand-purpleHover hover:underline font-bold cursor-pointer transition-colors"
+                className="cursor-pointer font-semibold text-plum hover:underline underline-offset-4"
               >
                 Clear all filters
               </button>
@@ -257,126 +255,108 @@ export default function Opportunities() {
 
         {/* Content Area */}
         {loading ? (
-          <div className="py-24 text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-brand-purple border-t-transparent mb-4" />
-            <p className="text-sm font-medium text-brand-purpleDark/60">Fetching global opportunities...</p>
-          </div>
+          <p className="py-20 text-center text-quiet">Fetching global opportunities...</p>
         ) : pageOpps.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-brand-purpleLight/60 p-12 text-center max-w-xl mx-auto shadow-xs">
-            <div className="w-16 h-16 rounded-full bg-brand-cream flex items-center justify-center text-brand-purple mx-auto mb-4">
-              <RiFilter3Line size={28} />
-            </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-brand-purpleDark mb-2">No Opportunities Found</h3>
-            <p className="text-brand-purpleDark/70 text-sm mb-6 leading-relaxed">
+          <div className="mx-auto max-w-xl rounded-2xl border border-dashed border-mist bg-white p-12 text-center">
+            <h3 className="text-2xl font-medium text-plum-deep">No Opportunities Found</h3>
+            <p className="mt-2 mb-6 leading-relaxed text-quiet">
               We couldn't find any opportunities matching your current search or filter criteria. Try adjusting your search terms or clear filters to view all postings.
             </p>
             <button
+              type="button"
               onClick={clearAllFilters}
-              className="bg-brand-purple text-white hover:bg-brand-purpleHover font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors cursor-pointer shadow-xs"
+              className="h-11 cursor-pointer rounded-full bg-plum px-6 text-sm font-semibold text-white transition-colors hover:bg-plum-deep"
             >
               Reset Filters
             </button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pageOpps.map((opp) => {
                 // 3.22: Only treat opp.applicationDeadline as deadline
                 const deadline = opp.applicationDeadline;
 
                 return (
-                  <div
-                    key={opp.id}
-                    onClick={() => setSelectedOpp(opp)}
-                    className="bg-white rounded-2xl border border-brand-purpleLight/60 hover:border-brand-purple hover:shadow-lg transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
-                  >
-                    <div>
-                      {/* Badges */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-purpleLight/40 text-brand-purpleDark">
-                          {formatCategory(opp.category)}
-                        </span>
+                  <li key={opp.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOpp(opp)}
+                      className="group flex h-full w-full cursor-pointer flex-col rounded-2xl border border-mist bg-white p-6 text-left transition-colors hover:border-ink/40"
+                    >
+                      {/* Category and audience */}
+                      <span className="flex w-full items-center justify-between gap-2 text-sm">
+                        <span className="font-semibold text-ink">{formatCategory(opp.category)}</span>
                         {opp.audience && opp.audience !== 'BOTH' && (
-                          <span className="text-[11px] font-semibold text-brand-purpleDark/80 bg-brand-cream border border-brand-purpleLight/30 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <RiUserLine size={12} className="text-brand-purple" />
-                            {formatAudience(opp.audience)}
-                          </span>
+                          <span className="text-quiet">{formatAudience(opp.audience)}</span>
                         )}
-                      </div>
+                      </span>
 
                       {/* Title */}
-                      <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors line-clamp-2 leading-snug mb-2">
+                      <span className="mt-3 block font-heading! text-xl leading-snug text-plum-deep line-clamp-2">
                         {opp.title}
-                      </h3>
+                      </span>
 
                       {/* Organisation & Country */}
                       {(opp.organisation || opp.country) && (
-                        <p className="text-xs text-brand-purpleDark/70 font-medium flex items-center gap-1.5 mb-3 flex-wrap">
-                          {opp.organisation && (
-                            <span className="flex items-center gap-1 truncate max-w-[200px]">
-                              <RiBuildingLine size={13} className="shrink-0 text-brand-purple/70" />
-                              {opp.organisation}
-                            </span>
-                          )}
-                          {opp.organisation && opp.country && <span>•</span>}
+                        <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-body">
+                          {opp.organisation && <span className="truncate max-w-[14rem]">{opp.organisation}</span>}
+                          {opp.organisation && opp.country && <span aria-hidden="true" className="text-mist">|</span>}
                           {opp.country && (
-                            <span className="flex items-center gap-1 shrink-0">
+                            <span className="flex items-center gap-1.5">
                               <FlagIcon code={opp.countryCode} />
-                              <RiMapPinLine size={13} className="text-brand-purple/70" />
                               {opp.country}
                             </span>
                           )}
-                        </p>
+                        </span>
                       )}
 
                       {/* Description preview */}
-                      <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-6 font-normal">
+                      <span className="mt-3 block flex-1 text-sm leading-relaxed text-quiet line-clamp-3">
                         {opp.description || 'No description provided.'}
-                      </p>
-                    </div>
+                      </span>
 
-                    {/* Card Bottom / Footer */}
-                    <div className="pt-4 border-t border-brand-purpleLight/30 space-y-3">
-                      {deadline && (
-                        <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 border border-amber-200/60 px-2.5 py-1 rounded-md w-fit font-medium">
-                          <RiCalendarLine size={13} className="text-amber-700" />
-                          <span>Deadline: {new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-xs font-semibold text-brand-purple group-hover:text-brand-purpleHover pt-1">
-                        <span>Click to view details</span>
-                        <RiArrowRightLine size={15} className="group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </div>
+                      {/* Footer */}
+                      <span className="mt-6 flex w-full items-center justify-between border-t border-mist pt-4 text-sm">
+                        {deadline ? (
+                          <span className="flex items-center gap-1.5 font-medium text-saffron-deep nums-tabular">
+                            <RiCalendarLine size={15} aria-hidden="true" />
+                            Deadline {new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        ) : <span className="text-quiet">Open</span>}
+                        <span className="flex items-center gap-1 font-semibold text-plum">
+                          Details <RiArrowRightLine size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+                        </span>
+                      </span>
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="mt-12 flex items-center justify-center gap-3">
+              <nav aria-label="Pagination" className="mt-12 flex items-center justify-center gap-3">
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
-                  className="px-4 py-2 rounded-xl border border-brand-purpleLight text-brand-purple text-xs font-bold hover:bg-brand-purpleLight/20 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <RiArrowLeftSLine size={16} /> Previous
+                  <RiArrowLeftSLine size={18} aria-hidden="true" /> Previous
                 </button>
-                <span className="text-xs text-gray-600 font-medium px-2">
+                <span className="px-2 text-sm text-quiet nums-tabular">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage(p => p + 1)}
-                  className="px-4 py-2 rounded-xl border border-brand-purpleLight text-brand-purple text-xs font-bold hover:bg-brand-purpleLight/20 disabled:opacity-40 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Next <RiArrowRightSLine size={16} />
+                  Next <RiArrowRightSLine size={18} aria-hidden="true" />
                 </button>
-              </div>
+              </nav>
             )}
           </>
         )}
@@ -384,72 +364,63 @@ export default function Opportunities() {
 
       {/* FULL DETAILS MODAL */}
       {selectedOpp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          <div
+            className="fixed inset-0 bg-ink-deep/70 backdrop-blur-xs animate-in fade-in duration-200"
             onClick={() => setSelectedOpp(null)}
           />
 
           {/* Modal Card */}
-          <div 
-            className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-brand-purpleLight/60 z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="opp-dialog-title"
+            className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-6 sm:p-8 border-b border-brand-purpleLight/40 relative bg-gradient-to-b from-brand-cream/30 to-white">
+            <div className="relative border-b border-mist p-6 sm:p-8">
               <button
+                type="button"
                 onClick={() => setSelectedOpp(null)}
-                className="absolute top-6 right-6 p-2 rounded-full bg-brand-purpleLight/20 text-brand-purpleDark hover:bg-brand-purpleLight/40 transition-colors cursor-pointer"
+                className="absolute right-5 top-5 cursor-pointer rounded-full p-2 text-quiet transition-colors hover:bg-porcelain hover:text-plum-deep"
                 aria-label="Close modal"
               >
-                <RiCloseLine size={20} />
+                <RiCloseLine size={22} />
               </button>
 
-              <div className="flex flex-wrap items-center gap-2 mb-3 pr-10">
-                <span className="text-xs font-bold px-3 py-1 rounded-md bg-brand-purple text-white">
-                  {formatCategory(selectedOpp.category)}
-                </span>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-brand-cream text-brand-purpleDark border border-brand-purpleLight/40">
-                  Audience: {formatAudience(selectedOpp.audience || 'BOTH')}
-                </span>
-              </div>
+              <p className="pr-10 text-sm">
+                <span className="font-semibold text-ink">{formatCategory(selectedOpp.category)}</span>
+                <span className="text-quiet"> for {formatAudience(selectedOpp.audience || 'BOTH')}</span>
+              </p>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-brand-purpleDark leading-tight">
+              <h2 id="opp-dialog-title" className="mt-2 text-2xl sm:text-3xl font-medium leading-tight text-plum-deep">
                 {selectedOpp.title}
               </h2>
 
               {(selectedOpp.organisation || selectedOpp.country) && (
-                <div className="flex flex-wrap items-center gap-3 text-sm text-brand-purpleDark/80 mt-3">
-                  {selectedOpp.organisation && (
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <RiBuildingLine size={16} className="text-brand-purple" />
-                      {selectedOpp.organisation}
-                    </span>
-                  )}
-                  {selectedOpp.organisation && selectedOpp.country && <span>•</span>}
+                <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.95rem] text-body">
+                  {selectedOpp.organisation && <span>{selectedOpp.organisation}</span>}
                   {selectedOpp.country && (
-                    <span className="flex items-center gap-1.5 font-medium">
+                    <span className="flex items-center gap-1.5">
                       <FlagIcon code={selectedOpp.countryCode} />
-                      <RiMapPinLine size={16} className="text-brand-purple" />
                       {selectedOpp.country}
                     </span>
                   )}
-                </div>
+                </p>
               )}
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+            <div className="space-y-6 overflow-y-auto p-6 sm:p-8">
               {/* 3.22 Only show Application Deadline if opp.applicationDeadline is present */}
               {selectedOpp.applicationDeadline && (
-                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200/60 flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-amber-100 text-amber-800">
-                    <RiCalendarLine size={20} />
-                  </div>
+                <div className="flex items-center gap-4 rounded-xl bg-saffron-tint p-4">
+                  <RiCalendarLine size={22} aria-hidden="true" className="shrink-0 text-saffron-deep" />
                   <div>
-                    <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Application Deadline</p>
-                    <p className="text-base font-bold text-amber-950">
+                    <p className="text-sm text-saffron-deep">Application deadline</p>
+                    <p className="font-semibold text-plum-deep">
                       {new Date(selectedOpp.applicationDeadline).toLocaleDateString(undefined, {
                         weekday: 'long',
                         year: 'numeric',
@@ -463,43 +434,40 @@ export default function Opportunities() {
 
               {/* Description */}
               <div>
-                <h4 className="text-sm font-bold text-brand-purpleDark uppercase tracking-wider mb-2">
-                  About This Opportunity
-                </h4>
-                <div className="text-gray-700 text-base leading-relaxed whitespace-pre-line space-y-4">
+                <h3 className="text-lg font-medium text-plum-deep">About this opportunity</h3>
+                <div className="mt-2 whitespace-pre-line text-base leading-relaxed text-body">
                   {selectedOpp.description}
                 </div>
               </div>
 
               {/* Attachment if present */}
               {selectedOpp.attachmentUrl && (
-                <div className="p-4 rounded-xl border border-brand-purpleLight/50 bg-brand-cream/20 flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4 rounded-xl bg-porcelain p-4 ring-1 ring-inset ring-mist">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-brand-purpleLight/30 text-brand-purple">
-                      <RiAttachmentLine size={20} />
-                    </div>
+                    <RiAttachmentLine size={20} aria-hidden="true" className="shrink-0 text-plum" />
                     <div>
-                      <p className="text-sm font-semibold text-brand-purpleDark">Official Notice / Brochure</p>
-                      <p className="text-xs text-gray-500">Download attached documentation</p>
+                      <p className="text-sm font-semibold text-plum-deep">Official Notice / Brochure</p>
+                      <p className="text-xs text-quiet">Download attached documentation</p>
                     </div>
                   </div>
                   <a
                     href={resolveMediaUrl(selectedOpp.attachmentUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-bold text-brand-purple hover:underline"
+                    className="shrink-0 text-sm font-semibold text-plum hover:underline underline-offset-4"
                   >
-                    Download File ↗
+                    Download File
                   </a>
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 bg-brand-cream/30 border-t border-brand-purpleLight/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex flex-col-reverse items-center justify-between gap-3 border-t border-mist bg-porcelain p-5 sm:flex-row sm:px-8">
               <button
+                type="button"
                 onClick={() => setSelectedOpp(null)}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-brand-purpleLight/70 text-brand-purpleDark font-semibold text-sm hover:bg-white transition-colors cursor-pointer"
+                className="h-11 w-full cursor-pointer rounded-full px-5 text-sm font-semibold text-plum ring-1 ring-inset ring-plum/30 transition-colors hover:bg-white sm:w-auto"
               >
                 Close Details
               </button>
@@ -509,10 +477,10 @@ export default function Opportunities() {
                   href={selectedOpp.externalUrl || selectedOpp.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-purple text-white font-semibold text-sm hover:bg-brand-purpleHover shadow-sm transition-all"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-plum px-6 text-sm font-semibold text-white transition-colors hover:bg-plum-deep sm:w-auto"
                 >
-                  <span>Apply on Official Website</span>
-                  <RiExternalLinkLine size={16} />
+                  Apply on Official Website
+                  <RiExternalLinkLine size={16} aria-hidden="true" />
                 </a>
               )}
             </div>

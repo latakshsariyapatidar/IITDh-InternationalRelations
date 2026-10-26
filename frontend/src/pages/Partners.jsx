@@ -2,19 +2,14 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
 import {
-  RiGlobalLine,
-  RiLinksLine,
-  RiEarthLine,
-  RiCalendarLine,
   RiSearchLine,
   RiExternalLinkLine,
   RiFileDownloadLine,
-  RiBuilding4Line,
-  RiBuilding2Line,
   RiCheckDoubleLine,
-  RiRefreshLine
+  RiRefreshLine,
+  RiCloseLine,
+  RiLockLine
 } from '@remixicon/react'
 import apiClient from '../api/client'
 import { fetchAllPages } from '../api/fetchAllPages'
@@ -84,13 +79,9 @@ const blobErrorMessage = async (err) => {
   return data?.message
 }
 
-function FlagIcon({ country, code, className = "h-4 w-auto rounded-[2px] shadow-xs" }) {
+function FlagIcon({ country, code, className = "h-3.5 w-auto rounded-[2px] ring-1 ring-black/5" }) {
   if (!code) {
-    return (
-      <span className="inline-flex items-center justify-center w-5 h-3.5 bg-gray-100 text-[10px] text-gray-500 rounded font-mono">
-        🌐
-      </span>
-    )
+    return null
   }
 
   return (
@@ -105,6 +96,50 @@ function FlagIcon({ country, code, className = "h-4 w-auto rounded-[2px] shadow-
         e.target.style.display = 'none'
       }}
     />
+  )
+}
+
+// How the office partners, from the MoU Partners page.
+const AGREEMENT_TYPES = [
+  ['General MoU', 'Facilitates research activities and other forms of academic cooperation.'],
+  ['Bilateral MoU or agreement', 'Facilitates joint degrees, dual degrees, cotutelle and semester exchange programmes, inbound and outbound.'],
+]
+const NETWORKS = ["TU9 German universities and the IITs", "Finnish universities and the IITs", "French universities and the IITs"]
+const PROJECTS = ['Erasmus mobility programmes', 'Erasmus capacity building projects', 'SPARC']
+
+function PartnerLogo({ name, logoUrl, size = 'h-11 w-11' }) {
+  return (
+    <div className={`${size} shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-mist flex items-center justify-center font-heading! text-lg text-ink`}>
+      {logoUrl ? (
+        <img
+          src={resolveLogoUrl(logoUrl)}
+          alt=""
+          className="h-full w-full object-contain p-1.5"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+            if (e.currentTarget.nextElementSibling) {
+              e.currentTarget.nextElementSibling.style.display = 'flex'
+            }
+          }}
+        />
+      ) : null}
+      <span
+        className="items-center justify-center w-full h-full text-center"
+        style={{ display: logoUrl ? 'none' : 'flex' }}
+      >
+        {name.charAt(0)}
+      </span>
+    </div>
+  )
+}
+
+function StatusBadge({ status, label }) {
+  const active = status === 'ACTIVE'
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${active ? 'bg-emerald-50 text-emerald-800' : 'bg-saffron-tint text-saffron-deep'}`}>
+      {active && <RiCheckDoubleLine size={13} aria-hidden="true" />}
+      {label}
+    </span>
   )
 }
 
@@ -299,12 +334,20 @@ export default function Partners() {
     ? filteredUniversities
     : filteredUniversities.slice(0, 6)
 
+  const tabs = [
+    { id: 'all', label: 'All collaborations', count: partners.length },
+    { id: 'universities', label: 'Universities', count: universities.length },
+    { id: 'organizations', label: 'Organizations & consortia', count: organizations.length },
+    { id: 'mous', label: 'Active MOUs', count: mous.filter(m => m.status === 'ACTIVE').length },
+  ]
+
   return (
-    <div className="bg-[#fcfbfd] text-brand-purpleDark min-h-screen">
+    <div>
       <HeroSection
         title="Global Partners & Collaborations"
         subtitle="A vibrant worldwide network of partner universities, research consortia, and bilateral agreements connecting IIT Dharwad to the world"
         backgroundImage="/institute/Institute4.jpg"
+        tone="ink"
         cta={{
           label: 'Explore Active MOUs',
           onClick: () => {
@@ -314,114 +357,113 @@ export default function Partners() {
         }}
       />
 
-      {/* Search & Navigation Bar */}
-      <section className="max-w-7xl mx-auto px-4 pt-8 pb-2">
-        <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xs border border-brand-purpleLight/60">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Tab buttons */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedTab('all')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                  selectedTab === 'all'
-                    ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
-                }`}
-              >
-                All Collaborations ({partners.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedTab('universities')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                  selectedTab === 'universities'
-                    ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
-                }`}
-              >
-                Universities ({universities.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedTab('organizations')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                  selectedTab === 'organizations'
-                    ? 'bg-brand-purple text-white shadow-xs'
-                    : 'bg-brand-cream/60 text-brand-purpleDark/80 hover:bg-brand-purpleLight/30 hover:text-brand-purpleDark border border-brand-purpleLight/30'
-                }`}
-              >
-                Organizations & Consortia ({organizations.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedTab('mous')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  selectedTab === 'mous'
-                    ? 'bg-emerald-700 text-white shadow-xs'
-                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/60'
-                }`}
-              >
-                <RiLinksLine size={16} />
-                Active MOUs ({mous.filter(m => m.status === 'ACTIVE').length})
-              </button>
+      {/* How we partner */}
+      <section aria-labelledby="how-we-partner" className="bg-white border-b border-mist py-16 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+          <div className="lg:col-span-4">
+            <h2 id="how-we-partner" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-ink-deep">How we partner</h2>
+            <p className="mt-3 text-lg text-quiet">Agreements with individual institutions, membership of national networks, and international projects.</p>
+          </div>
+          <div className="grid gap-10 sm:grid-cols-2 lg:col-span-8">
+            <dl className="space-y-5 sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-8 sm:space-y-0">
+              {AGREEMENT_TYPES.map(([term, text]) => (
+                <div key={term} className="border-l-2 border-ink pl-4">
+                  <dt className="font-heading! text-xl text-ink-deep">{term}</dt>
+                  <dd className="mt-1 text-[0.95rem] text-body">{text}</dd>
+                </div>
+              ))}
+            </dl>
+            <div>
+              <h3 className="text-lg font-medium text-ink-deep">Networks</h3>
+              <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
+                {NETWORKS.map((n) => <li key={n}>{n}</li>)}
+              </ul>
             </div>
-
-            {/* Search Input & Country Filter */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div className="relative flex-1 sm:w-64">
-                <RiSearchLine
-                  size={18}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type="text"
-                  placeholder="Search partner, country..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple text-brand-purpleDark placeholder:text-gray-400 shadow-2xs"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                className="px-3 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple text-brand-purpleDark font-medium cursor-pointer shadow-2xs"
-              >
-                <option value="ALL">All Countries ({countries.length})</option>
-                {countries.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+            <div>
+              <h3 className="text-lg font-medium text-ink-deep">International projects</h3>
+              <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
+                {PROJECTS.map((n) => <li key={n}>{n}</li>)}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Search & Navigation Bar */}
+      <div className="sticky top-[var(--site-header-h,140px)] z-30 border-b border-mist bg-porcelain/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          {/* Tab buttons */}
+          <div role="group" aria-label="Show" className="scrollbar-hide -mx-4 flex gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedTab(tab.id)}
+                aria-pressed={selectedTab === tab.id}
+                className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  selectedTab === tab.id
+                    ? 'bg-ink text-white'
+                    : 'bg-white text-body ring-1 ring-inset ring-mist hover:text-ink-deep hover:ring-ink/30'
+                }`}
+              >
+                {tab.label} <span className={`nums-tabular ${selectedTab === tab.id ? 'text-white/70' : 'text-quiet'}`}>{tab.count}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Search Input & Country Filter */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative flex-1 sm:w-64">
+              <RiSearchLine size={18} aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-quiet" />
+              <input
+                type="text"
+                placeholder="Search partner, country..."
+                aria-label="Search partners"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 w-full rounded-full border border-mist bg-white pl-10 pr-9 text-sm text-plum-deep placeholder:text-quiet focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 text-quiet hover:text-plum-deep"
+                >
+                  <RiCloseLine size={16} />
+                </button>
+              )}
+            </div>
+
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              aria-label="Filter by country"
+              className="h-10 cursor-pointer rounded-full border border-mist bg-white px-4 text-sm font-medium text-plum-deep focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
+            >
+              <option value="ALL">All Countries ({countries.length})</option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Loading Skeleton */}
       {loading && (
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-brand-purple border-t-transparent mb-3" />
-            <p className="text-sm font-medium text-gray-500">Loading partner institutions & MOUs...</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-xs animate-pulse">
-                <div className="w-12 h-12 bg-gray-200 rounded-full mb-4 mx-auto" />
-                <div className="h-5 bg-gray-200 rounded w-3/4 mx-auto mb-2" />
-                <div className="h-4 bg-gray-100 rounded w-1/2 mx-auto mb-4" />
-                <div className="h-3 bg-gray-100 rounded w-full mt-4" />
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-busy="true">
+          <p className="mb-6 text-sm text-quiet">Loading partner institutions & MOUs...</p>
+          <div className="divide-y divide-mist rounded-2xl border border-mist bg-white">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex animate-pulse items-center gap-4 p-5">
+                <div className="h-11 w-11 rounded-xl bg-mist" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 rounded bg-mist" />
+                  <div className="h-3 w-1/5 rounded bg-mist/70" />
+                </div>
               </div>
             ))}
           </div>
@@ -430,14 +472,15 @@ export default function Partners() {
 
       {/* Error Banner */}
       {error && !loading && (
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between text-amber-800 text-sm">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div role="alert" className="flex items-center justify-between gap-4 rounded-2xl bg-saffron-tint p-4 text-sm text-plum-deep">
             <p>{error}</p>
             <button
+              type="button"
               onClick={fetchData}
-              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand-purple hover:underline"
+              className="flex shrink-0 cursor-pointer items-center gap-1.5 font-semibold text-plum hover:underline"
             >
-              <RiRefreshLine size={16} />
+              <RiRefreshLine size={16} aria-hidden="true" />
               Retry
             </button>
           </div>
@@ -449,190 +492,133 @@ export default function Partners() {
         <>
           {/* SECTION 1: Partner Universities */}
           {(selectedTab === 'all' || selectedTab === 'universities') && (
-            <section className="max-w-7xl mx-auto px-4 pt-6 pb-12">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-4 border-b border-brand-purpleLight/40">
-                <SectionHeader
-                  title="Partner Universities"
-                  subtitle="Accredited higher education institutions collaborating with IIT Dharwad"
-                  badge={<RiBuilding4Line size={18} />}
-                  badgeText="Partner Universities"
-                  centered={false}
-                  className="mb-0"
-                />
-                {filteredUniversities.length > 6 && !showAllUniversities && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAllUniversities(true)}
-                    className="self-start sm:self-auto inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-brand-purple hover:text-brand-purpleDark hover:underline shrink-0"
-                  >
-                    <span>View all {filteredUniversities.length} universities</span>
-                    <span className="bg-brand-purpleLight/40 px-2 py-0.5 rounded-full text-[11px]">
-                      +{filteredUniversities.length - 6} more
-                    </span>
-                  </button>
-                )}
-              </div>
+            <section className="mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
+              <SectionHeader
+                title="Partner Universities"
+                subtitle="Accredited higher education institutions collaborating with IIT Dharwad"
+              />
 
               {filteredUniversities.length === 0 ? (
-                <div className="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-xs">
-                  <RiSearchLine size={40} className="mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-600 font-semibold text-base">No universities matched your search</p>
-                  <p className="text-xs text-gray-400 mt-1">Try selecting another country or clearing your search term.</p>
+                <div className="rounded-2xl border border-dashed border-mist bg-white p-10 text-center">
+                  <p className="font-semibold text-plum-deep">No universities matched your search</p>
+                  <p className="mt-1 text-sm text-quiet">Try selecting another country or clearing your search term.</p>
                 </div>
               ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {displayedUniversities.map((uni) => {
-                    const countryCode = resolveCountryCode(uni.country, uni.countryCode)
-                    const linkedMous = partnerMouMap[uni.id] || uni.mous || []
-                    const activeMou = linkedMous.find((m) => m.status === 'ACTIVE')
-                    const latestMou = activeMou || linkedMous[0]
+                <div className="overflow-hidden rounded-2xl border border-mist bg-white">
+                  {/* Column headings (desktop) */}
+                  <div aria-hidden="true" className="hidden grid-cols-12 gap-6 border-b border-mist bg-porcelain px-6 py-3 text-xs font-semibold text-quiet lg:grid">
+                    <span className="col-span-5">University</span>
+                    <span className="col-span-2">Country</span>
+                    <span className="col-span-2">Agreement</span>
+                    <span className="col-span-3">Faculty champion</span>
+                  </div>
+                  <ul className="divide-y divide-mist">
+                    {displayedUniversities.map((uni) => {
+                      const countryCode = resolveCountryCode(uni.country, uni.countryCode)
+                      const linkedMous = partnerMouMap[uni.id] || uni.mous || []
+                      const activeMou = linkedMous.find((m) => m.status === 'ACTIVE')
+                      const latestMou = activeMou || linkedMous[0]
 
-                    return (
-                      <Card
-                        key={uni.id || uni.name}
-                        variant="default"
-                        className="flex flex-col justify-between border-brand-purpleLight/50 p-6 hover:shadow-md transition-all hover:border-brand-purple/60 group bg-white"
-                      >
-                        <div>
-                          {/* Card Top: Avatar & Flag */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="h-12 w-12 rounded-2xl bg-brand-purpleLight/30 flex items-center justify-center text-brand-purpleDark font-bold text-lg group-hover:bg-brand-purple group-hover:text-white transition-colors overflow-hidden shrink-0 border border-brand-purpleLight/40 bg-white">
-                              {uni.logoUrl ? (
-                                <img
-                                  src={resolveLogoUrl(uni.logoUrl)}
-                                  alt={uni.name}
-                                  className="h-full w-full object-contain p-1.5 rounded-xl"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none'
-                                    if (e.currentTarget.nextElementSibling) {
-                                      e.currentTarget.nextElementSibling.style.display = 'flex'
-                                    }
-                                  }}
-                                />
-                              ) : null}
-                              <span
-                                className="items-center justify-center w-full h-full text-center"
-                                style={{ display: uni.logoUrl ? 'none' : 'flex' }}
-                              >
-                                {uni.name.charAt(0)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200/70 px-2.5 py-1 rounded-full text-xs font-medium text-gray-700">
-                              <FlagIcon country={uni.country} code={countryCode} />
-                              <span>{uni.country}</span>
+                      return (
+                        <li key={uni.id || uni.name} className="grid gap-4 px-6 py-5 lg:grid-cols-12 lg:items-center lg:gap-6">
+                          {/* Name, focus and links */}
+                          <div className="flex items-start gap-4 lg:col-span-5">
+                            <PartnerLogo name={uni.name} logoUrl={uni.logoUrl} />
+                            <div className="min-w-0">
+                              <h3 className="text-lg font-medium leading-snug text-ink-deep">{uni.name}</h3>
+                              {uni.focus && (
+                                <p className="mt-0.5 text-sm text-quiet line-clamp-2">{uni.focus}</p>
+                              )}
+                              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium">
+                                {uni.website && (
+                                  <a
+                                    href={uni.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-ink hover:underline underline-offset-4"
+                                  >
+                                    Official website <RiExternalLinkLine size={13} aria-hidden="true" />
+                                  </a>
+                                )}
+                                {(activeMou?.hasDocument || latestMou?.hasDocument) && (
+                                  <button
+                                    type="button"
+                                    disabled={downloadingId === (activeMou?.id || latestMou?.id)}
+                                    onClick={() => handleDownloadMou((activeMou || latestMou).id, uni.name)}
+                                    className="inline-flex cursor-pointer items-center gap-1 text-plum hover:underline underline-offset-4"
+                                  >
+                                    <RiFileDownloadLine size={14} aria-hidden="true" />
+                                    {downloadingId === (activeMou?.id || latestMou?.id) ? 'Downloading...' : 'View MOU'}
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
 
-                          {/* University Name */}
-                          <h3 className="text-lg font-bold text-brand-purpleDark leading-snug group-hover:text-brand-purple transition-colors mb-2">
-                            {uni.name}
-                          </h3>
+                          {/* Country */}
+                          <div className="flex items-center gap-2 text-[0.95rem] text-body lg:col-span-2">
+                            <FlagIcon country={uni.country} code={countryCode} />
+                            <span>{uni.country}</span>
+                          </div>
 
-                          {/* Focus Area */}
-                          {uni.focus && (
-                            <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                              <span className="font-semibold text-gray-700">Focus:</span> {uni.focus}
-                            </p>
-                          )}
+                          {/* Agreement */}
+                          <div className="text-sm lg:col-span-2">
+                            {activeMou ? (
+                              <>
+                                <StatusBadge status="ACTIVE" label="Active MOU" />
+                                {activeMou.expiryDate && (
+                                  <p className="mt-1 text-quiet nums-tabular">Valid to {new Date(activeMou.expiryDate).getFullYear()}</p>
+                                )}
+                              </>
+                            ) : latestMou ? (
+                              <>
+                                <StatusBadge status={latestMou.status} label={`MOU (${latestMou.status || 'Pending'})`} />
+                                {latestMou.expiryDate && (
+                                  <p className="mt-1 text-quiet nums-tabular">Valid to {new Date(latestMou.expiryDate).getFullYear()}</p>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-quiet">Academic Partnership</span>
+                            )}
+                          </div>
 
                           {/* Champion Faculty if available */}
-                          {uni.championName && (
-                            <div className="text-[11px] text-gray-500 mb-3 bg-purple-50/60 border border-purple-100 p-2 rounded-lg">
-                              <p>
-                                <span className="font-semibold text-brand-purpleDark">IITDh Champion:</span> {uni.championName}
-                                {uni.championDesignation ? ` (${uni.championDesignation})` : ''}
-                              </p>
-                              {uni.championEmail && (
-                                <a
-                                  href={`mailto:${uni.championEmail}`}
-                                  className="text-brand-purple hover:underline text-[10px] break-all block mt-0.5"
-                                >
-                                  {uni.championEmail}
-                                </a>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Card Bottom: MOU Badge & Links */}
-                        <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-2.5">
-                          {activeMou ? (
-                            <div className="flex items-center justify-between gap-2 text-xs">
-                              <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full font-semibold">
-                                <RiCheckDoubleLine size={14} />
-                                Active MOU
-                              </span>
-                              {activeMou.expiryDate && (
-                                <span className="text-[11px] text-gray-500">
-                                  Valid to {new Date(activeMou.expiryDate).getFullYear()}
-                                </span>
-                              )}
-                            </div>
-                          ) : latestMou ? (
-                            <div className="flex items-center justify-between gap-2 text-xs">
-                              <span className="inline-flex items-center gap-1 text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full font-semibold">
-                                MOU ({latestMou.status || 'Pending'})
-                              </span>
-                              {latestMou.expiryDate && (
-                                <span className="text-[11px] text-gray-500">
-                                  Valid to {new Date(latestMou.expiryDate).getFullYear()}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-gray-400">Academic Partnership</span>
-                          )}
-
-                          <div className="flex items-center justify-between pt-1 text-xs font-semibold">
-                            {uni.website ? (
-                              <a
-                                href={uni.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-gray-500 hover:text-brand-purple flex items-center gap-1 transition-colors"
-                              >
-                                <span>Official Website</span>
-                                <RiExternalLinkLine size={13} />
-                              </a>
+                          <div className="text-sm lg:col-span-3">
+                            {uni.championName ? (
+                              <>
+                                <p className="text-plum-deep">
+                                  <span className="lg:hidden text-quiet">IITDh Champion: </span>
+                                  {uni.championName}
+                                </p>
+                                {uni.championDesignation && <p className="text-quiet">{uni.championDesignation}</p>}
+                                {uni.championEmail && (
+                                  <a href={`mailto:${uni.championEmail}`} className="break-all text-ink hover:underline underline-offset-4">
+                                    {uni.championEmail}
+                                  </a>
+                                )}
+                              </>
                             ) : (
-                              <span />
-                            )}
-
-                            {(activeMou?.hasDocument || latestMou?.hasDocument) && (
-                              <button
-                                type="button"
-                                disabled={downloadingId === (activeMou?.id || latestMou?.id)}
-                                onClick={() => handleDownloadMou((activeMou || latestMou).id, uni.name)}
-                                className="text-brand-purple hover:underline flex items-center gap-1 cursor-pointer"
-                              >
-                                <RiFileDownloadLine size={14} />
-                                {downloadingId === (activeMou?.id || latestMou?.id) ? 'Downloading...' : 'View MOU'}
-                              </button>
+                              <span className="hidden text-quiet lg:inline">–</span>
                             )}
                           </div>
-                        </div>
-                      </Card>
-                    )
-                  })}
+                        </li>
+                      )
+                    })}
+                  </ul>
                 </div>
               )}
 
               {/* Show More / Show Less Button */}
               {filteredUniversities.length > 6 && (
-                <div className="mt-8 text-center">
+                <div className="mt-6">
                   <button
                     type="button"
                     onClick={() => setShowAllUniversities((prev) => !prev)}
-                    className="inline-flex items-center gap-2 rounded-full border border-brand-purpleLight bg-white px-6 py-3 text-sm font-bold text-brand-purple shadow-xs hover:border-brand-purple hover:bg-brand-purpleLight/20 transition-all cursor-pointer"
+                    className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-6 text-sm font-semibold text-ink ring-1 ring-inset ring-ink/30 transition-colors hover:bg-ink-tint"
                   >
-                    <span>
-                      {showAllUniversities
-                        ? 'Show fewer universities'
-                        : `Show all ${filteredUniversities.length} universities`}
-                    </span>
-                    <span className="rounded-full bg-brand-purple px-2 py-0.5 text-xs text-white">
-                      {filteredUniversities.length}
-                    </span>
+                    {showAllUniversities
+                      ? 'Show fewer universities'
+                      : `Show all ${filteredUniversities.length} universities`}
                   </button>
                 </div>
               )}
@@ -641,144 +627,223 @@ export default function Partners() {
 
           {/* SECTION 2: Partner Organizations, Consortia & Networks */}
           {(selectedTab === 'all' || selectedTab === 'organizations') && (
-            <section className="bg-white/90 border-y border-brand-purpleLight/40 py-12 my-8">
-              <div className="max-w-7xl mx-auto px-4">
-                <SectionHeader
-                  title="Partner Organizations & Consortia"
-                  subtitle="Collaborating international bodies, research agencies, and academic networks"
-                  badge={<RiGlobalLine size={18} />}
-                  badgeText="Networks & Bodies"
-                  centered={false}
-                />
+            <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+              <SectionHeader
+                title="Partner Organizations & Consortia"
+                subtitle="Collaborating international bodies, research agencies, and academic networks"
+              />
 
-                {filteredOrganizations.length === 0 ? (
-                  <div className="bg-gray-50 rounded-2xl p-10 text-center border border-gray-200/60">
-                    <p className="text-gray-500 font-medium">No partner organizations matched your filter.</p>
+              {filteredOrganizations.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-mist bg-white p-10 text-center">
+                  <p className="font-semibold text-plum-deep">No partner organizations matched your filter.</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredOrganizations.map((org) => {
+                    const countryCode = resolveCountryCode(org.country, org.countryCode)
+                    const typeLabel =
+                      org.type === 'CONSORTIUM'
+                        ? 'Consortium'
+                        : org.type === 'NETWORK'
+                        ? 'Academic Network'
+                        : 'Organization'
+                    const orgMous = partnerMouMap[org.id] || org.mous || []
+
+                    return (
+                      <article key={org.id || org.name} className="flex flex-col rounded-2xl border border-mist bg-white p-6">
+                        <div className="flex items-start justify-between gap-3">
+                          {org.logoUrl ? <PartnerLogo name={org.name} logoUrl={org.logoUrl} size="h-10 w-10" /> : <span />}
+                          <span className="flex items-center gap-1.5 text-sm text-body">
+                            <FlagIcon country={org.country} code={countryCode} />
+                            {org.country}
+                          </span>
+                        </div>
+                        <p className="mt-4 text-sm font-medium text-saffron-deep">{typeLabel}</p>
+                        <h3 className="mt-1 text-xl font-medium leading-snug text-ink-deep">{org.name}</h3>
+
+                        {org.focus && (
+                          <p className="mt-2 text-sm text-quiet">{org.focus}</p>
+                        )}
+
+                        {org.championName && (
+                          <div className="mt-4 text-sm">
+                            <p className="text-plum-deep">
+                              <span className="text-quiet">Champion: </span>{org.championName}
+                              {org.championDesignation ? `, ${org.championDesignation}` : ''}
+                            </p>
+                            {org.championEmail && (
+                              <a href={`mailto:${org.championEmail}`} className="break-all text-ink hover:underline underline-offset-4">
+                                {org.championEmail}
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {/* 3.15 Nested MOUs for organization cards */}
+                        {orgMous.length > 0 && (
+                          <div className="mt-5 border-t border-mist pt-4">
+                            <p className="text-sm font-semibold text-plum-deep">Agreements ({orgMous.length})</p>
+                            <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto pr-1">
+                              {orgMous.map((m) => (
+                                <li key={m.id} className="flex items-center justify-between gap-3 rounded-lg bg-porcelain px-3 py-2 text-sm">
+                                  <div className="min-w-0">
+                                    <span className="block truncate text-body" title={m.title || 'MOU'}>
+                                      {m.title || 'Bilateral MOU'}
+                                    </span>
+                                    {m.expiryDate && (
+                                      <span className="text-xs text-quiet nums-tabular">
+                                        Until {new Date(m.expiryDate).getFullYear()}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {m.hasDocument && (
+                                    <button
+                                      type="button"
+                                      disabled={downloadingId === m.id}
+                                      onClick={() => handleDownloadMou(m.id, org.name)}
+                                      className="shrink-0 cursor-pointer text-xs font-semibold text-plum hover:underline"
+                                    >
+                                      {downloadingId === m.id ? '...' : 'PDF'}
+                                    </button>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {org.website && (
+                          <a
+                            href={org.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-ink hover:underline underline-offset-4"
+                          >
+                            Learn More <RiExternalLinkLine size={14} aria-hidden="true" />
+                          </a>
+                        )}
+                      </article>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* SECTION 3: Active Memorandums of Understanding (MOUs) */}
+          {(selectedTab === 'all' || selectedTab === 'mous') && (
+            <section id="active-mous-section" className="bg-white border-y border-mist py-16 md:py-20">
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <SectionHeader
+                  title="Active Memorandums of Understanding (MOUs)"
+                  subtitle="Formally ratified bilateral agreements governing student exchanges, dual degrees, and joint scientific investigations"
+                />
+                {!signedIn && (
+                  <p className="-mt-4 mb-8 flex items-center gap-2 text-sm text-quiet">
+                    <RiLockLine size={16} aria-hidden="true" className="text-saffron-deep" />
+                    Signed MOU documents open for IIT Dharwad accounts; you will be asked to sign in.
+                  </p>
+                )}
+
+                {filteredMous.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-mist bg-porcelain p-10 text-center">
+                    <p className="font-semibold text-plum-deep">No MOUs matched the selected criteria.</p>
                   </div>
                 ) : (
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {filteredOrganizations.map((org) => {
-                      const countryCode = resolveCountryCode(org.country, org.countryCode)
-                      const typeLabel =
-                        org.type === 'CONSORTIUM'
-                          ? 'Consortium'
-                          : org.type === 'NETWORK'
-                          ? 'Academic Network'
-                          : 'Organization'
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredMous.map((mou) => {
+                      const partnerName = mou.partner?.name || mou.title || 'Partner Institution'
+                      const country = mou.partner?.country || ''
+                      const countryCode = resolveCountryCode(country, mou.partner?.countryCode)
+                      const expiryDate = mou.expiryDate || mou.validUntil
+                      const isMouActive = mou.status === 'ACTIVE'
 
                       return (
-                        <Card
-                          key={org.id || org.name}
-                          variant="default"
-                          className="border-brand-purpleLight/50 p-6 flex flex-col justify-between hover:shadow-md transition-all hover:border-brand-purple/60"
+                        <div
+                          key={mou.id}
+                          onClick={() => handleMouClick(mou, partnerName)}
+                          role={mou.hasDocument ? 'button' : undefined}
+                          tabIndex={mou.hasDocument ? 0 : undefined}
+                          onKeyDown={(e) => {
+                            if (mou.hasDocument && (e.key === 'Enter' || e.key === ' ')) {
+                              e.preventDefault()
+                              handleMouClick(mou, partnerName)
+                            }
+                          }}
+                          className={`flex flex-col rounded-2xl border border-mist bg-porcelain p-6 transition-colors ${
+                            mou.hasDocument ? 'cursor-pointer hover:border-ink/40 hover:bg-white' : ''
+                          }`}
                         >
-                          <div>
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2.5">
-                                {org.logoUrl && (
-                                  <div className="h-8 w-8 rounded-lg bg-white border border-brand-purpleLight/40 flex items-center justify-center overflow-hidden shrink-0">
-                                    <img
-                                      src={resolveLogoUrl(org.logoUrl)}
-                                      alt={org.name}
-                                      className="h-full w-full object-contain p-1"
-                                      onError={(e) => { e.currentTarget.style.display = 'none' }}
-                                    />
-                                  </div>
-                                )}
-                                <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-brand-purpleLight/30 text-brand-purpleDark">
-                                  {typeLabel}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                                <FlagIcon country={org.country} code={countryCode} />
-                                <span>{org.country}</span>
-                              </div>
-                            </div>
-
-                            <h3 className="text-lg font-bold text-brand-purpleDark mb-2 leading-snug">
-                              {org.name}
-                            </h3>
-
-                            {org.focus && (
-                              <p className="text-xs text-gray-600 mb-2">
-                                <span className="font-semibold text-gray-700">Focus:</span> {org.focus}
-                              </p>
+                          {/* 3.13 Show real MOU status */}
+                          <div className="flex items-center justify-between gap-3">
+                            <StatusBadge
+                              status={mou.status}
+                              label={mou.status ? `${mou.status.charAt(0)}${mou.status.slice(1).toLowerCase()} agreement` : 'Active agreement'}
+                            />
+                            {country && (
+                              <span className="flex items-center gap-1.5 text-sm text-body">
+                                <FlagIcon country={country} code={countryCode} />
+                                {country}
+                              </span>
                             )}
-
-                            {org.championName && (
-                              <div className="text-[11px] text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100 mt-2">
-                                <p>
-                                  <span className="font-semibold text-gray-700">Champion:</span> {org.championName}
-                                  {org.championDesignation ? ` (${org.championDesignation})` : ''}
-                                </p>
-                                {org.championEmail && (
-                                  <a
-                                    href={`mailto:${org.championEmail}`}
-                                    className="text-brand-purple hover:underline text-[10px] break-all block mt-0.5"
-                                  >
-                                    {org.championEmail}
-                                  </a>
-                                )}
-                              </div>
-                            )}
-
-                            {/* 3.15 Nested MOUs for organization cards */}
-                            {(() => {
-                              const orgMous = partnerMouMap[org.id] || org.mous || []
-                              if (orgMous.length === 0) return null
-                              return (
-                                <div className="mt-3 pt-3 border-t border-gray-100 text-xs">
-                                  <p className="font-semibold text-gray-700 mb-1.5 flex items-center justify-between">
-                                    <span>Agreements ({orgMous.length}):</span>
-                                  </p>
-                                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                                    {orgMous.map((m) => (
-                                      <div
-                                        key={m.id}
-                                        className="flex items-center justify-between text-[11px] bg-purple-50/40 p-1.5 rounded border border-purple-100/50"
-                                      >
-                                        <div className="truncate mr-2">
-                                          <span className="text-gray-700 font-medium block truncate" title={m.title || 'MOU'}>
-                                            {m.title || 'Bilateral MOU'}
-                                          </span>
-                                          {m.expiryDate && (
-                                            <span className="text-[10px] text-gray-400">
-                                              Until {new Date(m.expiryDate).getFullYear()}
-                                            </span>
-                                          )}
-                                        </div>
-                                        {m.hasDocument && (
-                                          <button
-                                            type="button"
-                                            disabled={downloadingId === m.id}
-                                            onClick={() => handleDownloadMou(m.id, org.name)}
-                                            className="text-brand-purple font-semibold hover:underline shrink-0 text-[10px] cursor-pointer"
-                                          >
-                                            {downloadingId === m.id ? '...' : 'PDF'}
-                                          </button>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )
-                            })()}
                           </div>
 
-                          {org.website && (
-                            <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-end">
-                              <a
-                                href={org.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs font-semibold text-brand-purple hover:underline flex items-center gap-1"
-                              >
-                                <span>Learn More</span>
-                                <RiExternalLinkLine size={13} />
-                              </a>
-                            </div>
+                          <h3 className="mt-4 text-xl font-medium leading-snug text-ink-deep">
+                            {partnerName}
+                          </h3>
+
+                          {/* Scope / Title note */}
+                          {mou.title && mou.title !== partnerName && (
+                            <p className="mt-1 text-sm font-medium text-plum line-clamp-2">
+                              {mou.title}
+                            </p>
                           )}
-                        </Card>
+
+                          {/* Details */}
+                          <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-mist pt-4 text-sm">
+                            {mou.signedDate && (
+                              <div>
+                                <dt className="text-quiet">Signed</dt>
+                                <dd className="text-plum-deep nums-tabular">{formatDay(mou.signedDate, 'en-US')}</dd>
+                              </div>
+                            )}
+                            {expiryDate && (
+                              <div>
+                                <dt className="text-quiet">Valid until</dt>
+                                <dd className={`nums-tabular ${isMouActive ? 'text-plum-deep' : 'text-saffron-deep'}`}>{formatDay(expiryDate, 'en-US')}</dd>
+                              </div>
+                            )}
+                            {mou.scope && (
+                              <div className="col-span-2">
+                                <dt className="text-quiet">Scope</dt>
+                                <dd className="text-body line-clamp-2">{mou.scope}</dd>
+                              </div>
+                            )}
+                          </dl>
+
+                          {/* Download CTA */}
+                          <div className="mt-auto flex items-center justify-between pt-5">
+                            {mou.hasDocument ? (
+                              <>
+                                <span className="text-xs text-quiet">Signed PDF available</span>
+                                <button
+                                  type="button"
+                                  disabled={downloadingId === mou.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleMouClick(mou, partnerName)
+                                  }}
+                                  className="inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-plum hover:underline underline-offset-4"
+                                >
+                                  <RiFileDownloadLine size={15} aria-hidden="true" />
+                                  {downloadingId === mou.id ? 'Loading Document...' : 'View / Download MOU'}
+                                </button>
+                              </>
+                            ) : (
+                              <span className="text-xs text-quiet">No document on file</span>
+                            )}
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
@@ -787,216 +852,50 @@ export default function Partners() {
             </section>
           )}
 
-          {/* SECTION 3: Active Memorandums of Understanding (MOUs) */}
-          {(selectedTab === 'all' || selectedTab === 'mous') && (
-            <section id="active-mous-section" className="max-w-7xl mx-auto px-4 py-12">
-              <SectionHeader
-                title="Active Memorandums of Understanding (MOUs)"
-                subtitle="Formally ratified bilateral agreements governing student exchanges, dual degrees, and joint scientific investigations"
-                badge={<RiLinksLine size={18} />}
-                badgeText="Bilateral Agreements"
-                centered={false}
-              />
-
-              {filteredMous.length === 0 ? (
-                <div className="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-xs">
-                  <p className="text-gray-500 font-medium">No MOUs matched the selected criteria.</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredMous.map((mou) => {
-                    const partnerName = mou.partner?.name || mou.title || 'Partner Institution'
-                    const country = mou.partner?.country || ''
-                    const countryCode = resolveCountryCode(country, mou.partner?.countryCode)
-                    const expiryDate = mou.expiryDate || mou.validUntil
-                    const isMouActive = mou.status === 'ACTIVE'
-
-                    return (
-                      <div
-                        key={mou.id}
-                        onClick={() => handleMouClick(mou, partnerName)}
-                        role={mou.hasDocument ? 'button' : undefined}
-                        tabIndex={mou.hasDocument ? 0 : undefined}
-                        onKeyDown={(e) => {
-                          if (mou.hasDocument && (e.key === 'Enter' || e.key === ' ')) {
-                            e.preventDefault()
-                            handleMouClick(mou, partnerName)
-                          }
-                        }}
-                        className={`bg-white rounded-2xl border border-brand-purpleLight/60 p-6 shadow-xs transition-all flex flex-col justify-between group ${
-                          mou.hasDocument
-                            ? 'cursor-pointer hover:border-brand-purple hover:shadow-md hover:-translate-y-0.5'
-                            : 'hover:border-gray-200 opacity-90'
-                        }`}
-                      >
-                        <div>
-                          {/* Header: Name and Globe icon */}
-                          <div className="flex items-start justify-between gap-3 mb-3">
-                            <div>
-                              {/* 3.13 Show real MOU status */}
-                              <span
-                                className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 ${
-                                  isMouActive
-                                    ? 'text-emerald-700 bg-emerald-50'
-                                    : 'text-amber-800 bg-amber-50'
-                                }`}
-                              >
-                                <RiCheckDoubleLine size={13} />
-                                {mou.status ? `${mou.status} Agreement` : 'Active Agreement'}
-                              </span>
-                              <h3 className="text-lg font-bold text-brand-purpleDark group-hover:text-brand-purple transition-colors leading-snug">
-                                {partnerName}
-                              </h3>
-                            </div>
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-                              <RiLinksLine size={20} />
-                            </div>
-                          </div>
-
-                          {/* Scope / Title note */}
-                          {mou.title && mou.title !== partnerName && (
-                            <p className="text-xs font-semibold text-brand-purple mb-3 line-clamp-2">
-                              {mou.title}
-                            </p>
-                          )}
-
-                          {/* Details */}
-                          <div className="space-y-2 text-xs text-gray-600 my-4 bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                            {country && (
-                              <p className="flex items-center gap-2">
-                                <FlagIcon country={country} code={countryCode} />
-                                <span className="font-semibold text-gray-700">{country}</span>
-                              </p>
-                            )}
-                            {mou.signedDate && (
-                              <p className="flex items-center gap-2 text-gray-600">
-                                <RiCalendarLine size={14} className="text-brand-marigold shrink-0" />
-                                <span>
-                                  Signed:{' '}
-                                  {formatDay(mou.signedDate, 'en-US')}
-                                </span>
-                              </p>
-                            )}
-                            {expiryDate && (
-                              <p className="flex items-center gap-2 text-gray-600">
-                                <RiCalendarLine size={14} className="text-brand-marigold shrink-0" />
-                                <span>
-                                  Valid Until:{' '}
-                                  {formatDay(expiryDate, 'en-US')}
-                                </span>
-                              </p>
-                            )}
-                            {mou.scope && (
-                              <div className="pt-2 mt-1 border-t border-gray-200/60">
-                                <p className="text-gray-700 line-clamp-2">
-                                  <span className="font-semibold">Scope:</span> {mou.scope}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Download CTA */}
-                        <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                          {mou.hasDocument ? (
-                            <>
-                              <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1.5">
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                Signed PDF Available
-                              </span>
-                              <button
-                                type="button"
-                                disabled={downloadingId === mou.id}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleMouClick(mou, partnerName)
-                                }}
-                                className="text-xs font-bold text-brand-purple hover:text-brand-purpleDark hover:underline inline-flex items-center gap-1 cursor-pointer"
-                              >
-                                <RiFileDownloadLine size={14} />
-                                {downloadingId === mou.id ? 'Loading Document...' : 'View / Download MOU'}
-                              </button>
-                            </>
-                          ) : (
-                            <span className="text-[11px] text-gray-400 italic">No document on file</span>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </section>
-          )}
-
           {/* SECTION 4: Partnership Benefits */}
-          <section className="mx-auto max-w-7xl px-4 py-16">
-            <SectionHeader
-              title="Partnership Benefits"
-              subtitle="Comprehensive advantages delivered through our global institutional agreements"
-            />
-            <div className="grid gap-8 lg:grid-cols-2">
-              <Card variant="default" className="border-brand-purpleLight/60 p-8 bg-white shadow-xs">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-brand-purpleLight/30 flex items-center justify-center text-brand-purple">
-                    <RiBuilding2Line size={20} />
+          <section className="bg-ink-deep text-white py-20 md:py-24">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <SectionHeader
+                tone="dark"
+                title="Partnership Benefits"
+                subtitle="Comprehensive advantages delivered through our global institutional agreements"
+              />
+              <div className="grid gap-12 lg:grid-cols-2">
+                {[
+                  {
+                    title: 'For students',
+                    items: [
+                      ['Exchange semester opportunities', 'Full tuition waiver at host university'],
+                      ['Joint degree programs', "Dual Master's and Cotutelle PhD pathways"],
+                      ['International research', 'Work in state-of-the-art laboratories overseas'],
+                      ['Global networking', 'Lifelong international alumni and peer networks'],
+                      ['Internships & summer schools', 'Funded foreign laboratory visits'],
+                    ],
+                  },
+                  {
+                    title: 'For faculty & researchers',
+                    items: [
+                      ['Bilateral research grants', 'Joint calls funded by DST, DAAD, CNRS, and EU'],
+                      ['Faculty exchange & sabbaticals', 'Short-term and long-term visiting professorships'],
+                      ['Joint supervision', 'Co-advising PhD students with international counterparts'],
+                      ['Workshops & symposia', 'Co-hosting flagship international academic conferences'],
+                      ['Institutional resource sharing', 'High-performance computing and facility access'],
+                    ],
+                  },
+                ].map((group) => (
+                  <div key={group.title}>
+                    <h3 className="text-2xl font-medium">{group.title}</h3>
+                    <dl className="mt-5 divide-y divide-white/10 border-y border-white/10">
+                      {group.items.map(([term, text]) => (
+                        <div key={term} className="grid gap-1 py-3.5 sm:grid-cols-[14rem_1fr] sm:gap-6">
+                          <dt className="font-semibold text-saffron">{term}</dt>
+                          <dd className="text-white/75">{text}</dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
-                  <h3 className="text-xl font-bold text-brand-purpleDark">For Students</h3>
-                </div>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Exchange Semester Opportunities:</strong> Full tuition waiver at host university</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Joint Degree Programs:</strong> Dual Master's and Cotutelle PhD pathways</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>International Research:</strong> Work in state-of-the-art laboratories overseas</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Global Networking:</strong> Lifelong international alumni and peer networks</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Internships & Summer Schools:</strong> Funded foreign laboratory visits</span>
-                  </li>
-                </ul>
-              </Card>
-
-              <Card variant="default" className="border-brand-purpleLight/60 p-8 bg-white shadow-xs">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-brand-purpleLight/30 flex items-center justify-center text-brand-purple">
-                    <RiEarthLine size={20} />
-                  </div>
-                  <h3 className="text-xl font-bold text-brand-purpleDark">For Faculty & Researchers</h3>
-                </div>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Bilateral Research Grants:</strong> Joint calls funded by DST, DAAD, CNRS, and EU</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Faculty Exchange & Sabbaticals:</strong> Short-term and long-term visiting professorships</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Joint Supervision:</strong> Co-advising PhD students with international counterparts</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Workshops & Symposia:</strong> Co-hosting flagship international academic conferences</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-brand-marigold font-bold">✓</span>
-                    <span><strong>Institutional Resource Sharing:</strong> High-performance computing and facility access</span>
-                  </li>
-                </ul>
-              </Card>
+                ))}
+              </div>
             </div>
           </section>
         </>
@@ -1004,78 +903,67 @@ export default function Partners() {
 
       {/* MOU Document Viewer / Downloader Modal */}
       {readyMou && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl flex flex-col border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-deep/70 p-4 backdrop-blur-xs">
+          <div role="dialog" aria-modal="true" aria-labelledby="mou-dialog-title" className="flex w-full max-w-lg flex-col rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:p-7">
             {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-purple-50 text-brand-purple flex items-center justify-center shrink-0 shadow-xs">
-                  <RiLinksLine size={22} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 leading-snug">
-                    {readyMou.partnerName ? `MOU: ${readyMou.partnerName}` : 'MOU Document'}
-                  </h3>
-                  <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1.5 mt-0.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Verified IIT Dharwad Campus Access
-                  </p>
-                </div>
+            <div className="flex items-start justify-between gap-4 border-b border-mist pb-4">
+              <div>
+                <h3 id="mou-dialog-title" className="text-xl font-medium leading-snug text-ink-deep">
+                  {readyMou.partnerName ? `MOU: ${readyMou.partnerName}` : 'MOU Document'}
+                </h3>
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-emerald-700">
+                  <RiCheckDoubleLine size={15} aria-hidden="true" />
+                  Verified IIT Dharwad Campus Access
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setReadyMou(null)}
-                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="cursor-pointer rounded-full p-1.5 text-quiet transition-colors hover:bg-porcelain hover:text-plum-deep"
                 aria-label="Close"
               >
-                ✕
+                <RiCloseLine size={20} />
               </button>
             </div>
 
             {/* Document Details Card */}
-            <div className="my-5 p-5 rounded-2xl bg-gradient-to-br from-brand-cream/50 to-purple-50/40 border border-brand-purpleLight/40 flex items-center gap-4">
-              <div className="w-12 h-14 rounded-xl bg-red-50 border border-red-200/80 text-red-600 flex flex-col items-center justify-center shrink-0 shadow-2xs">
-                <span className="text-[10px] font-black uppercase tracking-wider text-red-500">PDF</span>
-                <RiFileDownloadLine size={20} className="text-red-600 mt-0.5" />
+            <div className="my-5 flex items-center gap-4 rounded-xl bg-porcelain p-4 ring-1 ring-inset ring-mist">
+              <div className="flex h-14 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-white text-plum ring-1 ring-inset ring-mist">
+                <span className="text-[10px] font-bold">PDF</span>
+                <RiFileDownloadLine size={18} aria-hidden="true" className="mt-0.5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-gray-900 truncate" title={readyMou.fileName}>
+                <p className="truncate text-sm font-semibold text-plum-deep" title={readyMou.fileName}>
                   {readyMou.fileName}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="mt-0.5 text-sm text-quiet">
                   Official signed Memorandum of Understanding
                 </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-emerald-100/70 text-emerald-800">
-                    Ready to View
-                  </span>
-                  <span className="text-[11px] text-gray-400">• Authenticated</span>
-                </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <a
                 href={readyMou.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-3 px-4 bg-brand-purple hover:bg-brand-purpleDark text-white text-sm font-bold rounded-xl transition-all inline-flex items-center justify-center gap-2 shadow-xs hover:shadow-md cursor-pointer"
+                className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-plum px-5 text-sm font-semibold text-white transition-colors hover:bg-plum-deep"
               >
-                <RiExternalLinkLine size={18} />
+                <RiExternalLinkLine size={17} aria-hidden="true" />
                 Open PDF Viewer
               </a>
               <a
                 href={readyMou.url}
                 download={readyMou.fileName}
-                className="py-3 px-5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-xl transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold text-plum ring-1 ring-inset ring-plum/35 transition-colors hover:bg-plum-tint"
               >
-                <RiFileDownloadLine size={18} />
+                <RiFileDownloadLine size={17} aria-hidden="true" />
                 Download
               </a>
             </div>
 
-            <p className="text-[11px] text-center text-gray-400 mt-3.5">
+            <p className="mt-4 text-center text-xs text-quiet">
               "Open PDF Viewer" launches the document full-screen in your browser's native PDF reader.
             </p>
           </div>
@@ -1084,4 +972,3 @@ export default function Partners() {
     </div>
   )
 }
-

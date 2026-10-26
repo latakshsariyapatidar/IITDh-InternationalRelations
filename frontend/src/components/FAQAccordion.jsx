@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { RiAddLine } from '@remixicon/react'
 
 export default function FAQAccordion({ items = [] }) {
   const [openIndex, setOpenIndex] = useState(null)
@@ -8,39 +9,39 @@ export default function FAQAccordion({ items = [] }) {
   }
 
   return (
-    <div className="space-y-3">
-      {items.map((item, index) => (
-        <div
-          key={index}
-          className="border-1 border-black rounded-lg overflow-hidden transition-all duration-300"
-        >
-          {/* Question Button */}
-          <button
-            onClick={() => toggleAccordion(index)}
-            className="w-full px-6 py-4 flex justify-between items-center text-left hover:bg-white transition-colors"
-          >
-            <span className="font-semibold text-gray-900 text-sm md:text-base">{item.question}</span>
-            <span
-              className={`text-2xl text-brand-purple font-light transition-transform duration-300 flex-shrink-0 ml-4 ${
-                openIndex === index ? 'rotate-180' : ''
-              }`}
+    <div className="divide-y divide-mist border-y border-mist">
+      {items.map((item, index) => {
+        const isOpen = openIndex === index
+        return (
+          <div key={index}>
+            {/* Question Button */}
+            <button
+              type="button"
+              onClick={() => toggleAccordion(index)}
+              aria-expanded={isOpen}
+              className="group w-full py-5 flex justify-between items-start gap-6 text-left cursor-pointer"
             >
-              ↓
-            </span>
-          </button>
+              <span className="font-semibold text-plum-deep text-base md:text-[1.05rem] leading-snug group-hover:text-plum">{item.question}</span>
+              <RiAddLine
+                size={22}
+                aria-hidden="true"
+                className={`mt-0.5 shrink-0 text-saffron-deep transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
+              />
+            </button>
 
-          {/* Answer - Hidden by default */}
-          <div
-            className={`overflow-hidden transition-all duration-300 ${
-              openIndex === index ? 'max-h-96' : 'max-h-0'
-            }`}
-          >
-            <div className="px-6 py-4 border-t border-brand-purpleLight/60 bg-white text-brand-purpleDark/80 text-sm leading-relaxed">
-              {item.answer}
+            {/* Answer - Hidden by default */}
+            <div
+              className={`grid transition-[grid-template-rows] duration-300 ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+            >
+              <div className="overflow-hidden">
+                <div className="pb-6 pr-10 text-body text-[0.95rem] leading-relaxed whitespace-pre-line">
+                  {item.answer}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

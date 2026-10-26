@@ -1,50 +1,43 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { RiHome4Line } from '@remixicon/react';
+import { useNavigate, Link } from 'react-router-dom';
+import ArchFrame from '../components/ui/ArchFrame';
+import CTAButton from '../components/ui/CTAButton';
 
 export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-16 bg-neutral-canvas relative overflow-hidden">
-      {/* Decorative ambient background blur orbs */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-brand-marigold/15 rounded-full blur-3xl pointer-events-none" />
+    <div className="bg-porcelain">
+      <div className="mx-auto grid min-h-[75vh] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 md:grid-cols-12 lg:px-8">
+        <div className="md:col-span-7">
+          <p className="font-heading! text-2xl text-saffron-deep">404</p>
+          <h1 className="mt-3 text-[2.6rem] sm:text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-plum-deep">
+            This door doesn't lead anywhere.
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-relaxed text-body">
+            The page you are looking for may have been moved, renamed, or no longer exists.
+          </p>
 
-      <div className="max-w-2xl w-full text-center relative z-10">
-        {/* Large 404 Badge */}
-        <h1 className="text-7xl sm:text-9xl font-extrabold tracking-tight text-brand-purpleDark mb-4">
-          4<span className="text-brand-marigold">0</span>4
-        </h1>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <CTAButton label="Return to Home" onClick={() => navigate('/')} size="lg" />
+            <CTAButton label="Search the site" to="/search" variant="secondary" size="lg" />
+          </div>
 
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-          Oops! Looks like you've ventured off the map.
-        </h2>
-
-        <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto mb-10 leading-relaxed">
-          The page you are looking for may have been moved, renamed, or no longer exists.
-        </p>
-
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            onClick={() => navigate('/')}
-            className="w-full sm:w-auto flex items-center gap-2 bg-brand-purple hover:bg-brand-purpleDark text-white px-6"
-          >
-            <RiHome4Line size={16} />
-            <span>Return to Home</span>
-          </Button>
+          <p className="mt-12 text-sm text-quiet">
+            Need immediate assistance? Email us at{' '}
+            <a href="mailto:iro@iitdh.ac.in" className="text-plum underline decoration-saffron underline-offset-4 hover:decoration-plum">
+              iro@iitdh.ac.in
+            </a>
+            , or go to <Link to="/contact" className="text-plum underline decoration-saffron underline-offset-4 hover:decoration-plum">Contact Us</Link>.
+          </p>
         </div>
 
-        {/* Assistance footer */}
-        <p className="mt-12 text-xs text-gray-500">
-          Need immediate assistance? Email us at{' '}
-          <a href="mailto:iro@iitdh.ac.in" className="text-brand-purple underline hover:text-brand-purpleDark font-medium">
-            iro@iitdh.ac.in
-          </a>
-        </p>
+        {/* An empty doorway */}
+        <div className="hidden md:col-span-5 md:flex md:justify-end">
+          <ArchFrame className="aspect-[4/5] w-full max-w-[20rem]">
+            <div className="absolute inset-0 bg-gradient-to-b from-plum-tint to-mist" />
+          </ArchFrame>
+        </div>
       </div>
     </div>
   );

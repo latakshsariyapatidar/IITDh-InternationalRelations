@@ -1,8 +1,6 @@
 import HeroSection from '../components/HeroSection'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
-import CTAButton from '../components/ui/CTAButton'
-import { RiBuilding2Line, RiMapPinLine, RiTimeLine, RiPhoneLine, RiMailLine, RiContactsBook2Line, RiMailSendLine, RiMapPin2Line } from '@remixicon/react'
+import { RiMailLine, RiPhoneLine, RiMapPinLine, RiExternalLinkLine } from '@remixicon/react'
 
 import { useState, useEffect } from 'react'
 import apiClient from '../api/client'
@@ -12,6 +10,14 @@ const FALLBACK_CONTACTS = [
   { name: 'Ms. Kavitha G R', title: 'Advisor, International Relations', email: 'advisor.iro@iitdh.ac.in', phone: '+91 9444536574', address: '' },
   { name: 'Mr. Arun Verma', title: 'Assistant Registrar', email: 'office.iro@iitdh.ac.in', phone: '(+91)8193814275 / 7017304843', address: '' },
   { name: '', title: 'Inbound Coordinator', email: 'inbound.iro@iitdh.ac.in', phone: '9444536574', address: '' }
+]
+
+const OFFICE_DETAILS = [
+  { label: 'Building Location', value: 'Building 2, Near Central Library' },
+  { label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
+  { label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
+  { label: 'Phone', value: '+91-8364-241-200' },
+  { label: 'Email', value: 'iro@iitdh.ac.in' }
 ]
 
 export default function Contact() {
@@ -44,118 +50,112 @@ export default function Contact() {
       />
 
       {/* Contact Cards */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="International Relations Contacts"
-          subtitle="Reach out to the right person for your needs"
-          badge={<RiContactsBook2Line size={24} />}
-        />
-        {loading ? (
-          <div className="py-12 text-center text-gray-500 text-sm">Loading contacts...</div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {contacts.map((contact, idx) => (
-              <Card key={contact.id || idx} variant="light" border className="bg-white">
-                {contact.name && (
-                  <h3 className="text-lg font-bold text-brand-purpleDark mb-1">{contact.name}</h3>
-                )}
-                {contact.title && (
-                  <p className="text-sm text-brand-marigold font-semibold mb-3">{contact.title}</p>
-                )}
-                <div className="space-y-2 text-sm">
-                  {contact.email && (
-                    <p>
-                      <span className="font-semibold text-brand-purple">Email:</span>{' '}
-                      <a href={`mailto:${contact.email}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">
-                        {contact.email}
-                      </a>
-                    </p>
-                  )}
-                  {contact.phone && (
-                    <p>
-                      <span className="font-semibold text-brand-purple">Phone:</span>{' '}
-                      <a href={`tel:${contact.phone}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">
-                        {contact.phone}
-                      </a>
-                    </p>
-                  )}
-                  {contact.address && (
-                    <p>
-                      <span className="font-semibold text-brand-purple">Address:</span>{' '}
-                      <span className="text-gray-600">{contact.address}</span>
-                    </p>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+      <section className="py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="International Relations Contacts"
+            subtitle="Reach out to the right person for your needs"
+          />
+          {loading ? (
+            <p className="py-12 text-quiet">Loading contacts...</p>
+          ) : (
+            <ul className="grid gap-6 md:grid-cols-2">
+              {contacts.map((contact, idx) => (
+                <li key={contact.id || idx} className="flex gap-5 rounded-2xl border border-mist bg-white p-6">
+                  <div aria-hidden="true" className="flex h-16 w-14 shrink-0 items-end justify-center overflow-hidden rounded-t-full bg-plum-tint pb-2 font-heading! text-2xl text-plum">
+                    {(contact.name || contact.title || '?').replace(/^(Dr|Prof|Mr|Ms|Mrs)\.?\s+/i, '').charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    {contact.name && (
+                      <h3 className="text-xl font-medium leading-snug text-plum-deep">{contact.name}</h3>
+                    )}
+                    {contact.title && (
+                      <p className={contact.name ? 'mt-0.5 text-sm font-medium text-saffron-deep' : 'text-xl font-heading! text-plum-deep'}>{contact.title}</p>
+                    )}
+                    <ul className="mt-4 space-y-2 text-[0.95rem]">
+                      {contact.email && (
+                        <li className="flex items-center gap-2.5">
+                          <RiMailLine size={17} aria-label="Email" className="shrink-0 text-quiet" />
+                          <a href={`mailto:${contact.email}`} className="break-all text-plum underline decoration-saffron/60 underline-offset-4 hover:decoration-plum">
+                            {contact.email}
+                          </a>
+                        </li>
+                      )}
+                      {contact.phone && (
+                        <li className="flex items-center gap-2.5">
+                          <RiPhoneLine size={17} aria-label="Phone" className="shrink-0 text-quiet" />
+                          <a href={`tel:${contact.phone}`} className="text-body hover:text-plum nums-tabular">
+                            {contact.phone}
+                          </a>
+                        </li>
+                      )}
+                      {contact.address && (
+                        <li className="flex items-start gap-2.5">
+                          <RiMapPinLine size={17} aria-label="Address" className="mt-0.5 shrink-0 text-quiet" />
+                          <span className="text-body">{contact.address}</span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </section>
 
       {/* Contact Email */}
-      <section id="feedback" className="bg-neutral-canvas py-16">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <SectionHeader
-            title="Send us a Message"
-            subtitle="Reach out to us via email for any inquiries"
-            badge={<RiMailSendLine size={24} />}
-          />
-          <div className="bg-white rounded-xl p-8 shadow-lg inline-block w-full">
-            <p className="text-lg text-gray-700 mb-4">You can email us directly at:</p>
-            <a href="mailto:iro@iitdh.ac.in" className="text-2xl font-bold text-brand-purple hover:text-brand-marigold transition-colors">iro@iitdh.ac.in</a>
+      <section id="feedback" className="bg-plum-deep text-white py-20 md:py-24">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 md:flex-row md:items-end md:justify-between lg:px-8">
+          <div>
+            <h2 className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em]">Send us a message</h2>
+            <p className="mt-3 max-w-xl text-lg text-white/70">Questions, feedback or a visit to plan: write to the office and we'll point you to the right person.</p>
           </div>
+          <a href="mailto:iro@iitdh.ac.in" className="font-heading! text-3xl md:text-5xl text-saffron underline decoration-saffron/40 decoration-1 underline-offset-[10px] hover:decoration-saffron">
+            iro@iitdh.ac.in
+          </a>
         </div>
       </section>
 
       {/* Location Info */}
-      <section id="campus-map" className="max-w-7xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Visit Us"
-          subtitle="International Relations Office Location"
-          badge={<RiMapPin2Line size={24} />}
-        />
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-brand-purpleLight/70 shadow-lg relative group">
-            <iframe 
-              src="https://maps.google.com/maps?q=IIT%20Dharwad&t=&z=14&ie=UTF8&iwloc=&output=embed" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen="" 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              title="IIT Dharwad Location"
-            ></iframe>
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-              <a href="https://maps.app.goo.gl/o8Nfwf6Dbwsqdb4C9" target="_blank" rel="noopener noreferrer" className="bg-white text-brand-purple px-6 py-2 rounded-full font-semibold shadow-lg hover:bg-brand-marigold hover:text-white transition-colors pointer-events-auto">
-                Open in Google Maps
+      <section id="campus-map" className="py-20 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Visit Us"
+            subtitle="International Relations Office Location"
+          />
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-mist bg-mist">
+                <iframe
+                  src="https://maps.google.com/maps?q=IIT%20Dharwad&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="IIT Dharwad Location"
+                ></iframe>
+              </div>
+              <a href="https://maps.app.goo.gl/o8Nfwf6Dbwsqdb4C9" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-plum underline decoration-saffron underline-offset-[6px] hover:decoration-plum">
+                Open in Google Maps <RiExternalLinkLine size={16} aria-label="opens in a new tab" />
               </a>
             </div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-bold text-brand-purpleDark mb-6">Office Address</h3>
-            <div className="space-y-4">
-              {[
-                { icon: <RiBuilding2Line className="text-brand-purple" size={24} />, label: 'Building Location', value: 'Building 2, Near Central Library' },
-                { icon: <RiMapPinLine className="text-brand-purple" size={24} />, label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
-                { icon: <RiTimeLine className="text-brand-purple" size={24} />, label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
-                { icon: <RiPhoneLine className="text-brand-purple" size={24} />, label: 'Phone', value: '+91-8364-241-200' },
-                { icon: <RiMailLine className="text-brand-purple" size={24} />, label: 'Email', value: 'iro@iitdh.ac.in' }
-              ].map((item, idx) => (
-                <Card key={idx} variant="light">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-0.5">{item.icon}</span>
-                    <div>
-                      <p className="font-semibold text-brand-purple">{item.label}:</p>
+            <div className="lg:col-span-5">
+              <h3 className="text-2xl font-medium text-plum-deep">Office Address</h3>
+              <dl className="mt-6 divide-y divide-mist border-y border-mist">
+                {OFFICE_DETAILS.map((item) => (
+                  <div key={item.label} className="py-4">
+                    <dt className="text-sm text-quiet">{item.label}</dt>
+                    <dd className="mt-0.5 text-[0.98rem] text-plum-deep">
                       {item.label === 'Email' ? (
-                        <a href={`mailto:${item.value}`} className="text-brand-purpleDark/80 hover:text-brand-marigold">{item.value}</a>
-                      ) : (
-                        <p className="text-gray-700">{item.value}</p>
-                      )}
-                    </div>
+                        <a href={`mailto:${item.value}`} className="text-plum underline decoration-saffron/60 underline-offset-4 hover:decoration-plum">{item.value}</a>
+                      ) : item.value}
+                    </dd>
                   </div>
-                </Card>
-              ))}
+                ))}
+              </dl>
             </div>
           </div>
         </div>
@@ -163,4 +163,3 @@ export default function Contact() {
     </div>
   )
 }
-

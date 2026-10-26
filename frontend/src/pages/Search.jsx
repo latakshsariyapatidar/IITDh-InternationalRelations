@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import HeroSection from '../components/HeroSection'
+import { RiSearchLine, RiArrowRightLine } from '@remixicon/react'
 import SectionHeader from '../components/ui/SectionHeader'
-import Card from '../components/ui/Card'
 import NavigationLinks from '../data/NavigationLinks'
 import SubNavigationData from '../data/SubNavigationData'
 
@@ -167,74 +166,68 @@ export default function Search() {
 
   return (
     <div>
-      <HeroSection
-        title="Search"
-        subtitle="Find pages, resources, and contacts across the International Relations site"
-        backgroundImage="/institute/Institute2.jpg"
-      />
-
-      <section className="max-w-5xl mx-auto px-4 py-16">
-        <SectionHeader
-          title="Search the site"
-          subtitle="Type a keyword to explore"
-        />
-        <Card>
+      {/* Search is a tool, not a story: the field sits in the header itself. */}
+      <div className="bg-porcelain border-b border-mist">
+        <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 md:py-20">
+          <h1 className="text-[2.6rem] sm:text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-plum-deep">Search</h1>
+          <p className="mt-3 text-lg text-body">Find pages, resources, and contacts across the International Relations site</p>
           <form
-            className="flex flex-col md:flex-row gap-4"
+            className="mt-8 flex flex-col gap-3 sm:flex-row"
             onSubmit={(event) => event.preventDefault()}
+            role="search"
           >
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search for admissions, mobility, partners..."
-              aria-label="Search the International Relations site"
-              className="flex-1 px-4 py-3 border border-brand-purpleLight rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent outline-none transition"
-            />
+            <div className="relative flex-1">
+              <RiSearchLine size={22} aria-hidden="true" className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-quiet" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search for admissions, mobility, partners..."
+                aria-label="Search the International Relations site"
+                autoFocus
+                className="h-14 w-full rounded-full border border-mist bg-white pl-14 pr-5 text-lg text-plum-deep placeholder:text-quiet focus:border-plum focus:outline-none focus:ring-4 focus:ring-plum/10"
+              />
+            </div>
             <button
               type="submit"
-              className="bg-brand-purpleDark text-white font-semibold px-6 py-3 rounded-lg hover:bg-brand-purple transition-colors"
+              className="h-14 cursor-pointer rounded-full bg-plum px-8 font-semibold text-white transition-colors hover:bg-plum-deep"
             >
               Search
             </button>
           </form>
-          <p className="text-sm text-neutral-textDark/70 mt-4">
+          <p className="mt-4 text-sm text-quiet" aria-live="polite">
             {hasQuery
               ? `Showing ${results.length} result${results.length === 1 ? '' : 's'} for "${query.trim()}".`
               : 'Start typing to see results instantly.'}
           </p>
-        </Card>
-
-        <div className="mt-10">
-          <SectionHeader
-            title={hasQuery ? `Results (${results.length})` : 'Popular pages'}
-            subtitle={hasQuery ? 'Click a result to open the page.' : 'Quick access to frequently visited sections.'}
-          />
-
-          {hasQuery && results.length === 0 && (
-            <Card className="text-center" hover={false}>
-              <p className="text-sm text-neutral-textDark/70">
-                No results found. Try a different keyword such as "visa", "admissions", or "partners".
-              </p>
-            </Card>
-          )}
-
-          <div className="grid md:grid-cols-2 gap-4">
-            {(hasQuery ? results : popularItems).map((item) => (
-              <Link key={`${item.title}-${item.path}`} to={item.path} className="block">
-                <Card>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-brand-purpleDark mb-2">{item.title}</h3>
-                      <p className="text-sm text-neutral-textDark/70">{item.description}</p>
-                    </div>
-                    <span className="text-xs text-brand-purple font-semibold">Open</span>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
         </div>
+      </div>
+
+      <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 md:py-16">
+        <SectionHeader
+          title={hasQuery ? `Results (${results.length})` : 'Popular pages'}
+          subtitle={hasQuery ? 'Click a result to open the page.' : 'Quick access to frequently visited sections.'}
+        />
+
+        {hasQuery && results.length === 0 && (
+          <p className="rounded-2xl border border-dashed border-mist bg-white p-8 text-center text-quiet">
+            No results found. Try a different keyword such as "visa", "admissions", or "partners".
+          </p>
+        )}
+
+        <ul className="divide-y divide-mist border-y border-mist">
+          {(hasQuery ? results : popularItems).map((item) => (
+            <li key={`${item.title}-${item.path}`}>
+              <Link to={item.path} className="group flex items-start justify-between gap-6 py-5 hover:bg-white">
+                <div>
+                  <h3 className="text-xl font-medium text-plum-deep group-hover:text-plum">{item.title}</h3>
+                  <p className="mt-1 text-[0.95rem] text-quiet">{item.description}</p>
+                </div>
+                <RiArrowRightLine size={20} aria-hidden="true" className="mt-1.5 shrink-0 text-saffron-deep transition-transform group-hover:translate-x-1" />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   )

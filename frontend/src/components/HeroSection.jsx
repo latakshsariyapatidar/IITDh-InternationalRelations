@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import CTAButton from './ui/CTAButton'
-import ScrollDownArrow from './ui/ScrollDownArrow'
+import ArchFrame from './ui/ArchFrame'
 
 // Mapping routes to specific high-res institute campus photos
 // Note the exact casing and extensions: Institute1-5 are .jpg (capital I), institute6-10 are .webp (lowercase i)
@@ -23,46 +23,41 @@ const ROUTE_IMAGE_MAP = {
 
 const DEFAULT_IMAGE = '/institute/Institute1.jpg'
 
-export default function HeroSection({ title, subtitle, backgroundImage, cta, secondButton, secondaryCta }) {
+/**
+ * Page header for every inner page: the page's name and purpose on the left,
+ * a campus photograph framed as an arch on the right (hidden on phones, where
+ * the content matters more than the picture).
+ *
+ * `tone="ink"` sets the header on Global Ink, for the pages that face the
+ * international community (partners, mobility, opportunities).
+ */
+export default function HeroSection({ title, subtitle, backgroundImage, cta, secondButton, secondaryCta, tone = 'light', children }) {
   const location = useLocation()
   const currentPath = location?.pathname || ''
   const finalBgImage = backgroundImage || ROUTE_IMAGE_MAP[currentPath] || DEFAULT_IMAGE
   const altButton = secondButton || secondaryCta
+  const onInk = tone === 'ink'
 
   return (
-    // On desktop the hero fills the screen below the header (--site-header-h, set in Layout)
-    <div className="relative min-h-[50vh] md:min-h-[calc(100vh_-_var(--site-header-h,140px))] bg-brand-purpleDark overflow-hidden flex items-center">
-      {/* Background Institute Photo */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out"
-        style={{ backgroundImage: `url(${finalBgImage})` }}
-      />
-
-      {/* Brand Color & High-Contrast Overlays to ensure text is crystal clear */}
-      <div className="absolute inset-0 bg-brand-purpleDark/75 mix-blend-multiply pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-brand-purpleDark/80 to-brand-purpleDark/60 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-
-      {/* Content */}
-      {/* Extra bottom padding keeps the content clear of the scroll cue */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-20 pb-28 flex flex-col items-start text-left">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-6 leading-tight animate-fadeUp drop-shadow-md">
+    <div className={`relative overflow-hidden ${onInk ? 'bg-ink-deep' : 'bg-porcelain border-b border-mist'}`}>
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-12 md:py-16 lg:px-8 lg:py-20">
+        <div className="md:col-span-7">
+          <h1 className={`text-[2.6rem] sm:text-5xl lg:text-[3.9rem] font-medium leading-[1.04] tracking-[-0.02em] ${onInk ? 'text-white' : 'text-plum-deep'}`}>
             {title}
           </h1>
           {subtitle && (
-            <p className="text-lg md:text-xl text-white/95 md:text-brand-purpleLight font-normal max-w-2xl mb-10 animate-fadeUp d1 leading-relaxed drop-shadow-sm">
+            <p className={`mt-5 max-w-xl text-lg md:text-xl leading-relaxed ${onInk ? 'text-white/75' : 'text-body'}`}>
               {subtitle}
             </p>
           )}
           {(cta || altButton) && (
-            <div className="flex flex-wrap items-center gap-4 animate-fadeUp d2">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               {cta && (
                 <CTAButton
                   label={cta.label}
                   onClick={cta.onClick}
                   to={cta.to}
-                  variant="primary"
+                  variant={onInk ? 'accent' : 'primary'}
                   size="lg"
                 />
               )}
@@ -71,16 +66,23 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
                   label={altButton.label}
                   onClick={altButton.onClick}
                   to={altButton.to}
-                  variant="secondary"
+                  variant={onInk ? 'inverse' : 'secondary'}
                   size="lg"
                 />
               )}
             </div>
           )}
+          {children}
+        </div>
+
+        <div className="hidden md:col-span-5 md:flex md:justify-end">
+          <ArchFrame
+            src={finalBgImage}
+            alt=""
+            className="aspect-[4/5] w-full max-w-[22rem] lg:max-w-[24rem]"
+          />
         </div>
       </div>
-
-      <ScrollDownArrow />
     </div>
   )
 }

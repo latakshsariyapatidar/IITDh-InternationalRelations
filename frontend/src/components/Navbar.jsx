@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { RiSearchLine, RiMenuLine, RiCloseLine } from '@remixicon/react'
 // import LanguageSelector from './LanguageSelector'
 import NavigationLinks from '../data/NavigationLinks'
+import SubNavigationData from '../data/SubNavigationData'
 import { useSiteContent } from '../contexts/SiteContentContext'
+
+const isCurrent = (pathname, path) =>
+  path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`)
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { getContent } = useSiteContent()
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (!isOpen) {
@@ -26,8 +32,12 @@ export default function Navbar() {
     }
   }, [isOpen])
 
+  // The search page gets an icon of its own; the other links are listed as text.
+  const textLinks = NavigationLinks.filter((item) => item.path !== '/search')
+  const searchLink = NavigationLinks.find((item) => item.path === '/search')
+
   return (
-    <nav className="relative z-50 bg-brand-purpleDark text-white">
+    <nav aria-label="Site" className="relative z-50 bg-white text-plum-deep">
       {/* In future uncomment this code if you want to display the contact information and language selector */}
       {/* <div className="bg-white border-b border-brand-purple/10">
         <div className="max-w-7xl mx-auto px-4 py-1 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -46,74 +56,117 @@ export default function Navbar() {
       </div> */}
 
       {/* Main Navbar */}
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <img
-                src={getContent("site.logoUrl", "/IITDh Logo.svg")}
-                alt="IIT Dharwad"
-                className="h-12 w-auto"
-              />
-              <div className="hidden sm:flex flex-col">
-                <span className="text-lg font-bold text-white">International Relations</span>
-                <span className="text-xs font-semibold text-brand-purpleLight/80">Indian Institute of Technology, Dharwad</span>
-              </div>
-            </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-[4.5rem] gap-6">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 shrink-0 rounded-md">
+            <img
+              src={getContent("site.logoUrl", "/IITDh Logo.svg")}
+              alt="IIT Dharwad"
+              className="h-10 sm:h-12 w-auto"
+            />
+            <span className="flex flex-col border-l border-mist pl-3">
+              <span className="font-heading! text-[0.98rem] sm:text-lg font-medium leading-tight text-plum-deep">International Relations Office</span>
+              <span className="hidden sm:block text-xs text-quiet leading-tight mt-0.5">Indian Institute of Technology Dharwad</span>
+            </span>
+          </Link>
 
-            {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-6">
-              {NavigationLinks.map((item) => (
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-1">
+            {textLinks.map((item) => {
+              const current = isCurrent(pathname, item.path)
+              return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-brand-purpleLight/85 hover:text-brand-marigold font-semibold text-sm transition-colors relative group"
+                  aria-current={current ? 'page' : undefined}
+                  className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                    current ? 'bg-plum-tint text-plum-deep' : 'text-body hover:text-plum-deep hover:bg-porcelain'
+                  }`}
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-marigold group-hover:w-full transition-all"></span>
                 </Link>
-              ))}
-            </div>
+              )
+            })}
+            {searchLink && (
+              <Link
+                to={searchLink.path}
+                aria-label={searchLink.label}
+                className={`ml-2 inline-flex h-10 items-center gap-2 rounded-full pl-3.5 pr-4 text-sm font-medium ring-1 ring-inset transition-colors ${
+                  isCurrent(pathname, searchLink.path)
+                    ? 'bg-plum text-white ring-plum'
+                    : 'text-body ring-mist hover:ring-plum/40 hover:text-plum-deep'
+                }`}
+              >
+                <RiSearchLine size={17} aria-hidden="true" />
+                <span>{searchLink.label}</span>
+              </Link>
+            )}
+          </div>
 
-            {/* Mobile/Tablet Menu Button */}
+          {/* Mobile/Tablet Menu Button */}
+          <div className="flex items-center gap-1 lg:hidden">
+            {searchLink && (
+              <Link
+                to={searchLink.path}
+                aria-label={searchLink.label}
+                className="p-2.5 rounded-full text-plum-deep hover:bg-plum-tint transition-colors"
+              >
+                <RiSearchLine size={22} />
+              </Link>
+            )}
             <button
+              type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-expanded={isOpen}
+              aria-controls="mobile-menu"
+              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+              className="p-2.5 rounded-full text-plum-deep hover:bg-plum-tint transition-colors"
             >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
+              {isOpen ? <RiCloseLine size={24} /> : <RiMenuLine size={24} />}
             </button>
           </div>
+        </div>
+      </div>
 
-          {/* Mobile Menu */}
-          <div
-            className={`lg:hidden overflow-hidden border-t border-white/10 bg-brand-purple transition-all duration-500 ease-custom-bezier motion-reduce:transition-none ${
-              isOpen
-                ? 'max-h-128 opacity-100 translate-y-0 pb-4'
-                : 'max-h-0 opacity-0 -translate-y-2 pb-0 border-t-transparent'
-            }`}
-            aria-hidden={!isOpen}
-          >
-            <div className="pt-2">
-              {NavigationLinks.map((item) => (
+      {/* Mobile Menu: everything in one place, the six main sections first */}
+      <div
+        id="mobile-menu"
+        className={`lg:hidden overflow-y-auto border-t border-mist bg-white transition-all duration-500 ease-custom-bezier motion-reduce:transition-none ${
+          isOpen
+            ? 'max-h-[calc(100dvh-4.5rem)] opacity-100 translate-y-0'
+            : 'max-h-0 opacity-0 -translate-y-2 border-t-transparent'
+        }`}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 grid gap-6 sm:grid-cols-2">
+          <ul>
+            {SubNavigationData.map((item) => (
+              <li key={item.to}>
                 <Link
-                  key={item.path}
-                  to={item.path}
+                  to={item.to}
                   onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 text-brand-purpleLight/90 hover:bg-white/10 hover:text-brand-marigold font-medium transition-colors border-b border-white/10 last:border-b-0"
+                  className="block py-2.5 font-heading! text-xl text-plum-deep hover:text-plum"
                 >
                   {item.label}
                 </Link>
-              ))}
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
+          <ul className="border-t border-mist pt-4 sm:border-t-0 sm:border-l sm:pl-6 sm:pt-0">
+            {textLinks.map((item) => (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block py-2.5 text-[0.95rem] font-medium ${isCurrent(pathname, item.path) ? 'text-plum' : 'text-body hover:text-plum-deep'}`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </nav>

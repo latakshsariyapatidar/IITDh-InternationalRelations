@@ -1,30 +1,25 @@
 export default function SectionHeader({
   title,
   subtitle,
-  centered = true,
+  centered = false,
   badge,
-  badgeText,
   className = '',
+  tone = 'light',
+  // Kept for existing callers; the site no longer shows an all-caps label
+  // above headings.
+  // eslint-disable-next-line no-unused-vars
+  badgeText,
 }) {
-  const showBadge = Boolean(badge || badgeText)
+  const onDark = tone === 'dark'
 
   return (
-    <div className={`mb-8 flex flex-col ${centered ? 'items-center text-center' : 'items-start text-left'} ${className}`}>
-      {showBadge && (
-        <div className="inline-flex items-center gap-2 mb-3 px-3.5 py-1 rounded-full bg-brand-purpleLight/40 border border-brand-purpleLight/80 text-brand-purpleDark shadow-2xs">
-          {badge && <span className="text-base text-brand-purple">{badge}</span>}
-          {badgeText && (
-            <span className="text-xs font-semibold tracking-wider uppercase">
-              {badgeText}
-            </span>
-          )}
-        </div>
-      )}
-      <h2 className="text-2xl md:text-3xl font-bold text-brand-purpleDark mb-2 tracking-tight">
-        {title}
+    <div className={`mb-10 flex flex-col ${centered ? 'items-center text-center' : 'items-start text-left'} ${className}`}>
+      <h2 className={`flex items-center gap-3 text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] ${onDark ? 'text-white' : 'text-plum-deep'}`}>
+        {badge && <span aria-hidden="true" className={`shrink-0 ${onDark ? 'text-saffron' : 'text-saffron-deep'}`}>{badge}</span>}
+        <span>{title}</span>
       </h2>
       {subtitle && (
-        <p className="text-sm md:text-base text-brand-purpleDark/75 max-w-2xl font-normal leading-relaxed">
+        <p className={`mt-3 max-w-2xl text-base md:text-lg leading-relaxed ${onDark ? 'text-white/75' : 'text-quiet'}`}>
           {subtitle}
         </p>
       )}
