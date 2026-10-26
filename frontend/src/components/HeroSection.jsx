@@ -39,7 +39,7 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
   return (
     <div className={`relative overflow-hidden bg-porcelain border-b border-mist`}>
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-12 md:py-16 lg:px-8 lg:py-20">
-        <div className="md:col-span-7">
+        <div className="md:col-span-5">
           <h1 className={`text-[2.6rem] sm:text-5xl lg:text-[3.9rem] font-medium leading-[1.04] tracking-[-0.02em] text-plum-deep`}>
             {title}
           </h1>
@@ -73,11 +73,11 @@ export default function HeroSection({ title, subtitle, backgroundImage, cta, sec
           {children}
         </div>
 
-        <div className="hidden md:col-span-5 md:flex md:justify-end">
+        <div className="hidden md:col-span-7 md:flex md:justify-end">
           <PhotoFrame
             src={finalBgImage}
             alt=""
-            className="aspect-[4/3] w-full max-w-[28rem]"
+            className="aspect-[16/10] w-full"
           />
         </div>
       </div>
