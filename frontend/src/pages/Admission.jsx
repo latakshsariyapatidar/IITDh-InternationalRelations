@@ -14,9 +14,7 @@ const SECTIONS = [
   { id: "self-financed", label: "Self-financed" },
   { id: "embassy", label: "Embassy" },
   { id: "fees", label: "Fee structure" },
-  { id: "programs", label: "Programmes" },
   { id: "admission-contacts", label: "Contacts" },
-  { id: "faqs", label: "FAQs" },
 ];
 
 const FEE_SUMMARY = (
