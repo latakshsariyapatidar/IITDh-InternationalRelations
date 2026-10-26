@@ -6,7 +6,7 @@ import CTAButton from '../components/ui/CTAButton'
 import DetailRows from '../components/ui/DetailRows'
 import FAQAccordion from '../components/FAQAccordion'
 import { fetchAllPages } from '../api/fetchAllPages'
-import { RiArrowRightLine, RiArrowRightUpLine, RiMailLine, RiPhoneLine } from '@remixicon/react'
+import { RiArrowRightUpLine, RiMailLine, RiPhoneLine } from '@remixicon/react'
 
 // In-page contents, in reading order.
 const SECTIONS = [
@@ -142,13 +142,13 @@ function TotalRow({ row, emphasis = false }) {
 }
 
 /** One admission route: its name and essentials on the left, the full sheet on the right. */
-function RouteSheet({ id, title, summary, facts, action, rows, tone = 'plum' }) {
+function RouteSheet({ id, title, summary, facts, action, rows }) {
   return (
     <section id={id} className="scroll-mt-16 py-16 md:py-20 border-t border-mist first:border-t-0">
       <div className="grid gap-10 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-[calc(var(--site-header-h,140px)+5rem)]">
-            <h2 className={`text-3xl md:text-[2.25rem] leading-[1.1] font-medium tracking-[-0.01em] ${tone === 'ink' ? 'text-ink' : 'text-plum-deep'}`}>{title}</h2>
+            <h2 className={`text-3xl md:text-[2.25rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep`}>{title}</h2>
             <p className="mt-3 text-quiet leading-relaxed">{summary}</p>
             {facts && (
               <dl className="mt-6 space-y-3 text-sm">
@@ -206,7 +206,7 @@ export default function Admission() {
   const programColumns = [
     { key: 'UNDERGRADUATE', title: 'Undergraduate', empty: 'No undergraduate programs listed.', accent: 'bg-saffron' },
     { key: 'POSTGRADUATE', title: 'Postgraduate', empty: 'No postgraduate programs listed.', accent: 'bg-plum' },
-    { key: 'PHD', title: 'Doctoral (Ph.D.)', empty: 'No doctoral programs listed.', accent: 'bg-ink' },
+    { key: 'PHD', title: 'Doctoral (Ph.D.)', empty: 'No doctoral programs listed.', accent: 'bg-plum-deep' },
   ]
 
   return (
@@ -216,49 +216,7 @@ export default function Admission() {
         subtitle="Your pathway to world-class degree education at IIT Dharwad"
         backgroundImage="/institute/Institute2.jpg"
         cta={{ label: 'Apply Online for Degree Programs', to: '/international-admissions/apply' }}
-        secondButton={{ label: 'Inbound Exchange — Apply Here', to: '/international-mobility/apply' }}
       />
-
-      {/* Which application is for me? Block */}
-      <section className="bg-white border-b border-mist py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Which application is for me?"
-            subtitle="Select the correct application route based on your intended period and type of study."
-          />
-          <div className="grid gap-6 md:grid-cols-2">
-            <Link
-              to="/international-admissions/apply"
-              className="group flex flex-col justify-between gap-8 rounded-2xl bg-plum p-8 text-white transition-colors hover:bg-plum-deep"
-            >
-              <div>
-                <h3 className="text-2xl font-medium">Full-time degree programmes</h3>
-                <p className="mt-3 text-white/75 leading-relaxed">
-                  For international applicants seeking a full-time graduating degree: <strong className="font-semibold text-white">B.Tech, M.Tech, M.Sc, MS, or Ph.D.</strong> at IIT Dharwad.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
-                Apply for Degree Program <RiArrowRightLine size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-
-            <Link
-              to="/international-mobility/apply"
-              className="group flex flex-col justify-between gap-8 rounded-2xl bg-ink p-8 text-white transition-colors hover:bg-ink-deep"
-            >
-              <div>
-                <h3 className="text-2xl font-medium">Inbound exchange and mobility</h3>
-                <p className="mt-3 text-white/75 leading-relaxed">
-                  For international students visiting for a <strong className="font-semibold text-white">semester exchange, research internship, summer program, or visiting student</strong> status.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
-                Apply for Inbound Exchange <RiArrowRightLine size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* In-page contents: stays under the header while reading */}
       <nav

@@ -4,6 +4,8 @@ import SectionHeader from '../components/ui/SectionHeader'
 import CTAButton from '../components/ui/CTAButton'
 import DetailRows from '../components/ui/DetailRows'
 import ProgramTabs from '../components/ui/ProgramTabs'
+import OpportunitiesBoard from '../components/OpportunitiesBoard'
+import { RiArrowRightLine } from '@remixicon/react'
 
 // ── Inbound exchange programmes (International Collaboration & Mobility) ──
 
@@ -361,7 +363,7 @@ export default function Collaboration() {
     meta: p.meta,
     content: (
       <>
-        <h3 className="text-2xl md:text-3xl font-medium text-ink-deep">{p.title} <span className="text-quiet">({p.label})</span></h3>
+        <h3 className="text-2xl md:text-3xl font-medium text-plum-deep">{p.title} <span className="text-quiet">({p.label})</span></h3>
         <DetailRows rows={p.rows} className="mt-6" />
       </>
     ),
@@ -373,9 +375,8 @@ export default function Collaboration() {
         title="International Mobility"
         subtitle="Global opportunities for students, faculty, and institutions"
         backgroundImage="/institute/Institute3.jpg"
-        tone="ink"
-        cta={{ label: 'Apply for exchange', to: '/international-mobility/apply' }}
-        secondButton={{ label: 'Explore Programs', onClick: () => document.getElementById('inbound')?.scrollIntoView({ behavior: 'smooth' }) }}
+        cta={{ label: 'Inbound Exchange — Apply Here', to: '/international-mobility/apply' }}
+        secondButton={{ label: 'Browse opportunities', onClick: () => document.getElementById('opportunities')?.scrollIntoView({ behavior: 'smooth' }) }}
       />
 
       {/* Inbound exchange programmes */}
@@ -386,6 +387,23 @@ export default function Collaboration() {
             subtitle="For international students registered at a university abroad, visiting IIT Dharwad for up to two semesters without taking a degree here."
           />
           <ProgramTabs items={inboundTabs} label="Inbound exchange programmes" />
+
+          {/* Moved here from International Admissions: exchange students
+              apply from the page that describes the programmes. */}
+          <Link
+            to="/international-mobility/apply"
+            className="group mt-12 flex flex-col justify-between gap-6 rounded-2xl bg-plum p-8 text-white transition-colors hover:bg-plum-deep md:flex-row md:items-center"
+          >
+            <div className="max-w-2xl">
+              <h3 className="text-2xl font-medium">Inbound exchange — apply here</h3>
+              <p className="mt-3 text-white/75 leading-relaxed">
+                For international students visiting for a <strong className="font-semibold text-white">semester exchange, research internship, summer program, or visiting student</strong> status.
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-saffron">
+              Apply for inbound exchange <RiArrowRightLine size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+            </span>
+          </Link>
         </div>
       </section>
 
@@ -396,7 +414,7 @@ export default function Collaboration() {
             title="International faculty programmes"
             subtitle="Government of India schemes that bring international faculty and researchers to IIT Dharwad to teach and collaborate."
           />
-          <ProgramTabs items={facultyTabs} label="International faculty programmes" tone="ink" />
+          <ProgramTabs items={facultyTabs} label="International faculty programmes" />
         </div>
       </section>
 
@@ -422,8 +440,11 @@ export default function Collaboration() {
         </div>
       </section>
 
+      {/* Opportunities: scholarships, fellowships, exchanges and grants */}
+      <OpportunitiesBoard />
+
       {/* Faculty Funding */}
-      <section className="bg-ink-deep text-white py-20 md:py-24">
+      <section className="bg-plum-deep text-white py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tone="dark"

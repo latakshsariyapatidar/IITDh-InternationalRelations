@@ -80,13 +80,13 @@ export default function Life() {
       </section>
 
       {/* Getting here */}
-      <section aria-labelledby="getting-here" className="bg-ink-deep text-white py-20 md:py-24">
+      <section aria-labelledby="getting-here" className="bg-plum-deep text-white py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 id="getting-here" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em]">Getting to IIT Dharwad</h2>
 
           <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-4">
             {DISTANCES.map(([place, km]) => (
-              <div key={place} className="bg-ink-deep p-6">
+              <div key={place} className="bg-plum-deep p-6">
                 <dt className="text-sm text-white/60">To {place}</dt>
                 <dd className="mt-1 font-heading! text-3xl md:text-4xl nums-tabular">{km}</dd>
               </div>

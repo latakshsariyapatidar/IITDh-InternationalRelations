@@ -23,7 +23,6 @@ const ROUTE_TITLES = {
   '/gallery': `Campus & Delegation Gallery | ${BASE_TITLE}`,
   '/contact': `Contact Us | IRO ${BASE_TITLE}`,
   '/search': `Search Portal | IRO ${BASE_TITLE}`,
-  '/opportunities': `Global Opportunities | ${BASE_TITLE}`,
   '/iro/delegate-registration': `Visiting Delegation Registration | ${BASE_TITLE}`,
   '/students': `Outbound Mobility Portal | IITDh Students`,
   '/students/apply': `Apply for Outbound Mobility | ${BASE_TITLE}`,

@@ -207,8 +207,8 @@ export default function Visa() {
             </div>
 
             <div className="mt-6 grid gap-6 md:grid-cols-2">
-              <div className="rounded-2xl bg-ink-tint p-6">
-                <h3 className="text-xl font-medium text-ink-deep">e-Student visa</h3>
+              <div className="rounded-2xl bg-plum-tint p-6">
+                <h3 className="text-xl font-medium text-plum-deep">e-Student visa</h3>
                 <p className="mt-2 text-[0.95rem] text-body">
                   A digitised category for eligible international students registered on the official Indian government portal. It covers full-time UG, PG and PhD programmes. Dependents can apply for an e-Student-X visa.
                 </p>
@@ -288,7 +288,7 @@ export default function Visa() {
                       <td className="px-4 py-4 text-body">{entry}</td>
                       <td className="px-4 py-4 text-body">{docs}</td>
                       <td className="px-4 py-4">
-                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${ext === 'Yes' ? 'bg-ink-tint text-ink' : 'bg-saffron-tint text-saffron-deep'}`}>{ext}</span>
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${ext === 'Yes' ? 'bg-plum-tint text-plum' : 'bg-saffron-tint text-saffron-deep'}`}>{ext}</span>
                       </td>
                     </tr>
                   ))}

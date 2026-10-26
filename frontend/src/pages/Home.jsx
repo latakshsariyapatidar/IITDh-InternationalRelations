@@ -228,7 +228,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-12 lg:px-8">
           <div className="md:col-span-4">
             <ArchFrame
-              src="/director/director.JPG"
+              src="/director/director.webp"
               alt="Director of IIT Dharwad"
               imgClassName="object-cover object-top"
               className="aspect-[4/5] w-full max-w-[18rem]"
@@ -251,7 +251,7 @@ export default function Home() {
       </section>
 
       {/* ── Opportunities: for IITDH students and faculty ──────────────────── */}
-      <section aria-labelledby="opportunities-heading" className="bg-ink-deep text-white py-20 md:py-24">
+      <section aria-labelledby="opportunities-heading" className="bg-plum-deep text-white py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
@@ -262,11 +262,11 @@ export default function Home() {
                 Scholarships, exchanges and research funding, collected by the office for the IIT Dharwad community.
               </p>
             </div>
-            <CTAButton label="See all opportunities" to="/opportunities" variant="accent" />
+            <CTAButton label="See all opportunities" to="/international-mobility#opportunities" variant="accent" />
           </div>
 
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-2">
-            <Link to="/opportunities" className="group bg-ink-deep p-8 lg:p-10 transition-colors hover:bg-ink">
+            <Link to="/international-mobility#opportunities" className="group bg-plum-deep p-8 lg:p-10 transition-colors hover:bg-plum">
               <h3 className="text-2xl font-medium">For IITDH students</h3>
               <p className="mt-3 text-white/70 leading-relaxed">
                 Scholarships and fellowships such as INSPIRE, semester exchanges with partner universities, and research internships abroad.
@@ -275,7 +275,7 @@ export default function Home() {
                 Student opportunities <RiArrowRightUpLine size={18} aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </span>
             </Link>
-            <Link to="/international-mobility#faculty-programs" className="group bg-ink-deep p-8 lg:p-10 transition-colors hover:bg-ink">
+            <Link to="/international-mobility#faculty-programs" className="group bg-plum-deep p-8 lg:p-10 transition-colors hover:bg-plum">
               <h3 className="text-2xl font-medium">For IITDH faculty</h3>
               <p className="mt-3 text-white/70 leading-relaxed">
                 Bilateral research funding such as the India–Japan Cooperative Science Programme, and visiting-faculty schemes like GIAN, VAJRA and SPARC.

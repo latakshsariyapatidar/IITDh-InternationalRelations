@@ -10,12 +10,11 @@ export default function Card({
     default: 'bg-white border border-mist',
     light: 'bg-porcelain border border-mist',
     primary: 'bg-plum-deep text-white border border-plum',
-    ink: 'bg-ink-deep text-white border border-ink',
     accent: 'bg-saffron-tint border border-saffron/40',
     outline: 'bg-transparent border border-plum/30'
   }
 
-  const onDark = variant === 'primary' || variant === 'ink'
+  const onDark = variant === 'primary'
   const hoverClass = hover ? 'transition-colors duration-200 hover:border-plum/25' : ''
 
   return (

@@ -112,7 +112,7 @@ const PROJECTS = ['Erasmus mobility programmes', 'Erasmus capacity building proj
 // the names in a list still line up.
 function PartnerLogo({ name, logoUrl, size = 'h-11 w-11' }) {
   return (
-    <div className={`${size} shrink-0 flex items-center justify-center font-heading! text-2xl text-ink/35`}>
+    <div className={`${size} shrink-0 flex items-center justify-center font-heading! text-2xl text-plum/35`}>
       {logoUrl ? (
         <img
           src={resolveLogoUrl(logoUrl)}
@@ -350,7 +350,6 @@ export default function Partners() {
         title="Global Partners & Collaborations"
         subtitle="A vibrant worldwide network of partner universities, research consortia, and bilateral agreements connecting IIT Dharwad to the world"
         backgroundImage="/institute/Institute4.jpg"
-        tone="ink"
         cta={{
           label: 'Explore Active MOUs',
           onClick: () => {
@@ -364,26 +363,26 @@ export default function Partners() {
       <section aria-labelledby="how-we-partner" className="bg-white border-b border-mist py-16 md:py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
           <div className="lg:col-span-4">
-            <h2 id="how-we-partner" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-ink-deep">How we partner</h2>
+            <h2 id="how-we-partner" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep">How we partner</h2>
             <p className="mt-3 text-lg text-quiet">Agreements with individual institutions, membership of national networks, and international projects.</p>
           </div>
           <div className="grid gap-10 sm:grid-cols-2 lg:col-span-8">
             <dl className="space-y-5 sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-8 sm:space-y-0">
               {AGREEMENT_TYPES.map(([term, text]) => (
-                <div key={term} className="border-l-2 border-ink pl-4">
-                  <dt className="font-heading! text-xl text-ink-deep">{term}</dt>
+                <div key={term} className="border-l-2 border-plum pl-4">
+                  <dt className="font-heading! text-xl text-plum-deep">{term}</dt>
                   <dd className="mt-1 text-[0.95rem] text-body">{text}</dd>
                 </div>
               ))}
             </dl>
             <div>
-              <h3 className="text-lg font-medium text-ink-deep">Networks</h3>
+              <h3 className="text-lg font-medium text-plum-deep">Networks</h3>
               <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
                 {NETWORKS.map((n) => <li key={n}>{n}</li>)}
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-ink-deep">International projects</h3>
+              <h3 className="text-lg font-medium text-plum-deep">International projects</h3>
               <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
                 {PROJECTS.map((n) => <li key={n}>{n}</li>)}
               </ul>
@@ -405,8 +404,8 @@ export default function Partners() {
                 aria-pressed={selectedTab === tab.id}
                 className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selectedTab === tab.id
-                    ? 'bg-ink text-white'
-                    : 'bg-white text-body ring-1 ring-inset ring-mist hover:text-ink-deep hover:ring-ink/30'
+                    ? 'bg-plum text-white'
+                    : 'bg-white text-body ring-1 ring-inset ring-mist hover:text-plum-deep hover:ring-plum/30'
                 }`}
               >
                 {tab.label} <span className={`nums-tabular ${selectedTab === tab.id ? 'text-white/70' : 'text-quiet'}`}>{tab.count}</span>
@@ -424,7 +423,7 @@ export default function Partners() {
                 aria-label="Search partners"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 w-full rounded-full border border-mist bg-white pl-10 pr-9 text-sm text-plum-deep placeholder:text-quiet focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
+                className="h-10 w-full rounded-full border border-mist bg-white pl-10 pr-9 text-sm text-plum-deep placeholder:text-quiet focus:border-plum focus:outline-none focus:ring-2 focus:ring-plum/20"
               />
               {searchQuery && (
                 <button
@@ -442,7 +441,7 @@ export default function Partners() {
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
               aria-label="Filter by country"
-              className="h-10 cursor-pointer rounded-full border border-mist bg-white px-4 text-sm font-medium text-plum-deep focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
+              className="h-10 cursor-pointer rounded-full border border-mist bg-white px-4 text-sm font-medium text-plum-deep focus:border-plum focus:outline-none focus:ring-2 focus:ring-plum/20"
             >
               <option value="ALL">All Countries ({countries.length})</option>
               {countries.map((c) => (
@@ -528,7 +527,7 @@ export default function Partners() {
                           <div className="flex items-start gap-4 lg:col-span-5">
                             <PartnerLogo name={uni.name} logoUrl={uni.logoUrl} />
                             <div className="min-w-0">
-                              <h3 className="text-lg font-medium leading-snug text-ink-deep">{uni.name}</h3>
+                              <h3 className="text-lg font-medium leading-snug text-plum-deep">{uni.name}</h3>
                               {uni.focus && (
                                 <p className="mt-0.5 text-sm text-quiet line-clamp-2">{uni.focus}</p>
                               )}
@@ -538,7 +537,7 @@ export default function Partners() {
                                     href={uni.website}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-ink hover:underline underline-offset-4"
+                                    className="inline-flex items-center gap-1 text-plum hover:underline underline-offset-4"
                                   >
                                     Official website <RiExternalLinkLine size={13} aria-hidden="true" />
                                   </a>
@@ -595,7 +594,7 @@ export default function Partners() {
                                 </p>
                                 {uni.championDesignation && <p className="text-quiet">{uni.championDesignation}</p>}
                                 {uni.championEmail && (
-                                  <a href={`mailto:${uni.championEmail}`} className="break-all text-ink hover:underline underline-offset-4">
+                                  <a href={`mailto:${uni.championEmail}`} className="break-all text-plum hover:underline underline-offset-4">
                                     {uni.championEmail}
                                   </a>
                                 )}
@@ -617,7 +616,7 @@ export default function Partners() {
                   <button
                     type="button"
                     onClick={() => setShowAllUniversities((prev) => !prev)}
-                    className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-6 text-sm font-semibold text-ink ring-1 ring-inset ring-ink/30 transition-colors hover:bg-ink-tint"
+                    className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-6 text-sm font-semibold text-plum ring-1 ring-inset ring-plum/30 transition-colors hover:bg-plum-tint"
                   >
                     {showAllUniversities
                       ? 'Show fewer universities'
@@ -662,7 +661,7 @@ export default function Partners() {
                           </span>
                         </div>
                         <p className="mt-4 text-sm font-medium text-saffron-deep">{typeLabel}</p>
-                        <h3 className="mt-1 text-xl font-medium leading-snug text-ink-deep">{org.name}</h3>
+                        <h3 className="mt-1 text-xl font-medium leading-snug text-plum-deep">{org.name}</h3>
 
                         {org.focus && (
                           <p className="mt-2 text-sm text-quiet">{org.focus}</p>
@@ -675,7 +674,7 @@ export default function Partners() {
                               {org.championDesignation ? `, ${org.championDesignation}` : ''}
                             </p>
                             {org.championEmail && (
-                              <a href={`mailto:${org.championEmail}`} className="break-all text-ink hover:underline underline-offset-4">
+                              <a href={`mailto:${org.championEmail}`} className="break-all text-plum hover:underline underline-offset-4">
                                 {org.championEmail}
                               </a>
                             )}
@@ -720,7 +719,7 @@ export default function Partners() {
                             href={org.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-ink hover:underline underline-offset-4"
+                            className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-plum hover:underline underline-offset-4"
                           >
                             Learn More <RiExternalLinkLine size={14} aria-hidden="true" />
                           </a>
@@ -774,7 +773,7 @@ export default function Partners() {
                             }
                           }}
                           className={`flex flex-col rounded-2xl border border-mist bg-porcelain p-6 transition-colors ${
-                            mou.hasDocument ? 'cursor-pointer hover:border-ink/40 hover:bg-white' : ''
+                            mou.hasDocument ? 'cursor-pointer hover:border-plum/40 hover:bg-white' : ''
                           }`}
                         >
                           {/* 3.13 Show real MOU status */}
@@ -791,7 +790,7 @@ export default function Partners() {
                             )}
                           </div>
 
-                          <h3 className="mt-4 text-xl font-medium leading-snug text-ink-deep">
+                          <h3 className="mt-4 text-xl font-medium leading-snug text-plum-deep">
                             {partnerName}
                           </h3>
 
@@ -856,7 +855,7 @@ export default function Partners() {
           )}
 
           {/* SECTION 4: Partnership Benefits */}
-          <section className="bg-ink-deep text-white py-20 md:py-24">
+          <section className="bg-plum-deep text-white py-20 md:py-24">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <SectionHeader
                 tone="dark"
@@ -906,12 +905,12 @@ export default function Partners() {
 
       {/* MOU Document Viewer / Downloader Modal */}
       {readyMou && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-deep/70 p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum-deep/70 p-4 backdrop-blur-xs">
           <div role="dialog" aria-modal="true" aria-labelledby="mou-dialog-title" className="flex w-full max-w-lg flex-col rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:p-7">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 border-b border-mist pb-4">
               <div>
-                <h3 id="mou-dialog-title" className="text-xl font-medium leading-snug text-ink-deep">
+                <h3 id="mou-dialog-title" className="text-xl font-medium leading-snug text-plum-deep">
                   {readyMou.partnerName ? `MOU: ${readyMou.partnerName}` : 'MOU Document'}
                 </h3>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-emerald-700">

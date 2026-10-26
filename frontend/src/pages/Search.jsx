@@ -62,6 +62,12 @@ const pageMetaByPath = {
 
 const quickLinks = [
   {
+    title: 'Opportunities',
+    path: '/international-mobility#opportunities',
+    description: 'Scholarships, fellowships, exchanges and grants for students and faculty.',
+    keywords: ['opportunities', 'scholarship', 'fellowship', 'grant', 'funding'],
+  },
+  {
     title: 'FAQs',
     path: '/international-admissions#faqs',
     description: 'Common questions on admissions and programs.',

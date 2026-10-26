@@ -48,11 +48,11 @@ export default function AnnouncementsMarquee() {
     <div
       tabIndex={0}
       aria-label={`${publicAnnouncements.length} announcements. Focus or hover to read them all.`}
-      className="group relative z-50 w-full cursor-default bg-ink-deep text-white outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-saffron"
+      className="group relative z-50 w-full cursor-default bg-plum-deep text-white outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-saffron"
     >
       <div className="max-w-7xl mx-auto flex items-stretch px-4 sm:px-6 lg:px-8">
-        <span className="relative z-10 flex shrink-0 items-center gap-2 bg-ink-deep pr-4 text-[0.8rem] font-semibold text-saffron">
-          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-saffron px-1.5 text-[0.7rem] font-bold text-ink-deep nums-tabular">
+        <span className="relative z-10 flex shrink-0 items-center gap-2 bg-plum-deep pr-4 text-[0.8rem] font-semibold text-saffron">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-saffron px-1.5 text-[0.7rem] font-bold text-plum-deep nums-tabular">
             {publicAnnouncements.length}
           </span>
           <span className="hidden sm:inline">Updates</span>
@@ -71,7 +71,7 @@ export default function AnnouncementsMarquee() {
             ))}
           </div>
         </div>
-        <span className="relative z-10 hidden shrink-0 items-center gap-1 bg-ink-deep pl-4 text-[0.8rem] text-white/60 sm:flex">
+        <span className="relative z-10 hidden shrink-0 items-center gap-1 bg-plum-deep pl-4 text-[0.8rem] text-white/60 sm:flex">
           Read all
           <RiArrowDownSLine size={16} className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
         </span>
@@ -80,7 +80,7 @@ export default function AnnouncementsMarquee() {
       {/* The full list hangs from the ticker as one dark drawer, the same
           width as the page content, so it reads as the bar opening up rather
           than a card floating over the hero. */}
-      <div className="invisible absolute inset-x-0 top-full z-[9999] border-t border-white/10 bg-ink-deep opacity-0 shadow-[0_28px_40px_-24px_rgb(23_40_56/0.6)] transition-[opacity,visibility] duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 motion-reduce:transition-none">
+      <div className="invisible absolute inset-x-0 top-full z-[9999] border-t border-white/10 bg-plum-deep opacity-0 shadow-[0_28px_40px_-24px_rgb(42_21_56/0.6)] transition-[opacity,visibility] duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 motion-reduce:transition-none">
         <div className="mx-auto max-h-[60vh] max-w-7xl overflow-y-auto px-4 sm:px-6 lg:px-8">
           <ol className="divide-y divide-white/10">
             {publicAnnouncements.map((ann) => (

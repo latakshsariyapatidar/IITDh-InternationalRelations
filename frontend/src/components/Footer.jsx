@@ -26,7 +26,7 @@ const SOCIAL_LINKS = [
 ]
 
 const QUICK_LINKS = [
-  { label: 'Opportunities', to: '/opportunities' },
+  { label: 'Opportunities', to: '/international-mobility#opportunities' },
   { label: 'FAQs', to: '/international-admissions#faqs' },
   { label: 'Campus Map', to: '/contact#campus-map' },
   { label: 'Feedback', to: '/contact#feedback' },

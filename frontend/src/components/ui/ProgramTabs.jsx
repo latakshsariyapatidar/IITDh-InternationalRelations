@@ -6,15 +6,13 @@ import { useId, useRef, useState } from 'react'
  *
  * items: [{ id, label, meta?, content }]
  */
-export default function ProgramTabs({ items = [], label, tone = 'plum' }) {
+export default function ProgramTabs({ items = [], label }) {
   const [activeId, setActiveId] = useState(items[0]?.id)
   const tabRefs = useRef({})
   const baseId = useId()
   const active = items.find((item) => item.id === activeId) || items[0]
 
-  const activeTab = tone === 'ink'
-    ? 'lg:border-ink bg-ink text-white lg:bg-white lg:text-ink-deep'
-    : 'lg:border-plum bg-plum text-white lg:bg-white lg:text-plum-deep'
+  const activeTab = 'lg:border-plum bg-plum text-white lg:bg-white lg:text-plum-deep'
 
   // Arrow keys move between tabs, as in any tab list.
   const onKeyDown = (event, index) => {

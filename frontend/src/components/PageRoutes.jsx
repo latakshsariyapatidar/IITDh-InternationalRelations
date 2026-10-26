@@ -58,7 +58,6 @@ import FacultyProtectedRoute from './FacultyProtectedRoute'
 import FacultyPortal from '../pages/faculty/FacultyPortal'
 
 // Public Forms & Pages
-import Opportunities from '../pages/Opportunities'
 import VisitorsForm from '../pages/VisitorsForm'
 import InboundExchangeForm from '../pages/InboundExchangeForm'
 
@@ -272,7 +271,7 @@ export default function PageRoutes() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/search" element={<Search />} />
 
-          <Route path="/opportunities" element={<Opportunities />} />
+          <Route path="/opportunities" element={<Navigate to="/international-mobility#opportunities" replace />} />
           {/* Delegate Registration — public, standalone, not linked from the main site.
                Share this URL directly with visiting delegations. */}
           <Route path="/iro/delegate-registration" element={<VisitorsForm />} />

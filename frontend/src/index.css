@@ -59,16 +59,12 @@ body::-webkit-scrollbar,
 @theme {
   /* ── Palette ───────────────────────────────────────────────────────────
      Royal Plum   – brand anchor, ties the site to IIT Dharwad
-     Global Ink   – the international voice: partners, exchange, research
      Muted Saffron– the institute's orange, used sparingly as an accent
      Cool Mist    – borders and quiet surfaces
      Porcelain    – the page canvas                                       */
   --color-plum: #402052;
   --color-plum-deep: #2a1538;
   --color-plum-tint: #f1ecf3;
-  --color-ink: #243c56;
-  --color-ink-deep: #172838;
-  --color-ink-tint: #e7ecf2;
   --color-saffron: #d9a441;
   --color-saffron-deep: #8c6418;
   --color-saffron-tint: #f7eed9;

@@ -19,15 +19,17 @@ export default function Navbar() {
       return undefined
     }
 
-    const { body, documentElement } = document
-    const previousBodyOverflow = body.style.overflow
+    // Lock scrolling on <html> only. Setting overflow on <body> as well stops
+    // it propagating to the viewport, so <body> becomes its own scroll box and
+    // the sticky header snaps back to the top of the document: opened from
+    // halfway down a page, the menu appeared far above the screen with
+    // scrolling locked, and the site looked frozen.
+    const { documentElement } = document
     const previousHtmlOverflow = documentElement.style.overflow
 
-    body.style.overflow = 'hidden'
     documentElement.style.overflow = 'hidden'
 
     return () => {
-      body.style.overflow = previousBodyOverflow
       documentElement.style.overflow = previousHtmlOverflow
     }
   }, [isOpen])
@@ -57,15 +59,16 @@ export default function Navbar() {
 
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-[4.5rem] gap-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 shrink-0 rounded-md">
+        <div className="flex justify-between items-center h-[4.5rem] gap-3 lg:gap-6">
+          {/* Logo. On narrow phones it shrinks and the title wraps; held at
+              full width it pushed the menu button off the right edge. */}
+          <Link to="/" className="flex min-w-0 items-center gap-3 lg:shrink-0 rounded-md">
             <img
               src={getContent("site.logoUrl", "/IITDh Logo.svg")}
               alt="IIT Dharwad"
-              className="h-10 sm:h-12 w-auto"
+              className="h-10 sm:h-12 w-auto shrink-0"
             />
-            <span className="flex flex-col border-l border-mist pl-3">
+            <span className="flex min-w-0 flex-col border-l border-mist pl-3">
               <span className="font-heading! text-[0.98rem] sm:text-lg font-medium leading-tight text-plum-deep">International Relations Office</span>
               <span className="hidden sm:block text-xs text-quiet leading-tight mt-0.5">Indian Institute of Technology Dharwad</span>
             </span>
@@ -105,7 +108,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile/Tablet Menu Button */}
-          <div className="flex items-center gap-1 lg:hidden">
+          <div className="flex shrink-0 items-center gap-1 lg:hidden">
             {searchLink && (
               <Link
                 to={searchLink.path}

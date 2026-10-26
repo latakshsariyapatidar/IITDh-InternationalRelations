@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { fetchAllPages } from '../api/fetchAllPages';
-import HeroSection from '../components/HeroSection';
-import SectionHeader from '../components/ui/SectionHeader';
+import SectionHeader from './ui/SectionHeader';
 import {
   RiSearchLine,
   RiCloseLine,
@@ -47,7 +46,12 @@ function FlagIcon({ code }) {
   );
 }
 
-export default function Opportunities() {
+/**
+ * The searchable list of scholarships, fellowships, exchanges and grants the
+ * office posts from the admin panel, with a detail view for each. Shown as a
+ * section of the International Mobility page.
+ */
+export default function OpportunitiesBoard() {
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -146,26 +150,12 @@ export default function Opportunities() {
 
   return (
     <div>
-      {/* Hero Header */}
-      <HeroSection
-        title="Opportunities"
-        subtitle="Explore international scholarships, research fellowships, semester exchanges, and collaborative grants curated by the International Relations Office."
-        backgroundImage="/institute/institute10.webp"
-        tone="ink"
-        cta={{
-          label: 'Explore Opportunities',
-          onClick: () => {
-            const el = document.getElementById('opportunities-feed');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          },
-        }}
-      />
-
       {/* Main Content Area */}
-      <section id="opportunities-feed" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
+      <section id="opportunities" className="bg-white border-y border-mist">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-24 lg:px-8">
         <SectionHeader
-          title="Global Opportunities & Calls"
-          subtitle="Discover and filter through scholarships, fellowships, and academic exchanges available for students and faculty"
+          title="Opportunities"
+          subtitle="Scholarships, fellowships, exchanges and grants for IIT Dharwad students and faculty, collected by the International Relations Office."
         />
 
         {/* Search and Filters Bar */}
@@ -180,7 +170,7 @@ export default function Opportunities() {
                 onChange={(e) => changeSearch(e.target.value)}
                 placeholder="Search opportunities..."
                 aria-label="Search opportunities"
-                className="h-12 w-full rounded-full border border-mist bg-white pl-12 pr-11 text-[0.95rem] text-plum-deep placeholder:text-quiet focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/20"
+                className="h-12 w-full rounded-full border border-mist bg-white pl-12 pr-11 text-[0.95rem] text-plum-deep placeholder:text-quiet focus:border-plum focus:outline-none focus:ring-2 focus:ring-plum/20"
               />
               {searchQuery && (
                 <button
@@ -204,8 +194,8 @@ export default function Opportunities() {
                   aria-pressed={selectedAudience === aud.id}
                   className={`h-10 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors ${
                     selectedAudience === aud.id
-                      ? 'bg-ink text-white'
-                      : 'text-body hover:text-ink-deep'
+                      ? 'bg-plum text-white'
+                      : 'text-body hover:text-plum-deep'
                   }`}
                 >
                   {aud.label}
@@ -226,8 +216,8 @@ export default function Opportunities() {
                   aria-pressed={isSelected}
                   className={`shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                     isSelected
-                      ? 'bg-ink-tint text-ink-deep ring-1 ring-inset ring-ink/40'
-                      : 'text-body ring-1 ring-inset ring-mist hover:text-ink-deep hover:ring-ink/30'
+                      ? 'bg-plum-tint text-plum-deep ring-1 ring-inset ring-plum/40'
+                      : 'text-body ring-1 ring-inset ring-mist hover:text-plum-deep hover:ring-plum/30'
                   }`}
                 >
                   {cat.label}
@@ -282,11 +272,11 @@ export default function Opportunities() {
                     <button
                       type="button"
                       onClick={() => setSelectedOpp(opp)}
-                      className="group flex h-full w-full cursor-pointer flex-col rounded-2xl border border-mist bg-white p-6 text-left transition-colors hover:border-ink/40"
+                      className="group flex h-full w-full cursor-pointer flex-col rounded-2xl border border-mist bg-white p-6 text-left transition-colors hover:border-plum/40"
                     >
                       {/* Category and audience */}
                       <span className="flex w-full items-center justify-between gap-2 text-sm">
-                        <span className="font-semibold text-ink">{formatCategory(opp.category)}</span>
+                        <span className="font-semibold text-plum">{formatCategory(opp.category)}</span>
                         {opp.audience && opp.audience !== 'BOTH' && (
                           <span className="text-quiet">{formatAudience(opp.audience)}</span>
                         )}
@@ -341,7 +331,7 @@ export default function Opportunities() {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
-                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-porcelain disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <RiArrowLeftSLine size={18} aria-hidden="true" /> Previous
                 </button>
@@ -352,7 +342,7 @@ export default function Opportunities() {
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage(p => p + 1)}
-                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-semibold text-plum ring-1 ring-inset ring-mist transition-colors hover:bg-porcelain disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next <RiArrowRightSLine size={18} aria-hidden="true" />
                 </button>
@@ -360,6 +350,7 @@ export default function Opportunities() {
             )}
           </>
         )}
+        </div>
       </section>
 
       {/* FULL DETAILS MODAL */}
@@ -367,7 +358,7 @@ export default function Opportunities() {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-ink-deep/70 backdrop-blur-xs animate-in fade-in duration-200"
+            className="fixed inset-0 bg-plum-deep/70 backdrop-blur-xs animate-in fade-in duration-200"
             onClick={() => setSelectedOpp(null)}
           />
 
@@ -391,7 +382,7 @@ export default function Opportunities() {
               </button>
 
               <p className="pr-10 text-sm">
-                <span className="font-semibold text-ink">{formatCategory(selectedOpp.category)}</span>
+                <span className="font-semibold text-plum">{formatCategory(selectedOpp.category)}</span>
                 <span className="text-quiet"> for {formatAudience(selectedOpp.audience || 'BOTH')}</span>
               </p>
 

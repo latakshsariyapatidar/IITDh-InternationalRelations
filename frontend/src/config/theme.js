@@ -10,10 +10,6 @@ export const colors = {
     marigold: '#D9A441',        // Muted Saffron - accent
     marigoldDark: '#8C6418'     // Deep saffron - accent text on light surfaces
   },
-  international: {
-    ink: '#243C56',             // Global Ink - partners, exchange, research
-    inkDeep: '#172838'
-  },
   neutral: {
     white: '#ffffff',
     canvas: '#FAF9F6',          // Soft Porcelain - page canvas
@@ -35,7 +31,6 @@ export const tailwindClasses = {
   bgPrimaryLight: 'bg-mist',
   bgAccent: 'bg-saffron',
   bgAccentDark: 'bg-saffron-deep',
-  bgInk: 'bg-ink',
 
   // Text colors
   textPrimary: 'text-plum',
