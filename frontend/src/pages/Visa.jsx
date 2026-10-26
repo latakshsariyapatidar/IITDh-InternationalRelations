@@ -3,7 +3,6 @@ import HeroSection from '../components/HeroSection'
 import { RiExternalLinkLine } from '@remixicon/react'
 
 const CONTENTS = [
-  { id: 'which-visa', label: 'Which visa do I need?' },
   { id: 'overview', label: 'Overview' },
   { id: 'categories', label: 'Major visa categories' },
   { id: 'student-research', label: 'Student and research visas' },
@@ -70,7 +69,7 @@ const OTHER_CODE_GROUPS = [
   },
   {
     title: 'Entry visas',
-    codes: [['X-Double Entry', 'Short-term double-entry visa, for example for citizens of Bangladesh who must enter India twice; valid for up to 3 months with a short stay per visit'], ['X-1', 'Persons of Indian origin, foreign spouses of Indian citizens or PIOs, and their dependent children (excluding valid OCI card holders)'], ['X-2', 'Joining Auroville Foundation, Aurobindo Ashram, Missionaries of Charity, or similar approved organisations'], ['X-Misc', 'Categories specified for X-Misc in the Visa Manual, and purposes not covered by any other category']],
+    codes: [['X-Double Entry', 'Short-term double-entry visa for travellers who need to enter India twice. Validity and permitted stay per visit are set by the issuing Mission'], ['X-1', 'Persons of Indian origin, foreign spouses of Indian citizens or PIOs, and their dependent children (excluding valid OCI card holders)'], ['X-2', 'Joining Auroville Foundation, Aurobindo Ashram, Missionaries of Charity, or similar approved organisations'], ['X-Misc', 'Categories specified for X-Misc in the Visa Manual, and purposes not covered by any other category']],
   },
   { title: 'Medical visas', codes: [['MED-1', 'Patients'], ['MED-2', 'Medical attendants']] },
   {
@@ -87,7 +86,7 @@ const E_VISAS = [
   ['e-Conference Visa', 'Conferences, seminars or workshops organised by Indian ministries, PSUs or private entities; rapid single-entry access'],
   ['e-Ayush Visa', 'Ayush therapies, treatment or wellness programmes'],
   ['e-Ayush Attendant Visa', 'Companions of e-Ayush visa holders'],
-  ['e-Student Visa', 'Short-term courses or programmes in India'],
+  ['e-Student Visa', 'Full-time study (UG, PG, PhD and other academic programmes) in recognised Indian institutions; dependents apply for e-Student-X'],
 ]
 
 const PROVISIONS = [
@@ -139,33 +138,6 @@ export default function Visa() {
         </nav>
 
         <div className="min-w-0 space-y-20 lg:col-span-9">
-          {/* Which visa do I need? */}
-          <section id="which-visa" aria-labelledby="which-visa-h">
-            <h2 id="which-visa-h" className={sectionHead}>Which visa do I need?</h2>
-            <p className="mt-3 max-w-2xl text-lg text-quiet">For the most common reasons to visit IIT Dharwad. Check the official portal before you apply.</p>
-            <div className="mt-8 overflow-hidden rounded-2xl border border-mist bg-white">
-              <table className="w-full text-left text-[0.95rem]">
-                <thead className="bg-plum-deep text-white">
-                  <tr>
-                    <th scope="col" className="px-5 py-3 font-semibold">Coming to IIT Dharwad for</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Visa</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-mist">
-                  {VISA_BY_PURPOSE.map(([purpose, visa]) => (
-                    <tr key={purpose} className="align-top">
-                      <th scope="row" className="w-2/5 px-5 py-4 font-semibold text-plum-deep">{purpose}</th>
-                      <td className="px-5 py-4 text-body">{visa}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-sm text-quiet">
-              Programme details are on the <Link to="/international-admissions" className="text-plum underline decoration-saffron underline-offset-4">admissions</Link> and <Link to="/international-mobility" className="text-plum underline decoration-saffron underline-offset-4">mobility</Link> pages.
-            </p>
-          </section>
-
           {/* Overview */}
           <section id="overview" aria-labelledby="overview-h">
             <h2 id="overview-h" className={sectionHead}>Visa and immigration information for international students and visitors</h2>
@@ -342,7 +314,7 @@ export default function Visa() {
                   <li>Fill in the C Form at your hostel or guest house front office, and collect the soft copy once it is submitted on the immigration portal.</li>
                   <li>Required for dependent visa holders too.</li>
                   <li>If you stay off campus, fill it in yourself or ask your landlord or hotel to.</li>
-                  <li>Non-compliance can lead to fines and imprisonment of up to 5 years.</li>
+                  <li>Non-compliance attracts fines and other penalties under the Immigration and Foreigners Act, 2025.</li>
                 </ul>
                 <div className="mt-5 border-t border-mist pt-4 text-sm">
                   <p className="font-semibold text-plum-deep">Documents</p>
@@ -350,7 +322,7 @@ export default function Visa() {
                 </div>
               </li>
               <li className="flex flex-col rounded-2xl border border-mist bg-white p-6">
-                <p className="text-sm font-semibold text-saffron-deep">Within 14 days of arrival</p>
+                <p className="text-sm font-semibold text-saffron-deep">On arrival, as directed by the International Relations Office</p>
                 <h3 className="mt-1 text-2xl font-medium text-plum-deep">S Form: Foreign Students' Information System</h3>
                 <ul className="mt-4 flex-1 list-disc space-y-2 pl-5 text-[0.95rem] text-body marker:text-saffron-deep">
                   <li>FSIS records foreign nationals admitted to Indian educational institutions.</li>

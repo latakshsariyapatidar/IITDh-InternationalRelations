@@ -33,6 +33,7 @@ const QUICK_LINKS = [
   { label: 'Students Council', to: '/life' },
   { label: 'IITDh Student Portal', to: '/students' },
   { label: 'IITDh Faculty Portal', to: '/faculty-portal' },
+  { label: 'Faculty Research Profiles', href: 'https://sites.google.com/iitdh.ac.in/faculty-profiles/home' },
   { label: 'Guesthouse', to: '/visits#visitor-info' },
   { label: 'Gallery', to: '/gallery' },
 ]
@@ -93,7 +94,15 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-saffron mb-4">Quicklinks</h4>
             <ul className="space-y-2.5 text-sm">
               {QUICK_LINKS.map((item) => (
-                <li key={item.label}><Link to={item.to} className={linkClass}>{item.label}</Link></li>
+                <li key={item.label}>
+                  {item.href ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link to={item.to} className={linkClass}>{item.label}</Link>
+                  )}
+                </li>
               ))}
             </ul>
           </nav>
@@ -104,19 +113,12 @@ export default function Footer() {
             <address className="not-italic text-sm leading-relaxed text-white/70">
               International Relations Office<br />
               IIT Dharwad, Chikkamalligawad<br />
-              Dharwad, Karnataka 580 011<br />
+              Dharwad, Karnataka 580 007<br />
               India
             </address>
-            <dl className="mt-5 space-y-2 text-sm">
-              <div className="flex gap-2">
-                <dt className="text-white/50 w-14 shrink-0">Email</dt>
-                <dd><a href="mailto:iro@iitdh.ac.in" className="text-white hover:text-saffron transition-colors">iro@iitdh.ac.in</a></dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="text-white/50 w-14 shrink-0">Phone</dt>
-                <dd className="text-white nums-tabular">{getContent("footer.phone", "+91-836-XXXXXXX")}</dd>
-              </div>
-            </dl>
+            <p className="mt-5 text-sm">
+              <Link to="/contact" className="text-white underline decoration-saffron underline-offset-4 hover:text-saffron transition-colors">Contact Us</Link>
+            </p>
           </div>
         </div>
 

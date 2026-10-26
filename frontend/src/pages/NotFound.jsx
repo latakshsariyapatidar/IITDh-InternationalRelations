@@ -25,8 +25,8 @@ export default function NotFound() {
 
           <p className="mt-12 text-sm text-quiet">
             Need immediate assistance? Email us at{' '}
-            <a href="mailto:iro@iitdh.ac.in" className="text-plum underline decoration-saffron underline-offset-4 hover:decoration-plum">
-              iro@iitdh.ac.in
+            <a href="mailto:office.iro@iitdh.ac.in" className="text-plum underline decoration-saffron underline-offset-4 hover:decoration-plum">
+              office.iro@iitdh.ac.in
             </a>
             , or go to <Link to="/contact" className="text-plum underline decoration-saffron underline-offset-4 hover:decoration-plum">Contact Us</Link>.
           </p>

@@ -1,6 +1,6 @@
 import HeroSection from '../components/HeroSection'
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { RiDownloadLine } from '@remixicon/react'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { resolveMediaUrl } from '../utils/media'
@@ -182,16 +182,9 @@ export default function Downloads() {
               Contact the International Relations Office for customized documentation. We can provide documents and additional resources for your specific academic or administrative needs.
             </p>
           </div>
-          <dl className="space-y-2 md:col-span-5 md:text-right">
-            <div>
-              <dt className="sr-only">Email</dt>
-              <dd><a href="mailto:iro@iitdh.ac.in" className="font-heading! text-2xl text-plum underline decoration-saffron underline-offset-[6px] hover:decoration-plum">iro@iitdh.ac.in</a></dd>
-            </div>
-            <div>
-              <dt className="sr-only">Phone</dt>
-              <dd><a href="tel:+91-8364-241-200" className="text-body hover:text-plum nums-tabular">+91-8364-241-200</a></dd>
-            </div>
-          </dl>
+          <div className="md:col-span-5 md:text-right">
+            <Link to="/contact" className="font-heading! text-2xl text-plum underline decoration-saffron underline-offset-[6px] hover:decoration-plum">Contact Us</Link>
+          </div>
         </div>
       </section>
     </div>

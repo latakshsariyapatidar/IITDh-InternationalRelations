@@ -469,7 +469,10 @@ export default function Collaboration() {
               <p className="mt-3 text-white/75 leading-relaxed">
                 DST and the Japan Society for the Promotion of Science (JSPS) invite proposals for joint research projects and joint workshops and seminars, in physical, chemical, life, mathematical, earth and materials sciences. Open to eligible Indian researchers and scientists.
               </p>
-              <a href="https://www.onlinedst.gov.in" target="_blank" rel="noopener noreferrer" className="mt-5 inline-block text-sm font-semibold text-saffron underline decoration-saffron/50 underline-offset-4 hover:decoration-saffron">
+              <p className="mt-2 text-sm text-saffron/90 font-medium">
+                Last date for proposal submission: 3rd September (annual call)
+              </p>
+              <a href="https://www.onlinedst.gov.in" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-semibold text-saffron underline decoration-saffron/50 underline-offset-4 hover:decoration-saffron">
                 Details and applications on onlinedst.gov.in
               </a>
             </article>

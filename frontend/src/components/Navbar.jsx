@@ -46,7 +46,7 @@ export default function Navbar() {
           <div className="flex flex-col sm:flex-row gap-4 text-xs font-medium text-brand-purple">
             <div className="flex items-center gap-2">
               <span>Email</span>
-              <a href="mailto:iro@iitdh.ac.in" className="hover:text-brand-marigold">iro@iitdh.ac.in</a>
+              <a href="mailto:office.iro@iitdh.ac.in" className="hover:text-brand-marigold">office.iro@iitdh.ac.in</a>
             </div>
             <div className="flex items-center gap-2">
               <span>Phone</span>

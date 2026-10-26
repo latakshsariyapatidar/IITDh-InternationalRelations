@@ -48,31 +48,37 @@ async function main() {
   const adminPassword = process.env.SEED_ADMIN_PASSWORD;
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@iitdh.ac.in";
 
-  if (!adminPassword) {
-    throw new Error(
-      "[SEED] SEED_ADMIN_PASSWORD is not set. Choose a strong password and put " +
-        "it in your .env before seeding — there is deliberately no default.",
-    );
-  }
-
-  if (adminPassword.length < 12) {
-    throw new Error(
-      `[SEED] SEED_ADMIN_PASSWORD must be at least 12 characters (got ${adminPassword.length}).`,
-    );
-  }
-
-  const resetAdminPassword = process.env.SEED_RESET_ADMIN_PASSWORD === "true";
-  const adminHash = await bcrypt.hash(adminPassword, 12);
-
-  await prisma.admin.upsert({
+  const existingAdmin = await prisma.admin.findUnique({
     where: { email: adminEmail },
-    update: resetAdminPassword ? { passwordHash: adminHash } : {},
-    create: { email: adminEmail, passwordHash: adminHash },
   });
-  console.log(
-    `[SEED] ✓ Admin (${adminEmail})` +
-      (resetAdminPassword ? " — password reset" : " — existing password kept"),
-  );
+
+  if (!existingAdmin && !adminPassword) {
+    console.warn(
+      "[SEED] ⚠️  SEED_ADMIN_PASSWORD is not set and no admin exists yet. " +
+        "Admin account was not created. Provide SEED_ADMIN_PASSWORD in your .env to seed the initial admin.",
+    );
+  } else if (adminPassword) {
+    if (adminPassword.length < 12) {
+      console.warn(
+        `[SEED] ⚠️  SEED_ADMIN_PASSWORD must be at least 12 characters (got ${adminPassword.length}). Admin skipped.`,
+      );
+    } else {
+      const resetAdminPassword = process.env.SEED_RESET_ADMIN_PASSWORD === "true";
+      const adminHash = await bcrypt.hash(adminPassword, 12);
+
+      await prisma.admin.upsert({
+        where: { email: adminEmail },
+        update: resetAdminPassword ? { passwordHash: adminHash } : {},
+        create: { email: adminEmail, passwordHash: adminHash },
+      });
+      console.log(
+        `[SEED] ✓ Admin (${adminEmail})` +
+          (resetAdminPassword ? " — password reset" : " — existing password kept or initialized"),
+      );
+    }
+  } else {
+    console.log(`[SEED] ✓ Admin exists (${adminEmail}) — skipped password update`);
+  }
 
   // ── Site Content ───────────────────────────────────────────────────────────
   //
@@ -262,6 +268,325 @@ async function main() {
 
   console.log(
     `[SEED] ✓ Site content (${created} created, ${siteContent.length - created} left untouched)`,
+  );
+
+  // ── Partners & MoUs ────────────────────────────────────────────────────────
+  // Seed institutional partners and active/historical MoUs from institutional records.
+  // Uses create-if-absent logic so admin panel modifications are preserved.
+  const initialPartners = [
+    {
+      name: "The University of New Brunswick",
+      country: "Canada",
+      countryCode: "ca",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Rajeswara Rao M / Chemistry & Prof. Ruma Ghosh / EECE",
+      championEmail: "adean.rnd.outreach@iitdh.ac.in",
+      championDesignation: "Faculty Champions",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - The University of New Brunswick",
+          signedDate: new Date("2024-02-01T00:00:00.000Z"),
+          expiryDate: new Date("2029-02-01T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "University of Saskatchewan",
+      country: "Canada",
+      countryCode: "ca",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Neelkamal & Prof. Sridevi",
+      championEmail: null,
+      championDesignation: "Faculty Champions",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - University of Saskatchewan",
+          signedDate: new Date("2020-09-02T00:00:00.000Z"),
+          expiryDate: new Date("2025-09-01T00:00:00.000Z"),
+          status: "EXPIRED" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Carleton University",
+      country: "Canada",
+      countryCode: "ca",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Rajshekhar Bhat",
+      championEmail: "chairperson.ir@iitdh.ac.in",
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - Carleton University",
+          signedDate: new Date("2023-02-02T00:00:00.000Z"),
+          expiryDate: new Date("2028-02-01T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "École de technologie supérieure (ÉTS)",
+      country: "Canada",
+      countryCode: "ca",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Pratyasa Bhui / EECE & Prof. S R M Prasanna (Dean R&D)",
+      championEmail: null,
+      championDesignation: "Faculty Champions",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - École de technologie supérieure (ÉTS)",
+          signedDate: new Date("2023-02-02T00:00:00.000Z"),
+          expiryDate: new Date("2028-02-01T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Centre national de la recherche scientifique (CNRS)",
+      country: "France",
+      countryCode: "fr",
+      type: "ORGANIZATION" as const,
+      focus: "Exchange programs, International cooperation",
+      championName: "Prof. Vigneshwara Raja / EECE",
+      championEmail: "adean.rnd.outreach@iitdh.ac.in",
+      championDesignation: "Associate Dean R&D Outreach",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - Centre national de la recherche scientifique (CNRS)",
+          signedDate: new Date("2023-07-24T00:00:00.000Z"),
+          expiryDate: new Date("2028-07-23T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, International cooperation",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Università degli Studi Roma Tre",
+      country: "Italy",
+      countryCode: "it",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Satish Naik / EECE",
+      championEmail: null,
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - Università degli Studi Roma Tre",
+          signedDate: new Date("2023-01-11T00:00:00.000Z"),
+          expiryDate: new Date("2028-01-10T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "University of Agder",
+      country: "Norway",
+      countryCode: "no",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Prof. Rajesh Hegde",
+      championEmail: null,
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - University of Agder",
+          signedDate: new Date("2023-06-02T00:00:00.000Z"),
+          expiryDate: new Date("2028-06-01T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Norwegian University of Science and Technology (NTNU)",
+      country: "Norway",
+      countryCode: "no",
+      type: "UNIVERSITY" as const,
+      focus: "Exchange programs, Research Collaboration",
+      championName: "Dr. Dileep A D / CSE",
+      championEmail: null,
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "MoU - Norwegian University of Science and Technology (NTNU)",
+          signedDate: new Date("2025-11-04T00:00:00.000Z"),
+          expiryDate: new Date("2029-11-03T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "National Cheng Kung University",
+      country: "Taiwan",
+      countryCode: "tw",
+      type: "UNIVERSITY" as const,
+      focus: "Departmental Agreement, Exchange programs, Research Collaboration",
+      championName: "Prof. Naveen Kadayinti & Prof. Bharat B N / EECE",
+      championEmail: null,
+      championDesignation: "Faculty Champions",
+      isActive: true,
+      mous: [
+        {
+          title: "Departmental Agreement - National Cheng Kung University",
+          signedDate: new Date("2021-04-08T00:00:00.000Z"),
+          expiryDate: new Date("2026-04-07T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Departmental Agreement, Exchange programs, Research Collaboration",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Consortium of Finnish Universities",
+      country: "Finland",
+      countryCode: "fi",
+      type: "CONSORTIUM" as const,
+      focus: "Consortium MoU",
+      championName: "Prof. Rakesh Lingam / ME",
+      championEmail: null,
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "Consortium MoU - Consortium of Finnish Universities",
+          signedDate: new Date("2021-09-22T00:00:00.000Z"),
+          expiryDate: new Date("2026-09-21T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Consortium MoU, Collaborative Education & Research",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "TU9 German Universities of Technology e. V. (DAAD)",
+      country: "Germany",
+      countryCode: "de",
+      type: "CONSORTIUM" as const,
+      focus: "Consortium MoU",
+      championName: "Prof. Rajshekhar Bhat",
+      championEmail: "chairperson.ir@iitdh.ac.in",
+      championDesignation: "Faculty Champion",
+      isActive: true,
+      mous: [
+        {
+          title: "Consortium MoU - TU9 German Universities of Technology",
+          signedDate: new Date("2019-03-20T00:00:00.000Z"),
+          expiryDate: new Date("2022-07-01T00:00:00.000Z"),
+          status: "EXPIRED" as const,
+          scope: "Consortium MoU, Academic & Research Cooperation",
+          isPublic: true,
+        },
+      ],
+    },
+    {
+      name: "Indo French Network ENSI Poitiers-IITs",
+      country: "France",
+      countryCode: "fr",
+      type: "CONSORTIUM" as const,
+      focus: "Consortium MoU",
+      championName: "Office of International Relations",
+      championEmail: "office.iro@iitdh.ac.in",
+      championDesignation: "IRO Office",
+      isActive: true,
+      mous: [
+        {
+          title: "Consortium MoU - Indo French Network ENSI Poitiers-IITs",
+          signedDate: new Date("2022-03-08T00:00:00.000Z"),
+          expiryDate: new Date("2027-03-08T00:00:00.000Z"),
+          status: "ACTIVE" as const,
+          scope: "Consortium MoU, Student & Faculty Mobility",
+          isPublic: true,
+        },
+      ],
+    },
+  ];
+
+  let partnersCreated = 0;
+  for (const partnerData of initialPartners) {
+    const { mous, ...partnerFields } = partnerData;
+    const existing = await prisma.partner.findFirst({
+      where: { name: partnerFields.name },
+    });
+
+    if (!existing) {
+      await prisma.partner.create({
+        data: {
+          ...partnerFields,
+          mous: {
+            create: mous,
+          },
+        },
+      });
+      partnersCreated += 1;
+    }
+  }
+
+  console.log(
+    `[SEED] ✓ Partners & MoUs (${partnersCreated} created, ${initialPartners.length - partnersCreated} left untouched)`,
+  );
+
+  // ── Initial Contacts ───────────────────────────────────────────────────────
+  const initialContacts = [
+    {
+      type: "CHAIRPERSON" as const,
+      name: "Prof. Rajshekhar Bhat",
+      title: "Chairperson, International Relations",
+      email: "chairperson.ir@iitdh.ac.in",
+      phone: "+91 836 2212 839",
+      address: "IIT Dharwad, Permanent Campus, Chikkamalligawad, Dharwad, Karnataka 580007",
+      isActive: true,
+    },
+    {
+      type: "IRO_OFFICE" as const,
+      name: "International Relations Office",
+      title: "IRO General Inquiries & Operations",
+      email: "office.iro@iitdh.ac.in",
+      phone: "+91 9444536574",
+      address: "IIT Dharwad, Permanent Campus, Chikkamalligawad, Dharwad, Karnataka 580007",
+      isActive: true,
+    },
+  ];
+
+  let contactsCreated = 0;
+  for (const contact of initialContacts) {
+    const existing = await prisma.contact.findFirst({
+      where: { email: contact.email },
+    });
+    if (!existing) {
+      await prisma.contact.create({ data: contact });
+      contactsCreated += 1;
+    }
+  }
+
+  console.log(
+    `[SEED] ✓ Contacts (${contactsCreated} created, ${initialContacts.length - contactsCreated} left untouched)`,
   );
 
   console.log("[SEED] Done.");

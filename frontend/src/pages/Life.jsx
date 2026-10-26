@@ -3,20 +3,6 @@ import SectionHeader from "../components/ui/SectionHeader";
 import PhotoFrame from "../components/ui/PhotoFrame";
 import { RiExternalLinkLine, RiPlaneLine, RiRoadMapLine, RiTrainLine } from "@remixicon/react";
 
-// Distances by road from IIT Dharwad (approximate).
-const DISTANCES = [
-  ['Hubballi Airport', '15 km'],
-  ['Goa', '210 km'],
-  ['Bengaluru', '430 km'],
-  ['Mumbai', '465 km'],
-];
-
-const CONNECTIVITY = [
-  { icon: RiPlaneLine, title: 'By air', text: 'Hubballi Airport (HBX), about 15 km from IIT Dharwad, is well connected to Bengaluru, Mumbai, Hyderabad, Goa and other major cities.' },
-  { icon: RiRoadMapLine, title: 'By road', text: 'On NH-48, the Mumbai–Bengaluru highway: about 430 km to Bengaluru and 210 km to Goa.' },
-  { icon: RiTrainLine, title: 'By rail', text: 'Hubballi Junction, a major railway hub on the Mumbai–Chennai line, connects to Bengaluru, Mumbai, Pune, Hyderabad, Chennai and beyond.' },
-];
-
 const externalLink = "inline-flex items-center gap-1.5 text-sm font-semibold text-plum underline decoration-saffron underline-offset-[6px] hover:decoration-plum";
 
 export default function Life() {
@@ -79,32 +65,6 @@ export default function Life() {
         </div>
       </section>
 
-      {/* Getting here */}
-      <section aria-labelledby="getting-here" className="bg-plum-deep text-white py-20 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 id="getting-here" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em]">Getting to IIT Dharwad</h2>
-
-          <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-4">
-            {DISTANCES.map(([place, km]) => (
-              <div key={place} className="bg-plum-deep p-6">
-                <dt className="text-sm text-white/60">To {place}</dt>
-                <dd className="mt-1 font-heading! text-3xl md:text-4xl nums-tabular">{km}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-3 text-sm text-white/50">Approximate distances by road.</p>
-
-          <div className="mt-12 grid gap-10 md:grid-cols-3">
-            {CONNECTIVITY.map(({ icon: Icon, title, text }) => (
-              <div key={title}>
-                <Icon size={26} aria-hidden="true" className="text-saffron" />
-                <h3 className="mt-3 text-xl font-medium">{title}</h3>
-                <p className="mt-2 text-white/70 leading-relaxed">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* About Campus */}
       <section className="bg-white border-b border-mist py-20 md:py-24">

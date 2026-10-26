@@ -438,7 +438,7 @@ export default function FacultyPortal() {
             </Link>
 
             <a
-              href="mailto:iro@iitdh.ac.in?subject=Faculty%20International%20Collaboration%20Inquiry"
+              href="mailto:office.iro@iitdh.ac.in?subject=Faculty%20International%20Collaboration%20Inquiry"
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">
@@ -453,7 +453,7 @@ export default function FacultyPortal() {
                 </p>
               </div>
               <div className="pt-4 mt-4 border-t border-gray-100 flex items-center gap-1 text-xs font-semibold text-brand-purple">
-                <span>iro@iitdh.ac.in</span>
+                <span>office.iro@iitdh.ac.in</span>
                 <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </a>

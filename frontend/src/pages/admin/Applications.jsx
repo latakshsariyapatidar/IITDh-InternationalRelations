@@ -380,7 +380,7 @@ export default function Applications() {
 
       {/* Review Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-4xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-4xl sm:max-w-4xl lg:max-w-5xl p-5 sm:p-6">
           <DialogHeader>
             <DialogTitle>Review Inbound Degree Application</DialogTitle>
           </DialogHeader>
@@ -399,41 +399,113 @@ export default function Applications() {
               )}
 
               {/* 5.10 Comprehensive Applicant Overview */}
-              <div className="bg-gray-50 p-4 rounded-lg border text-sm space-y-4">
-                <h4 className="font-semibold text-gray-800 text-base border-b pb-2">Applicant Information</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  <div><span className="text-xs text-gray-500 block">Full Name</span> <p className="font-medium">{selectedApp.firstName} {selectedApp.lastName}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Date of Birth</span> <p className="font-medium">{selectedApp.dateOfBirth ? selectedApp.dateOfBirth.slice(0, 10) : '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Gender</span> <p className="font-medium">{selectedApp.gender || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Email</span> <p className="font-medium">{selectedApp.email}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Phone</span> <p className="font-medium">{selectedApp.phone || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Nationality</span> <p className="font-medium">{selectedApp.nationality}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Country of Residence</span> <p className="font-medium">{selectedApp.countryOfResidence || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Passport Number</span> <p className="font-medium">{selectedApp.passportNumber || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Passport Expiry</span> <p className="font-medium">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Citizenship Number (Nepal / Bhutan)</span> <p className="font-medium">{selectedApp.citizenshipNo || '—'}</p></div>
-                  <div className="sm:col-span-2"><span className="text-xs text-gray-500 block">Current Address</span> <p className="font-medium">{selectedApp.currentAddress || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Emergency Contact</span> <p className="font-medium">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Submitted On</span> <p className="font-medium">{selectedApp.submittedAt ? new Date(selectedApp.submittedAt).toLocaleDateString() : '—'}</p></div>
+              <div className="bg-gray-50/80 p-5 rounded-xl border border-gray-200 text-sm space-y-5">
+                <h4 className="font-semibold text-gray-900 text-base border-b border-gray-200 pb-2">Applicant Information</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Full Name</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.firstName} {selectedApp.lastName}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Date of Birth</span>
+                    <p className="font-medium text-gray-900">{selectedApp.dateOfBirth ? selectedApp.dateOfBirth.slice(0, 10) : '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Gender</span>
+                    <p className="font-medium text-gray-900">{selectedApp.gender || '—'}</p>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+                    <span className="text-xs text-gray-500 block mb-0.5">Email</span>
+                    <p className="font-medium text-gray-900 break-all">{selectedApp.email}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Phone</span>
+                    <p className="font-medium text-gray-900 break-all">{selectedApp.phone || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Nationality</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.nationality}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Country of Residence</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.countryOfResidence || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Passport Number</span>
+                    <p className="font-medium text-gray-900 break-all">{selectedApp.passportNumber || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Passport Expiry</span>
+                    <p className="font-medium text-gray-900">{selectedApp.passportExpiryDate ? selectedApp.passportExpiryDate.slice(0, 10) : '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5" title="Citizenship Number (Nepal / Bhutan)">Citizenship No. (Nepal/Bhutan)</span>
+                    <p className="font-medium text-gray-900 break-all">{selectedApp.citizenshipNo || '—'}</p>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 lg:col-span-2">
+                    <span className="text-xs text-gray-500 block mb-0.5">Current Address</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.currentAddress || '—'}</p>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 lg:col-span-2">
+                    <span className="text-xs text-gray-500 block mb-0.5">Emergency Contact</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.emergencyContactName || '—'} ({selectedApp.emergencyContactPhone || '—'}) {selectedApp.emergencyContactRelation ? `· ${selectedApp.emergencyContactRelation}` : ''}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Submitted On</span>
+                    <p className="font-medium text-gray-900">{selectedApp.submittedAt ? new Date(selectedApp.submittedAt).toLocaleDateString() : '—'}</p>
+                  </div>
                 </div>
 
-                <h4 className="font-semibold text-gray-800 text-base border-b pb-2 pt-2">Academic & Visa Details</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  <div>
-                    <span className="text-xs text-gray-500 block">Program Level</span>
-                    <p className="font-medium">{selectedApp.programLevel === 'OTHER' ? `Other (${selectedApp.programLevelOther || ''})` : selectedApp.programLevel}</p>
+                <h4 className="font-semibold text-gray-900 text-base border-b border-gray-200 pb-2 pt-2">Academic & Visa Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Program Level</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.programLevel === 'OTHER' ? `Other (${selectedApp.programLevelOther || ''})` : selectedApp.programLevel}</p>
                   </div>
-                  <div><span className="text-xs text-gray-500 block">Program Applied For</span> <p className="font-medium">{selectedApp.programAppliedFor}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Discipline</span> <p className="font-medium">{selectedApp.discipline === 'ENGINEERING' ? 'Engineering' : selectedApp.discipline === 'SCIENCE' ? 'Science' : '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Intended Intake</span> <p className="font-medium">{selectedApp.intendedIntake}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Educational Qualification</span> <p className="font-medium">{selectedApp.highestQualification || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Previous Institution</span> <p className="font-medium">{selectedApp.previousInstitution || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Percentage / CGPA</span> <p className="font-medium">{selectedApp.previousGradeOrGPA || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">English Test</span> <p className="font-medium">{selectedApp.englishTestType || 'N/A'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">English Test Score</span> <p className="font-medium">{selectedApp.englishTestScore || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">GRE Score</span> <p className="font-medium">{selectedApp.greScore || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Visa Category</span> <p className="font-medium">{selectedApp.visaCategory || '—'}</p></div>
-                  <div><span className="text-xs text-gray-500 block">Requires Visa Sponsorship</span> <p className="font-medium">{selectedApp.requiresVisaSponsorship ? 'Yes' : 'No'}</p></div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Program Applied For</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.programAppliedFor}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Discipline</span>
+                    <p className="font-medium text-gray-900">{selectedApp.discipline === 'ENGINEERING' ? 'Engineering' : selectedApp.discipline === 'SCIENCE' ? 'Science' : '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Intended Intake</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.intendedIntake}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Educational Qualification</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.highestQualification || '—'}</p>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+                    <span className="text-xs text-gray-500 block mb-0.5">Previous Institution</span>
+                    <p className="font-medium text-gray-900 break-words">{selectedApp.previousInstitution || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Percentage / CGPA</span>
+                    <p className="font-medium text-gray-900">{selectedApp.previousGradeOrGPA || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">English Test</span>
+                    <p className="font-medium text-gray-900">{selectedApp.englishTestType || 'N/A'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">English Test Score</span>
+                    <p className="font-medium text-gray-900">{selectedApp.englishTestScore || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">GRE Score</span>
+                    <p className="font-medium text-gray-900">{selectedApp.greScore || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Visa Category</span>
+                    <p className="font-medium text-gray-900">{selectedApp.visaCategory || '—'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-gray-500 block mb-0.5">Requires Visa Sponsorship</span>
+                    <p className="font-medium text-gray-900">{selectedApp.requiresVisaSponsorship ? 'Yes' : 'No'}</p>
+                  </div>
                 </div>
               </div>
 

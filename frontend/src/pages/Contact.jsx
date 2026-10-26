@@ -18,7 +18,7 @@ const OFFICE_DETAILS = [
   { label: 'Campus Address', value: 'IIT Dharwad, NH 48, Chikhaldroog Road, Dharwad - 580011, Karnataka, India' },
   { label: 'Office Hours', value: 'Mon-Fri: 9:00 AM - 5:30 PM | Sat: 10:00 AM - 2:00 PM' },
   { label: 'Phone', value: '+91-8364-241-200' },
-  { label: 'Email', value: 'iro@iitdh.ac.in' }
+  { label: 'Email', value: 'office.iro@iitdh.ac.in' }
 ]
 
 export default function Contact() {
@@ -47,7 +47,7 @@ export default function Contact() {
         title="Contact Us"
         subtitle="Get in touch with the International Relations Office"
         backgroundImage="/institute/Institute1.jpg"
-        cta={{ label: 'Email Us', onClick: () => window.location.href = 'mailto:iro@iitdh.ac.in' }}
+        cta={{ label: 'Email Us', onClick: () => window.location.href = 'mailto:office.iro@iitdh.ac.in' }}
       />
 
       {/* Contact Cards */}
@@ -122,8 +122,8 @@ export default function Contact() {
             <h2 className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em]">Send us a message</h2>
             <p className="mt-3 max-w-xl text-lg text-white/70">Questions, feedback or a visit to plan: write to the office and we'll point you to the right person.</p>
           </div>
-          <a href="mailto:iro@iitdh.ac.in" className="font-heading! text-3xl md:text-5xl text-saffron underline decoration-saffron/40 decoration-1 underline-offset-[10px] hover:decoration-saffron">
-            iro@iitdh.ac.in
+          <a href="mailto:office.iro@iitdh.ac.in" className="font-heading! text-3xl md:text-5xl text-saffron underline decoration-saffron/40 decoration-1 underline-offset-[10px] hover:decoration-saffron">
+            office.iro@iitdh.ac.in
           </a>
         </div>
       </section>
