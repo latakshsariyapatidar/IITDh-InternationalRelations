@@ -440,8 +440,6 @@ export default function Collaboration() {
         </div>
       </section>
 
-      {/* Opportunities: scholarships, fellowships, exchanges and grants */}
-      <OpportunitiesBoard />
 
       {/* Faculty Funding */}
       <section className="bg-plum-deep text-white py-20 md:py-24">

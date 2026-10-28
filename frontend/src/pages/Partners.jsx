@@ -8,14 +8,12 @@ import {
   RiFileDownloadLine,
   RiCheckDoubleLine,
   RiRefreshLine,
-  RiCloseLine,
-  RiLockLine
+  RiCloseLine
 } from '@remixicon/react'
 import apiClient from '../api/client'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { useAuth } from '../contexts/AuthContext'
 import { useStudentAuth } from '../contexts/StudentAuthContext'
-import { formatDay } from '../utils/formatDay';
 
 const countryCodeMap = {
   Australia: 'au',
@@ -98,14 +96,6 @@ function FlagIcon({ country, code, className = "h-3.5 w-auto rounded-[2px] ring-
     />
   )
 }
-
-// How the office partners, from the MoU Partners page.
-const AGREEMENT_TYPES = [
-  ['General MoU', 'Facilitates research activities and other forms of academic cooperation.'],
-  ['Bilateral MoU or agreement', 'Facilitates joint degrees, dual degrees, cotutelle and semester exchange programmes, inbound and outbound.'],
-]
-const NETWORKS = ["TU9 German universities and the IITs", "Finnish universities and the IITs", "French universities and the IITs"]
-const PROJECTS = ['Erasmus mobility programmes', 'Erasmus capacity building projects', 'SPARC']
 
 // The logo is shown as the institution supplies it, with no tile or ring
 // around it. Without one, the slot keeps the name's initial in quiet type so
@@ -230,14 +220,6 @@ export default function Partners() {
     }
   }, [authLoading, signedIn, navigate])
 
-  const handleMouClick = useCallback((mou, partnerName) => {
-    if (!mou.hasDocument) {
-      alert('No signed document has been uploaded for this MOU yet.')
-      return
-    }
-    handleDownloadMou(mou.id, partnerName)
-  }, [handleDownloadMou])
-
   // Back from signing in (/partners?mou=<id>): download the MOU that asked for it.
   useEffect(() => {
     if (!returnMouId || returnHandledRef.current || loading || authLoading) return
@@ -275,51 +257,6 @@ export default function Partners() {
     return Array.from(set).sort()
   }, [partners])
 
-  // Filtered lists based on search and country filter
-  const filteredUniversities = useMemo(() => {
-    return universities.filter((uni) => {
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        uni.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (uni.focus && uni.focus.toLowerCase().includes(searchQuery.toLowerCase()))
-
-      const matchesCountry = selectedCountry === 'ALL' || uni.country === selectedCountry
-      return matchesSearch && matchesCountry
-    })
-  }, [universities, searchQuery, selectedCountry])
-
-  const filteredOrganizations = useMemo(() => {
-    return organizations.filter((org) => {
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        org.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (org.focus && org.focus.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        org.type.toLowerCase().includes(searchQuery.toLowerCase())
-
-      const matchesCountry = selectedCountry === 'ALL' || org.country === selectedCountry
-      return matchesSearch && matchesCountry
-    })
-  }, [organizations, searchQuery, selectedCountry])
-
-  const filteredMous = useMemo(() => {
-    return mous.filter((mou) => {
-      const partnerName = mou.partner?.name || mou.title || ''
-      const country = mou.partner?.country || ''
-      const scope = mou.scope || ''
-
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        partnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scope.toLowerCase().includes(searchQuery.toLowerCase())
-
-      const matchesCountry = selectedCountry === 'ALL' || country === selectedCountry
-      return matchesSearch && matchesCountry
-    })
-  }, [mous, searchQuery, selectedCountry])
-
   // Count active MOUs per partner
   const partnerMouMap = useMemo(() => {
     const map = {}
@@ -332,6 +269,44 @@ export default function Partners() {
     return map
   }, [mous])
 
+  // A partner also matches a search on the scope of any of its MOUs.
+  const mouScopeMatches = useCallback((partner, query) => {
+    const linkedMous = partnerMouMap[partner.id] || partner.mous || []
+    return linkedMous.some((m) => m.scope && m.scope.toLowerCase().includes(query))
+  }, [partnerMouMap])
+
+  // Filtered lists based on search and country filter
+  const filteredUniversities = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    return universities.filter((uni) => {
+      const matchesSearch =
+        query === '' ||
+        uni.name.toLowerCase().includes(query) ||
+        uni.country.toLowerCase().includes(query) ||
+        (uni.focus && uni.focus.toLowerCase().includes(query)) ||
+        mouScopeMatches(uni, query)
+
+      const matchesCountry = selectedCountry === 'ALL' || uni.country === selectedCountry
+      return matchesSearch && matchesCountry
+    })
+  }, [universities, searchQuery, selectedCountry, mouScopeMatches])
+
+  const filteredOrganizations = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    return organizations.filter((org) => {
+      const matchesSearch =
+        query === '' ||
+        org.name.toLowerCase().includes(query) ||
+        org.country.toLowerCase().includes(query) ||
+        (org.focus && org.focus.toLowerCase().includes(query)) ||
+        org.type.toLowerCase().includes(query) ||
+        mouScopeMatches(org, query)
+
+      const matchesCountry = selectedCountry === 'ALL' || org.country === selectedCountry
+      return matchesSearch && matchesCountry
+    })
+  }, [organizations, searchQuery, selectedCountry, mouScopeMatches])
+
   // Display subset of universities or all
   const displayedUniversities = showAllUniversities
     ? filteredUniversities
@@ -341,7 +316,6 @@ export default function Partners() {
     { id: 'all', label: 'All collaborations', count: partners.length },
     { id: 'universities', label: 'Universities', count: universities.length },
     { id: 'organizations', label: 'Organizations & consortia', count: organizations.length },
-    { id: 'mous', label: 'Active MOUs', count: mous.filter(m => m.status === 'ACTIVE').length },
   ]
 
   return (
@@ -351,45 +325,14 @@ export default function Partners() {
         subtitle="A vibrant worldwide network of partner universities, research consortia, and bilateral agreements connecting IIT Dharwad to the world"
         backgroundImage="/institute/Institute4.jpg"
         cta={{
-          label: 'Explore Active MOUs',
+          label: 'Explore partner universities',
           onClick: () => {
-            const el = document.getElementById('active-mous-section')
+            setSelectedTab('all')
+            const el = document.getElementById('partner-universities')
             if (el) el.scrollIntoView({ behavior: 'smooth' })
           },
         }}
       />
-
-      {/* How we partner */}
-      <section aria-labelledby="how-we-partner" className="bg-white border-b border-mist py-16 md:py-20">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-4">
-            <h2 id="how-we-partner" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em] text-plum-deep">How we partner</h2>
-            <p className="mt-3 text-lg text-quiet">Agreements with individual institutions, membership of national networks, and international projects.</p>
-          </div>
-          <div className="grid gap-10 sm:grid-cols-2 lg:col-span-8">
-            <dl className="space-y-5 sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-8 sm:space-y-0">
-              {AGREEMENT_TYPES.map(([term, text]) => (
-                <div key={term} className="border-l-2 border-plum pl-4">
-                  <dt className="font-heading! text-xl text-plum-deep">{term}</dt>
-                  <dd className="mt-1 text-[0.95rem] text-body">{text}</dd>
-                </div>
-              ))}
-            </dl>
-            <div>
-              <h3 className="text-lg font-medium text-plum-deep">Networks</h3>
-              <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
-                {NETWORKS.map((n) => <li key={n}>{n}</li>)}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-plum-deep">International projects</h3>
-              <ul className="mt-2 space-y-1.5 text-[0.95rem] text-body">
-                {PROJECTS.map((n) => <li key={n}>{n}</li>)}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Search & Navigation Bar */}
       <div className="sticky top-[var(--site-header-h,140px)] z-30 border-b border-mist bg-porcelain/95 backdrop-blur">
@@ -494,10 +437,10 @@ export default function Partners() {
         <>
           {/* SECTION 1: Partner Universities */}
           {(selectedTab === 'all' || selectedTab === 'universities') && (
-            <section className="mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
+            <section id="partner-universities" className="mx-auto max-w-7xl scroll-mt-[calc(var(--site-header-h,140px)+5rem)] px-4 pt-16 pb-12 sm:px-6 lg:px-8">
               <SectionHeader
                 title="Partner Universities"
-                subtitle="Accredited higher education institutions collaborating with IIT Dharwad"
+                subtitle="General MoU: facilitates research activities and other forms of academic cooperation."
               />
 
               {filteredUniversities.length === 0 ? (
@@ -509,10 +452,11 @@ export default function Partners() {
                 <div className="overflow-hidden rounded-2xl border border-mist bg-white">
                   {/* Column headings (desktop) */}
                   <div aria-hidden="true" className="hidden grid-cols-12 gap-6 border-b border-mist bg-porcelain px-6 py-3 text-xs font-semibold text-quiet lg:grid">
-                    <span className="col-span-5">University</span>
+                    <span className="col-span-3">University</span>
                     <span className="col-span-2">Country</span>
                     <span className="col-span-2">Agreement</span>
-                    <span className="col-span-3">Faculty champion</span>
+                    <span className="col-span-3">Scope</span>
+                    <span className="col-span-2">Faculty champion</span>
                   </div>
                   <ul className="divide-y divide-mist">
                     {displayedUniversities.map((uni) => {
@@ -524,7 +468,7 @@ export default function Partners() {
                       return (
                         <li key={uni.id || uni.name} className="grid gap-4 px-6 py-5 lg:grid-cols-12 lg:items-center lg:gap-6">
                           {/* Name, focus and links */}
-                          <div className="flex items-start gap-4 lg:col-span-5">
+                          <div className="flex items-start gap-4 lg:col-span-3">
                             <PartnerLogo name={uni.name} logoUrl={uni.logoUrl} />
                             <div className="min-w-0">
                               <h3 className="text-lg font-medium leading-snug text-plum-deep">{uni.name}</h3>
@@ -584,8 +528,20 @@ export default function Partners() {
                             )}
                           </div>
 
-                          {/* Champion Faculty if available */}
+                          {/* Scope of that same MOU */}
                           <div className="text-sm lg:col-span-3">
+                            {latestMou?.scope ? (
+                              <p className="text-body">
+                                <span className="lg:hidden text-quiet">Scope: </span>
+                                {latestMou.scope}
+                              </p>
+                            ) : (
+                              <span className="hidden text-quiet lg:inline">–</span>
+                            )}
+                          </div>
+
+                          {/* Champion Faculty if available */}
+                          <div className="text-sm lg:col-span-2">
                             {uni.championName ? (
                               <>
                                 <p className="text-plum-deep">
@@ -692,6 +648,11 @@ export default function Partners() {
                                     <span className="block truncate text-body" title={m.title || 'MOU'}>
                                       {m.title || 'Bilateral MOU'}
                                     </span>
+                                    {m.scope && (
+                                      <span className="block text-xs text-body">
+                                        <span className="text-quiet">Scope: </span>{m.scope}
+                                      </span>
+                                    )}
                                     {m.expiryDate && (
                                       <span className="text-xs text-quiet nums-tabular">
                                         Until {new Date(m.expiryDate).getFullYear()}
@@ -729,128 +690,6 @@ export default function Partners() {
                   })}
                 </div>
               )}
-            </section>
-          )}
-
-          {/* SECTION 3: Active Memorandums of Understanding (MOUs) */}
-          {(selectedTab === 'all' || selectedTab === 'mous') && (
-            <section id="active-mous-section" className="bg-white border-y border-mist py-16 md:py-20">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <SectionHeader
-                  title="Active Memorandums of Understanding (MOUs)"
-                  subtitle="Formally ratified bilateral agreements governing student exchanges, dual degrees, and joint scientific investigations"
-                />
-                {!signedIn && (
-                  <p className="-mt-4 mb-8 flex items-center gap-2 text-sm text-quiet">
-                    <RiLockLine size={16} aria-hidden="true" className="text-saffron-deep" />
-                    Signed MOU documents open for IIT Dharwad accounts; you will be asked to sign in.
-                  </p>
-                )}
-
-                {filteredMous.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-mist bg-porcelain p-10 text-center">
-                    <p className="font-semibold text-plum-deep">No MOUs matched the selected criteria.</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredMous.map((mou) => {
-                      const partnerName = mou.partner?.name || mou.title || 'Partner Institution'
-                      const country = mou.partner?.country || ''
-                      const countryCode = resolveCountryCode(country, mou.partner?.countryCode)
-                      const expiryDate = mou.expiryDate || mou.validUntil
-                      const isMouActive = mou.status === 'ACTIVE'
-
-                      return (
-                        <div
-                          key={mou.id}
-                          onClick={() => handleMouClick(mou, partnerName)}
-                          role={mou.hasDocument ? 'button' : undefined}
-                          tabIndex={mou.hasDocument ? 0 : undefined}
-                          onKeyDown={(e) => {
-                            if (mou.hasDocument && (e.key === 'Enter' || e.key === ' ')) {
-                              e.preventDefault()
-                              handleMouClick(mou, partnerName)
-                            }
-                          }}
-                          className={`flex flex-col rounded-2xl border border-mist bg-porcelain p-6 transition-colors ${
-                            mou.hasDocument ? 'cursor-pointer hover:border-plum/40 hover:bg-white' : ''
-                          }`}
-                        >
-                          {/* 3.13 Show real MOU status */}
-                          <div className="flex items-center justify-between gap-3">
-                            <StatusBadge
-                              status={mou.status}
-                              label={mou.status ? `${mou.status.charAt(0)}${mou.status.slice(1).toLowerCase()} agreement` : 'Active agreement'}
-                            />
-                            {country && (
-                              <span className="flex items-center gap-1.5 text-sm text-body">
-                                <FlagIcon country={country} code={countryCode} />
-                                {country}
-                              </span>
-                            )}
-                          </div>
-
-                          <h3 className="mt-4 text-xl font-medium leading-snug text-plum-deep">
-                            {partnerName}
-                          </h3>
-
-                          {/* Scope / Title note */}
-                          {mou.title && mou.title !== partnerName && (
-                            <p className="mt-1 text-sm font-medium text-plum line-clamp-2">
-                              {mou.title}
-                            </p>
-                          )}
-
-                          {/* Details */}
-                          <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-mist pt-4 text-sm">
-                            {mou.signedDate && (
-                              <div>
-                                <dt className="text-quiet">Signed</dt>
-                                <dd className="text-plum-deep nums-tabular">{formatDay(mou.signedDate, 'en-US')}</dd>
-                              </div>
-                            )}
-                            {expiryDate && (
-                              <div>
-                                <dt className="text-quiet">Valid until</dt>
-                                <dd className={`nums-tabular ${isMouActive ? 'text-plum-deep' : 'text-saffron-deep'}`}>{formatDay(expiryDate, 'en-US')}</dd>
-                              </div>
-                            )}
-                            {mou.scope && (
-                              <div className="col-span-2">
-                                <dt className="text-quiet">Scope</dt>
-                                <dd className="text-body line-clamp-2">{mou.scope}</dd>
-                              </div>
-                            )}
-                          </dl>
-
-                          {/* Download CTA */}
-                          <div className="mt-auto flex items-center justify-between pt-5">
-                            {mou.hasDocument ? (
-                              <>
-                                <span className="text-xs text-quiet">Signed PDF available</span>
-                                <button
-                                  type="button"
-                                  disabled={downloadingId === mou.id}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleMouClick(mou, partnerName)
-                                  }}
-                                  className="inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-plum hover:underline underline-offset-4"
-                                >
-                                  <RiFileDownloadLine size={15} aria-hidden="true" />
-                                  {downloadingId === mou.id ? 'Loading Document...' : 'View / Download MOU'}
-                                </button>
-                              </>
-                            ) : (
-                              <span className="text-xs text-quiet">No document on file</span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
             </section>
           )}
 

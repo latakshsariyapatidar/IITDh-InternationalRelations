@@ -524,3 +524,28 @@ body::-webkit-scrollbar,
     outline-offset: 2px;
   }
 }
+
+/* Full-bleed hero photographs (HeroSection.jsx, Home.jsx). The scrim is the
+   brand plum, not black, so the photo reads as tinted rather than dimmed. It
+   is heaviest behind the text (left and bottom) and thins out to the right,
+   where the photograph is left to speak. On phones the text spans the full
+   width, so the scrim covers evenly from the bottom up instead. */
+.hero-scrim {
+  background:
+    linear-gradient(to top, rgb(42 21 56 / 0.75) 0%, rgb(42 21 56 / 0) 45%),
+    linear-gradient(to bottom, rgb(42 21 56 / 0.55) 0%, rgb(42 21 56 / 0.45) 100%);
+}
+
+@media (min-width: 768px) {
+  .hero-scrim {
+    background:
+      linear-gradient(to top, rgb(42 21 56 / 0.6) 0%, rgb(42 21 56 / 0) 40%),
+      linear-gradient(
+        100deg,
+        rgb(42 21 56 / 0.92) 0%,
+        rgb(42 21 56 / 0.78) 38%,
+        rgb(42 21 56 / 0.35) 68%,
+        rgb(42 21 56 / 0.15) 100%
+      );
+  }
+}

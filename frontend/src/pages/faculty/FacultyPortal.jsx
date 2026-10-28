@@ -393,9 +393,9 @@ export default function FacultyPortal() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* 4.15 Point MOUs & Agreements at the Partners MOU section */}
+            {/* 4.15 Point MOUs & Agreements at the partner universities, which list each MOU */}
             <Link
-              to="/partners#active-mous-section"
+              to="/partners#partner-universities"
               className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-brand-purple/40 hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div className="space-y-2.5">

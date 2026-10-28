@@ -4,7 +4,6 @@ import { fetchAllPages } from "../api/fetchAllPages";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../utils/media";
-import PhotoFrame from "../components/ui/PhotoFrame";
 import ArchFrame from "../components/ui/ArchFrame";
 import CTAButton from "../components/ui/CTAButton";
 import ScrollDownArrow from "../components/ui/ScrollDownArrow";
@@ -134,60 +133,51 @@ export default function Home() {
 
   return (
     <div>
-      {/* ── Hero: the office's name beside a view of the campus ──────────── */}
-      <section className="relative overflow-hidden bg-plum-deep text-white">
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pt-14 pb-16 sm:px-6 md:grid-cols-12 lg:px-8 lg:pt-20 lg:pb-24">
-          <div className="md:col-span-7">
+      {/* ── Hero: the campus slideshow fills the section, the office's name
+             set over it on a plum scrim (.hero-scrim in index.css) ──────── */}
+      <section className="relative isolate overflow-hidden bg-plum-deep text-white">
+        <div aria-hidden="true" className="absolute inset-0 -z-20">
+          {slideshowImages.map((image, index) => (
+            <div
+              key={image}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 motion-reduce:transition-none ${index === activeSlide ? "opacity-100" : "opacity-0"}`}
+              style={{ backgroundImage: `url(${image})` }}
+            />
+          ))}
+        </div>
+        <div aria-hidden="true" className="hero-scrim absolute inset-0 -z-10" />
+
+        <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-h,140px))] max-w-7xl flex-col justify-end px-4 pt-24 pb-14 sm:px-6 md:justify-center md:pb-24 lg:px-8">
+          <div className="max-w-3xl">
             <p className="text-saffron text-base font-medium">
               {getContent("home.hero.tagline", "Globally Connected • Locally Rooted")}
             </p>
             <h1 className="mt-4 text-[2.9rem] sm:text-6xl lg:text-[4.6rem] font-medium leading-[1.02] tracking-[-0.025em]">
               {getContent("home.hero.title", "International Relations Office")}
             </h1>
-            <div className="mt-6 max-w-xl text-lg text-white/75 leading-relaxed space-y-3">
+            <div className="mt-6 max-w-xl text-lg text-white/85 leading-relaxed space-y-3">
               {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
             </div>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <CTAButton label="International admissions" to="/international-admissions" variant="accent" size="lg" />
-              <CTAButton label="Exchange programmes" to="/international-mobility" variant="inverse" size="lg" />
-            </div>
-            {/* Founding year, from the site content's "established" stat.
-                font-heading! needs the !important: index.css sets font-family
-                on * outside any layer, which beats plain font utilities. */}
-            <p className="mt-12 flex items-center gap-3.5">
-              <span aria-hidden="true" className="h-px w-10 bg-saffron" />
-              <span className="font-heading! text-lg italic text-white/80">
-                {getContent("home.stats.stat3Label", "Established")} {getContent("home.stats.stat3Number", "2016")}
-              </span>
-            </p>
           </div>
 
-          <div className="md:col-span-5 flex flex-col items-center md:items-end">
-            <PhotoFrame className="aspect-[4/3] w-full max-w-[30rem]">
-              {slideshowImages.map((image, index) => (
-                <div
-                  key={image}
-                  aria-hidden={index !== activeSlide}
-                  className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 motion-reduce:transition-none ${index === activeSlide ? "opacity-100" : "opacity-0"}`}
-                  style={{ backgroundImage: `url(${image})` }}
-                />
-              ))}
-            </PhotoFrame>
-            {/* Slide picker: one short bar per photograph */}
-            <div className="mt-6 flex w-full max-w-[30rem] gap-1.5" role="group" aria-label="Campus photographs">
-              {slideshowImages.map((image, index) => (
-                <button
-                  key={image}
-                  type="button"
-                  onClick={() => setActiveSlide(index)}
-                  aria-label={`Show photograph ${index + 1} of ${slideshowImages.length}`}
-                  aria-pressed={index === activeSlide}
-                  className="group flex-1 cursor-pointer py-2"
-                >
-                  <span className={`block h-[3px] rounded-full transition-colors ${index === activeSlide ? 'bg-saffron' : 'bg-white/20 group-hover:bg-white/45'}`} />
-                </button>
-              ))}
-            </div>
+          {/* Slide picker: one short bar per photograph, along the foot of the hero */}
+          <div
+            className="mt-10 flex w-full max-w-[22rem] gap-1.5 md:absolute md:right-6 md:bottom-8 md:mt-0 md:max-w-[18rem] lg:right-8 lg:max-w-[22rem]"
+            role="group"
+            aria-label="Campus photographs"
+          >
+            {slideshowImages.map((image, index) => (
+              <button
+                key={image}
+                type="button"
+                onClick={() => setActiveSlide(index)}
+                aria-label={`Show photograph ${index + 1} of ${slideshowImages.length}`}
+                aria-pressed={index === activeSlide}
+                className="group flex-1 cursor-pointer py-2"
+              >
+                <span className={`block h-[3px] rounded-full shadow-[0_0_6px_rgb(20_8_28/0.4)] transition-colors ${index === activeSlide ? 'bg-saffron' : 'bg-white/35 group-hover:bg-white/60'}`} />
+              </button>
+            ))}
           </div>
         </div>
         <ScrollDownArrow tone="dark" />
