@@ -19,12 +19,7 @@ const SECTIONS = [
 
 const FEE_SUMMARY = (
   <>
-    Application processing fee{" "}
-    <strong className="font-semibold text-plum-deep">USD 10</strong>, plus
-    Institute fees (see the <a href="#fees">fee structure</a>), plus an
-    International Relations fee of{" "}
-    <strong className="font-semibold text-plum-deep">USD 100</strong> after
-    admission.
+    Institute fees as per the <a href="#fees">fee structure</a>.
   </>
 );
 
@@ -729,7 +724,7 @@ export default function Admission() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Fee structure, 2026–27"
-            subtitle="What international students pay, in addition to the USD 10 application processing fee and the USD 100 International Relations fee due after admission."
+            subtitle="What international students pay."
           />
 
           <div className="grid gap-10 lg:grid-cols-12">
@@ -928,42 +923,7 @@ export default function Admission() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-2xl border border-mist p-6">
-              <h3 className="text-xl font-medium text-plum-deep">
-                Prof. Sagnik Sen
-              </h3>
-              <p className="text-sm text-quiet">
-                Chairperson, International Relations
-              </p>
-              <ul className="mt-5 space-y-2 text-[0.95rem]">
-                <li className="flex items-center gap-2.5">
-                  <RiMailLine
-                    size={17}
-                    aria-hidden="true"
-                    className="text-saffron-deep"
-                  />
-                  <a
-                    href="mailto:chairperson.iro@iitdh.ac.in"
-                    className="text-plum hover:underline underline-offset-4"
-                  >
-                    chairperson.iro@iitdh.ac.in
-                  </a>
-                </li>
-                <li className="flex items-center gap-2.5">
-                  <RiPhoneLine
-                    size={17}
-                    aria-hidden="true"
-                    className="text-saffron-deep"
-                  />
-                  <a
-                    href="tel:+919444536574"
-                    className="text-body hover:text-plum nums-tabular"
-                  >
-                    +91 94445 36574
-                  </a>
-                </li>
-              </ul>
-            </div>
+
           </div>
         </div>
       </section>
