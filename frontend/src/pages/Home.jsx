@@ -134,7 +134,8 @@ export default function Home() {
   return (
     <div>
       {/* ── Hero: the campus slideshow fills the section, the office's name
-             set over it on a plum scrim (.hero-scrim in index.css) ──────── */}
+             set in the bottom-left corner over a plum scrim that darkens only
+             that corner (.page-hero-scrim in index.css) ──────────────────── */}
       <section className="relative isolate overflow-hidden bg-plum-deep text-white">
         <div aria-hidden="true" className="absolute inset-0 -z-20">
           {slideshowImages.map((image, index) => (
@@ -145,17 +146,17 @@ export default function Home() {
             />
           ))}
         </div>
-        <div aria-hidden="true" className="hero-scrim absolute inset-0 -z-10" />
+        <div aria-hidden="true" className="page-hero-scrim absolute inset-0 -z-10" />
 
-        <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-h,140px))] max-w-7xl flex-col justify-end px-4 pt-24 pb-14 sm:px-6 md:justify-center md:pb-24 lg:px-8">
-          <div className="max-w-3xl">
+        <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-h,140px))] max-w-7xl flex-col justify-end px-4 pt-24 pb-14 sm:px-6 md:pb-16 lg:px-8">
+          <div className="max-w-2xl [text-shadow:0_1px_12px_rgb(42_21_56/0.5)]">
             <p className="text-saffron text-base font-medium">
               {getContent("home.hero.tagline", "Globally Connected • Locally Rooted")}
             </p>
-            <h1 className="mt-4 text-[2.9rem] sm:text-6xl lg:text-[4.6rem] font-medium leading-[1.02] tracking-[-0.025em]">
+            <h1 className="mt-3 text-[2.4rem] sm:text-5xl lg:text-[3.6rem] font-medium leading-[1.04] tracking-[-0.025em]">
               {getContent("home.hero.title", "International Relations Office")}
             </h1>
-            <div className="mt-6 max-w-xl text-lg text-white/85 leading-relaxed space-y-3">
+            <div className="mt-4 max-w-lg text-base md:text-lg text-white/90 leading-relaxed space-y-3">
               {renderRichText(getContent("home.hero.subtitle", "The core campus framework for global research, collaborative innovation, and cross-border student-faculty exchanges."))}
             </div>
           </div>

@@ -375,8 +375,6 @@ export default function Collaboration() {
         title="International Mobility"
         subtitle="Global opportunities for students, faculty, and institutions"
         backgroundImage="/institute/Institute3.jpg"
-        cta={{ label: 'Inbound Exchange — Apply Here', to: '/international-mobility/apply' }}
-        secondButton={{ label: 'Browse opportunities', onClick: () => document.getElementById('opportunities')?.scrollIntoView({ behavior: 'smooth' }) }}
       />
 
       {/* Inbound exchange programmes */}

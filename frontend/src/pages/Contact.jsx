@@ -47,7 +47,6 @@ export default function Contact() {
         title="Contact Us"
         subtitle="Get in touch with the International Relations Office"
         backgroundImage="/institute/Institute1.jpg"
-        cta={{ label: 'Email Us', onClick: () => window.location.href = 'mailto:office.iro@iitdh.ac.in' }}
       />
 
       {/* Contact Cards */}

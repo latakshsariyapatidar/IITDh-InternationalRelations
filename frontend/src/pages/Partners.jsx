@@ -324,14 +324,6 @@ export default function Partners() {
         title="Global Partners & Collaborations"
         subtitle="A vibrant worldwide network of partner universities, research consortia, and bilateral agreements connecting IIT Dharwad to the world"
         backgroundImage="/institute/Institute4.jpg"
-        cta={{
-          label: 'Explore partner universities',
-          onClick: () => {
-            setSelectedTab('all')
-            const el = document.getElementById('partner-universities')
-            if (el) el.scrollIntoView({ behavior: 'smooth' })
-          },
-        }}
       />
 
       {/* Search & Navigation Bar */}
