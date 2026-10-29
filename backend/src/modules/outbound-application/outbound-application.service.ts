@@ -3,6 +3,7 @@ import AppError from "../../shared/utils/appError.js";
 import { findPartnerById } from "../partner/partner.repository.js";
 import { collectDocumentPaths } from "../../shared/utils/privateStorage.js";
 import { resolveDocumentAbsolutePath } from "../inbound-shared/inbound-documents.js";
+import { notifyNewOutboundApplication } from "../notification/notification.events.js";
 import {
   OUTBOUND_UPLOAD_ROOT,
   type OutboundDocumentField,
@@ -42,7 +43,19 @@ export async function create(
     );
   }
 
-  return repo.createOutboundApplication({ ...data, studentId, documentPaths });
+  const application = await repo.createOutboundApplication({ ...data, studentId, documentPaths });
+
+  // Best-effort: a failing alert must never fail the student's submission.
+  notifyNewOutboundApplication({
+    name: application.student.name,
+    rollNumber: application.rollNumber,
+    branch: application.branch,
+    partnerName: partner.name,
+    programType: application.programType,
+    intendedSemester: application.intendedSemester,
+  });
+
+  return application;
 }
 
 export async function updateStatus(

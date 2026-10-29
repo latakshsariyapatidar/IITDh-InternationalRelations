@@ -67,6 +67,8 @@ export const createOutboundApplication = (
       transcriptPath: documentPaths.transcript,
       recommendationLetterPath: documentPaths.recommendationLetter,
     },
+    // The new-application alert names the student.
+    include: { student: { select: { name: true } } },
   });
 };
 

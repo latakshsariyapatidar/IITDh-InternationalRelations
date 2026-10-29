@@ -115,3 +115,4 @@ df -h
      docker compose exec backend node -e "import('./dist/modules/notification/notification.reminders.js').then(m => m.runReminderScan())"
      ```
   3. Inspect SMTP credentials (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`).
+  4. Check the recipients: `INBOUND_NOTIFICATION_EMAIL` (digest and inbound applications), `OUTBOUND_NOTIFICATION_EMAIL` (outbound applications) and `IRO_NOTIFICATION_EMAIL` (everything). With all three blank, only the active `IRO_OFFICE` contact receives mail.

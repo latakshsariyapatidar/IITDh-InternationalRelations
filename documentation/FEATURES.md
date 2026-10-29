@@ -67,8 +67,14 @@ The administration portal is protected by role-based authorization and session c
   - MOUs expiring within 60 days.
   - Inbound foreign student visas expiring within 30 days.
   - Passports nearing expiration.
-- Generates admin notifications and sends a bundled email digest to the IRO office.
+- Generates admin notifications and sends a bundled email digest to the inbound desk (`INBOUND_NOTIFICATION_EMAIL`) and the IRO office.
 - Manual trigger available on-demand via the dashboard.
+
+### C2. New-Application Emails
+- Each new application is emailed as soon as it is submitted:
+  - Degree admissions and inbound exchange → inbound desk (`INBOUND_NOTIFICATION_EMAIL`).
+  - Outbound applications → outbound desk (`OUTBOUND_NOTIFICATION_EMAIL`).
+- The inbound and outbound desks never receive each other's emails. The IRO office (`IRO_NOTIFICATION_EMAIL`, else the active `IRO_OFFICE` contact) receives every email.
 
 ### D. Site Content & CMS
 - Real-time editor for homepage stats (NIRF rank, campus acreage, active partnerships).

@@ -36,15 +36,20 @@ interface EnvironmentVariables {
   // that travels by email, so its lifetime is the whole of its security.
   EXPORT_LINK_TTL_HOURS: number;
 
-  // Reminder email. All optional — with no SMTP host configured the
-  // expiry scan still records notifications, it just cannot send the digest.
+  // Reminder and new-application email. All optional — with no SMTP host
+  // configured, notifications are still recorded, they just are not emailed.
   SMTP_HOST?: string;
   SMTP_PORT: number;
   SMTP_SECURE: boolean;
   SMTP_USER?: string;
   SMTP_PASS?: string;
   SMTP_FROM?: string;
+  // The IRO office receives every email. Each desk receives only its own:
+  // inbound gets inbound applications and the expiry digest, outbound gets
+  // outbound applications.
   IRO_NOTIFICATION_EMAIL?: string;
+  INBOUND_NOTIFICATION_EMAIL?: string;
+  OUTBOUND_NOTIFICATION_EMAIL?: string;
   REMINDER_CRON: string;
 }
 
@@ -357,6 +362,8 @@ export const env: Readonly<EnvironmentVariables> = Object.freeze({
   SMTP_PASS: getOptString("SMTP_PASS"),
   SMTP_FROM: getOptString("SMTP_FROM"),
   IRO_NOTIFICATION_EMAIL: getOptString("IRO_NOTIFICATION_EMAIL"),
+  INBOUND_NOTIFICATION_EMAIL: getOptString("INBOUND_NOTIFICATION_EMAIL"),
+  OUTBOUND_NOTIFICATION_EMAIL: getOptString("OUTBOUND_NOTIFICATION_EMAIL"),
   REMINDER_CRON: getOptString("REMINDER_CRON") ?? "0 7 * * *",
 });
 
