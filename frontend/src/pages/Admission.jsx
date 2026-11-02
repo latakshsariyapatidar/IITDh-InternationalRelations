@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import HeroSection from "../components/HeroSection";
 import SectionHeader from "../components/ui/SectionHeader";
 import CTAButton from "../components/ui/CTAButton";
@@ -20,6 +19,14 @@ const SECTIONS = [
 const FEE_SUMMARY = (
   <>
     Institute fees as per the <a href="#fees">fee structure</a>.
+  </>
+);
+
+const FELLOWSHIP = (
+  <>
+    Selected applicants are also considered for the IIT Dharwad fellowship.
+    For more details, write to the inbound coordinator at{" "}
+    <a href="mailto:inbound.iro@iitdh.ac.in">inbound.iro@iitdh.ac.in</a>.
   </>
 );
 
@@ -468,12 +475,15 @@ export default function Admission() {
               ),
             },
             {
-              label: "Funding details",
+              label: "Fees and funding",
               content: (
-                <p>
-                  The selected applicant pays fees as per the IIT Dharwad fee
-                  structure.
-                </p>
+                <>
+                  <p>
+                    The selected applicant pays fees as per the IIT Dharwad{" "}
+                    <a href="#fees">fee structure</a>.
+                  </p>
+                  <p>{FELLOWSHIP}</p>
+                </>
               ),
             },
             {
@@ -532,11 +542,19 @@ export default function Admission() {
                   International students who want to pursue a full-time Masters
                   can go through IIT Dharwad's{" "}
                   <a
-                    href="https://www.iitdh.ac.in"
+                    href="https://www.iitdh.ac.in/departments"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    departments and programmes
+                    departments
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="https://www.iitdh.ac.in/programs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    programmes
                   </a>{" "}
                   and apply through the International Relations Office.
                 </p>
@@ -601,14 +619,21 @@ export default function Admission() {
               ),
             },
             {
-              label: "Funding details",
+              label: "Fees and funding",
               content: (
-                <p>
-                  Meritorious students can apply for financial assistance or a
-                  fee waiver, specifying a valid reason. The institute will
-                  decide the level of scholarship that can be given to the
-                  student.
-                </p>
+                <>
+                  <p>
+                    Fees are as per the IIT Dharwad{" "}
+                    <a href="#fees">fee structure</a>.
+                  </p>
+                  <p>
+                    Meritorious students can apply for financial assistance or
+                    a fee waiver, specifying a valid reason. The institute will
+                    decide the level of scholarship that can be given to the
+                    student.
+                  </p>
+                  <p>{FELLOWSHIP}</p>
+                </>
               ),
             },
             {
@@ -670,14 +695,17 @@ export default function Admission() {
             {
               label: "Application procedure",
               content: (
-                <p>
-                  As per your Embassy guidelines. The IIT Dharwad application
-                  form is also available through the{" "}
-                  <Link to="/international-admissions/apply">
-                    online application
-                  </Link>
-                  .
-                </p>
+                <ol>
+                  <li>As per your Embassy guidelines.</li>
+                  <li>
+                    As per IIT Dharwad guidelines. For more information, write
+                    to the inbound coordinator at{" "}
+                    <a href="mailto:inbound.iro@iitdh.ac.in">
+                      inbound.iro@iitdh.ac.in
+                    </a>
+                    .
+                  </li>
+                </ol>
               ),
             },
             {
