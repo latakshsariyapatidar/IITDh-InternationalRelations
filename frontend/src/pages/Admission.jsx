@@ -24,8 +24,9 @@ const FEE_SUMMARY = (
 
 const FELLOWSHIP = (
   <>
-    Selected applicants are also considered for the IIT Dharwad fellowship.
-    For more details, write to the inbound coordinator at{" "}
+    Selected applicants are also automatically considered for the IIT Dharwad fellowship,
+    and a few may be offered based on the merit of the application and availability of funds.
+    For further details, write to the inbound coordinator at{" "}
     <a href="mailto:inbound.iro@iitdh.ac.in">inbound.iro@iitdh.ac.in</a>.
   </>
 );
@@ -279,7 +280,7 @@ function RouteSheet({ id, title, summary, facts, action, rows }) {
             {action && <div className="mt-7">{action}</div>}
           </div>
         </div>
-        <div className="lg:col-span-8">
+        <div className="min-w-0 lg:col-span-8">
           <DetailRows rows={rows} />
         </div>
       </div>
@@ -391,7 +392,7 @@ export default function Admission() {
           action={
             <CTAButton
               label="Register on Study in India"
-              href="https://www.studyinindia.gov.in/admission/Registrations"
+              href="https://www.studyinindia.gov.in/"
             />
           }
           rows={[
@@ -464,7 +465,7 @@ export default function Admission() {
                 <p>
                   Apply through the{" "}
                   <a
-                    href="https://www.studyinindia.gov.in/admission/Registrations"
+                    href="https://www.studyinindia.gov.in/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -756,7 +757,7 @@ export default function Admission() {
           />
 
           <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-8">
+            <div className="min-w-0 lg:col-span-8">
               <h3 className="text-xl font-medium text-plum-deep">
                 PhD and M.Tech (Research)
               </h3>

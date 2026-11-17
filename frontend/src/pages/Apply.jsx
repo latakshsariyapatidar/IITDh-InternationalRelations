@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { CAMPUS_ADDRESS } from '../data/iroContent';
 import apiClient from '../api/client';
 import { fetchAllPages } from '../api/fetchAllPages';
 import { Button } from '../components/ui/button';
@@ -313,7 +314,7 @@ export default function Apply() {
           </div>
 
           <div className="text-xs text-brand-purpleLight/40 border-t border-brand-purple/20 pt-6">
-            IIT Dharwad, Permanent Campus, Chikkamalligawad, Karnataka - 580007
+            {CAMPUS_ADDRESS}
           </div>
         </div>
         

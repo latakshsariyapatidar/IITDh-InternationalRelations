@@ -62,17 +62,19 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-[4.5rem] gap-3 lg:gap-6">
           {/* Logo. On narrow phones it shrinks and the title wraps; held at
               full width it pushed the menu button off the right edge. */}
-          <Link to="/" className="flex min-w-0 items-center gap-3 lg:shrink-0 rounded-md">
+          <div className="flex min-w-0 items-center gap-3 lg:shrink-0">
+            <a href="https://www.iitdh.ac.in/" aria-label="IIT Dharwad main website" className="shrink-0 rounded-md">
             <img
               src={getContent("site.logoUrl", "/IITDh Logo.svg")}
               alt="IIT Dharwad"
               className="h-10 sm:h-12 w-auto shrink-0"
             />
-            <span className="flex min-w-0 flex-col border-l border-mist pl-3">
+            </a>
+            <Link to="/" className="flex min-w-0 flex-col border-l border-mist pl-3">
               <span className="font-heading! text-[0.98rem] sm:text-lg font-medium leading-tight text-plum-deep">International Relations Office</span>
               <span className="hidden sm:block text-xs text-quiet leading-tight mt-0.5">Indian Institute of Technology Dharwad</span>
-            </span>
-          </Link>
+            </Link>
+          </div>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-1">

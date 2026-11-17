@@ -1,3 +1,4 @@
+import { DIRECTOR_MESSAGE } from '../data/iroContent';
 import { useEffect, useState } from "react";
 import apiClient from "../api/client";
 import { fetchAllPages } from "../api/fetchAllPages";
@@ -5,7 +6,6 @@ import { useSiteContent } from "../contexts/SiteContentContext";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../utils/media";
 import ArchFrame from "../components/ui/ArchFrame";
-import CTAButton from "../components/ui/CTAButton";
 import ScrollDownArrow from "../components/ui/ScrollDownArrow";
 import { RiArrowRightUpLine, RiMapPinLine, RiDoubleQuotesL } from "@remixicon/react";
 
@@ -225,46 +225,8 @@ export default function Home() {
               Director's message to the international community
             </h2>
             <div className="mt-8 prose-copy text-[1.05rem] text-body [&>p:first-child]:font-heading! [&>p:first-child]:text-xl [&>p:first-child]:text-plum-deep">
-              {renderRichText(getContent("home.leadership.directorQuote", "Dear International Students/Academicians,\n\nIt gives me great pleasure to welcome you to IIT Dharwad.\n\nAs a growing Institute of National Importance, IIT Dharwad is committed to excellence in education, research, and innovation, with a strong and expanding global outlook. Our International Relations Office plays a pivotal role in building meaningful academic partnerships and fostering vibrant cross-cultural engagement.\n\nLocated in Dharwad, Karnataka, the Institute offers an intellectually stimulating and culturally enriching environment. We believe that international collaboration strengthens our academic ecosystem and brings valuable global perspectives to our campus.\n\nWe look forward to welcoming students, scholars, and partners from across the world to be part of the IIT Dharwad community."))}
+              {renderRichText(DIRECTOR_MESSAGE)}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Opportunities: for IITDH students and faculty ──────────────────── */}
-      <section aria-labelledby="opportunities-heading" className="bg-plum-deep text-white py-20 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 id="opportunities-heading" className="text-3xl md:text-[2.5rem] leading-[1.1] font-medium tracking-[-0.01em]">
-                Opportunities
-              </h2>
-              <p className="mt-3 max-w-xl text-white/70 text-lg">
-                Scholarships, exchanges and research funding, collected by the office for the IIT Dharwad community.
-              </p>
-            </div>
-            <CTAButton label="See all opportunities" to="/international-mobility#opportunities" variant="accent" />
-          </div>
-
-          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-2">
-            <Link to="/international-mobility#opportunities" className="group bg-plum-deep p-8 lg:p-10 transition-colors hover:bg-plum">
-              <h3 className="text-2xl font-medium">For IITDH students</h3>
-              <p className="mt-3 text-white/70 leading-relaxed">
-                Scholarships and fellowships such as INSPIRE, semester exchanges with partner universities, and research internships abroad.
-              </p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron">
-                Student opportunities <RiArrowRightUpLine size={18} aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </span>
-            </Link>
-            <Link to="/international-mobility#faculty-programs" className="group bg-plum-deep p-8 lg:p-10 transition-colors hover:bg-plum">
-              <h3 className="text-2xl font-medium">For IITDH faculty</h3>
-              <p className="mt-3 text-white/70 leading-relaxed">
-                Bilateral research funding such as the India–Japan Cooperative Science Programme, and visiting-faculty schemes like GIAN, VAJRA and SPARC.
-              </p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron">
-                Faculty programmes <RiArrowRightUpLine size={18} aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </span>
-            </Link>
           </div>
         </div>
       </section>

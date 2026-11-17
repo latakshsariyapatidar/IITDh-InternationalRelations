@@ -3,7 +3,6 @@ import SectionHeader from '../components/ui/SectionHeader'
 import CTAButton from '../components/ui/CTAButton'
 import DetailRows from '../components/ui/DetailRows'
 import ProgramTabs from '../components/ui/ProgramTabs'
-import OpportunitiesBoard from '../components/OpportunitiesBoard'
 
 // ── Inbound exchange programmes (International Collaboration & Mobility) ──
 
@@ -242,9 +241,12 @@ const FACULTY_PROGRAMS = [
       {
         label: 'About the programme',
         content: (
-          <p>
-            A SERB programme for overseas scientists and academicians, with emphasis on Non-Resident Indians (NRI) and Persons of Indian Origin (PIO) or Overseas Citizens of India (OCI), to work as adjunct or visiting faculty in Indian publicly funded academic and research institutions, taking up research problems in the Indian setting.
-          </p>
+          <>
+            <p>
+              Visiting Advanced Joint Research is a Faculty Scheme. It is a dedicated program exclusively for overseas scientists and academicians with emphasis on Non-resident Indians (NRI) and Persons of Indian Origin (PIO) / Overseas Citizen of India (OCI) to work as adjunct/visiting faculty for a specific period of time in Indian public funded academic and research institutions.
+            </p>
+            <p>The Scheme recognizes the value of collaborative research as a crucial element for information sharing among researchers for updating and acquiring knowledge and skills, and also to draw different perspectives to solve a shared problem. SERB welcomes accomplished Overseas Scientists to take up challenging research problems in the Indian setting.</p>
+          </>
         ),
       },
       {
@@ -252,6 +254,7 @@ const FACULTY_PROGRAMS = [
         content: (
           <>
             <p>A minimum of one month and a maximum of three months a year. The adjunct position is offered for one year at first, renewable every year.</p>
+            <p>It is expected that the Indian Host Institution may engage him/her for a longer duration even after the completion of the assignment.</p>
             <p>
               <strong className="font-semibold text-plum-deep">USD 15,000</strong> in the first month of engagement in a year and <strong className="font-semibold text-plum-deep">USD 10,000</strong> per month for the other two months, covering travel and honorarium, paid in Indian rupees. No separate support is provided for accommodation or insurance; the host institute may consider it.
             </p>
@@ -289,9 +292,11 @@ const FACULTY_PROGRAMS = [
             <ul>
               <li>Visits and long-term stays of top international faculty and researchers in Indian institutions</li>
               <li>Visits by Indian students for training and experiments in premier laboratories worldwide</li>
-              <li>Joint development of niche courses, books and monographs, patents, technologies and products</li>
-              <li>Bilateral cooperation through Indo-X workshops in India, and an annual international conference</li>
+              <li>Joint development of niche courses, world-class books and monographs, translatable patents, demonstrable technologies or action research outcomes and products</li>
+              <li>Consolidation of Bilateral co-operation through academic and research partnerships through Indo-X Workshops in India</li>
+              <li>Publication, Dissemination and Visibility through a high profile annual International Conference in India</li>
             </ul>
+            <p>The expected outcomes include tangible results in terms of a large number of high-quality research publications, the solution to key national and international problems, development of niche courses, high-quality textbooks and research monographs, imbibing of best practices from top international academicians and researchers, strong bilateral co-operation, and improved world reputation and ranking of Indian Institutions.</p>
           </>
         ),
       },
@@ -301,9 +306,9 @@ const FACULTY_PROGRAMS = [
           <>
             <p>Proposals run for two years, in one of three budget baskets: up to ₹50 lakh; ₹50 to 75 lakh; or ₹75 lakh to ₹1 crore. Proposals with longer foreign faculty visits are given priority for the larger baskets.</p>
             <ul>
-              <li>Foreign faculty visiting for 1 to 4 months: up to USD 15,000 for the first month and USD 10,000 thereafter, including honorarium, travel and stay</li>
-              <li>Foreign post-doctoral or doctoral scholars: free accommodation and ₹12,000 a month (up to ₹2 lakh over the project), for a stay of at least 3 months as a registered visiting student, with tuition waived</li>
-              <li>Indian students visiting the foreign institution: up to USD 2,000 for travel and USD 1,000 a month</li>
+              <li>Foreign faculty visiting for 1 to 4 months: up to USD 15,000 for the first month and USD 10,000 thereafter, including honorarium, travel and stay. Usually, the honorarium of foreign faculty is approx $333 per day.</li>
+              <li>Foreign post-doctoral or doctoral scholars: free accommodation and ₹12,000 a month (up to ₹2 lakh over the project), for a stay of at least 3 months as a registered visiting student, with tuition waived. Usually, the out-of-pocket allowance for a foreign student is Rs 400 per day.</li>
+              <li>Indian students visiting the foreign institution: up to USD 2,000 for travel and USD 1,000 a month. Usually, the out-of-pocket allowance for an Indian student is approx. $33 per day.</li>
             </ul>
           </>
         ),
@@ -331,12 +336,6 @@ const STUDENTS_ABROAD = [
   { title: 'Summer internships', desc: 'Industry and research internships with companies and institutions abroad.', info: 'Typically 2 months in summer' },
   { title: 'Immersion programmes', desc: 'Short-term cultural and technical learning programmes in partner countries.', info: 'Duration: 2–4 weeks' },
   { title: 'PhD abroad', desc: 'Pursue a PhD at international universities with IITDH faculty collaboration.', info: 'Joint degree options available' },
-]
-
-const FACULTY_FUNDING = [
-  { title: 'Government schemes', items: ['SPARC Program', 'VAJRA Scheme', 'GIAN Initiative', 'SERB Programs', 'DST-FIST'] },
-  { title: 'University partnerships', items: ['Research collaboration funds', 'Faculty exchange grants', 'Joint publications support', 'Dual appointment programs', 'Sabbatical positions'] },
-  { title: 'Internal support', items: ['Travel grants', 'Collaborative research funds', 'Visiting scholar support', 'Conference presentation aid', 'Publication grants'] },
 ]
 
 export default function Collaboration() {
@@ -390,7 +389,7 @@ export default function Collaboration() {
       <section id="faculty-programs" className="bg-white border-y border-mist py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Inbound faculty programmes"
+            title="International Faculty Inbound Programs"
             subtitle="Government of India schemes that bring international faculty and researchers to IIT Dharwad to teach and collaborate."
           />
           <ProgramTabs items={facultyTabs} label="Inbound faculty programmes" />
@@ -425,29 +424,18 @@ export default function Collaboration() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             tone="dark"
-            title="IITDH faculty: international funding"
-            subtitle="Government and institutional resources for collaboration"
+            title="Opportunities for IITDH Faculty"
           />
-          <div className="grid gap-10 md:grid-cols-3">
-            {FACULTY_FUNDING.map((group) => (
-              <div key={group.title} className="border-t border-white/15 pt-6">
-                <h3 className="text-xl font-medium">{group.title}</h3>
-                <ul className="mt-4 space-y-2 text-white/75">
-                  {group.items.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Current calls for IITDH faculty */}
-          <div className="mt-16 grid gap-6 md:grid-cols-2">
+          {/* Opportunities supplied in the approved faculty document, including its poster. */}
+          <div className="grid gap-6 md:grid-cols-2">
             <article className="rounded-2xl bg-white/5 p-7 ring-1 ring-inset ring-white/10">
               <h3 className="text-xl font-medium">India–Japan Cooperative Science Programme (IJCSP)</h3>
               <p className="mt-3 text-white/75 leading-relaxed">
-                DST and the Japan Society for the Promotion of Science (JSPS) invite proposals for joint research projects and joint workshops and seminars, in physical, chemical, life, mathematical, earth and materials sciences. Open to eligible Indian researchers and scientists.
+                The Department of Science &amp; Technology (DST), Government of India, and the Japan Society for the Promotion of Science (JSPS) invite proposals for joint research projects and joint workshops &amp; seminars. Open to eligible Indian researchers and scientists.
               </p>
+              <p className="mt-3 text-white/75 leading-relaxed">Priority research areas: Physical Sciences; Chemical Sciences; Life Sciences &amp; Agriculture; Mathematics &amp; Computational Science; Astronomy &amp; Earth Sciences; Materials Science &amp; Engineering.</p>
               <p className="mt-2 text-sm text-saffron/90 font-medium">
-                Last date for proposal submission: 3rd September (annual call)
+                Last date for proposal submission: September 3, 2026 (closed)
               </p>
               <a href="https://www.onlinedst.gov.in" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-semibold text-saffron underline decoration-saffron/50 underline-offset-4 hover:decoration-saffron">
                 Details and applications on onlinedst.gov.in

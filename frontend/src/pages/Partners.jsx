@@ -14,6 +14,7 @@ import apiClient from '../api/client'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { useAuth } from '../contexts/AuthContext'
 import { useStudentAuth } from '../contexts/StudentAuthContext'
+import { approvedPartner, isNewBrunswick, UNB_SCOPE } from '../data/iroContent'
 
 const countryCodeMap = {
   Australia: 'au',
@@ -172,7 +173,7 @@ export default function Partners() {
         fetchAllPages('/mous', 'mous', { pageSize: 100 }),
       ])
 
-      setPartners(fetchedPartners)
+      setPartners(fetchedPartners.map(approvedPartner))
       setMous(fetchedMous)
     } catch (err) {
       console.error('Error in fetching partner and MOU data:', err)
@@ -271,6 +272,7 @@ export default function Partners() {
 
   // A partner also matches a search on the scope of any of its MOUs.
   const mouScopeMatches = useCallback((partner, query) => {
+    if (isNewBrunswick(partner.name) && UNB_SCOPE.toLowerCase().includes(query)) return true
     const linkedMous = partnerMouMap[partner.id] || partner.mous || []
     return linkedMous.some((m) => m.scope && m.scope.toLowerCase().includes(query))
   }, [partnerMouMap])
@@ -456,6 +458,7 @@ export default function Partners() {
                       const linkedMous = partnerMouMap[uni.id] || uni.mous || []
                       const activeMou = linkedMous.find((m) => m.status === 'ACTIVE')
                       const latestMou = activeMou || linkedMous[0]
+                      const scope = isNewBrunswick(uni.name) ? UNB_SCOPE : latestMou?.scope
 
                       return (
                         <li key={uni.id || uni.name} className="grid gap-4 px-6 py-5 lg:grid-cols-12 lg:items-center lg:gap-6">
@@ -522,10 +525,10 @@ export default function Partners() {
 
                           {/* Scope of that same MOU */}
                           <div className="text-sm lg:col-span-3">
-                            {latestMou?.scope ? (
+                            {scope ? (
                               <p className="text-body">
                                 <span className="lg:hidden text-quiet">Scope: </span>
-                                {latestMou.scope}
+                                {scope}
                               </p>
                             ) : (
                               <span className="hidden text-quiet lg:inline">–</span>

@@ -6,9 +6,9 @@ import DOMPurify from 'dompurify'
 import { fetchAllPages } from '../api/fetchAllPages'
 import { useSiteContent } from '../contexts/SiteContentContext'
 import { resolveMediaUrl } from '../utils/media'
+import { IRO_COMMITTEE, IRO_ADMINISTRATION, studentTeamForDisplay } from '../data/iroContent'
 
-// Page copy follows the IRO's "About us" document exactly: the intro and
-// list, the Chairperson's letter, and the IR students team. Nothing else.
+// The approved office directory sits between the Chairperson's letter and student team.
 const AMBITIONS = [
   'International student admissions to full time taught and research programs',
   'Semester abroad student exchanges with partner institutes, research internships, immersion programs, study tours, project work',
@@ -127,6 +127,27 @@ export default function About() {
         </div>
       </section>
 
+      <section className="bg-white border-t border-mist py-20 md:py-24">
+        <div className="mx-auto max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">
+          {[
+            ['IRO Committee Members', IRO_COMMITTEE],
+            ['IRO Administrative Team', IRO_ADMINISTRATION],
+          ].map(([title, members]) => (
+            <div key={title}>
+              <SectionHeader title={title} />
+              <ol className="divide-y divide-mist border-y border-mist">
+                {members.map(member => (
+                  <li key={member.email} className="grid min-w-0 gap-2 py-5 lg:grid-cols-2 lg:gap-8">
+                    <p className="text-body"><strong className="font-semibold text-plum-deep">{member.name}</strong> – {member.title}</p>
+                    <a href={`mailto:${member.email}`} className="min-w-0 break-words text-plum underline decoration-saffron/60 underline-offset-4 hover:decoration-plum">{member.email}</a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* IR Students Team */}
       {team.length > 0 && (
         <section className="bg-white border-t border-mist py-20 md:py-24">
@@ -134,8 +155,8 @@ export default function About() {
             <SectionHeader title="IR – Students team" />
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {team.filter(t => t.isActive).map((member) => (
-                <article key={member.id} className="flex flex-col rounded-2xl border border-mist bg-white p-6">
+              {studentTeamForDisplay(team).map((member) => (
+                <article key={member.id} className="flex min-w-0 flex-col rounded-2xl border border-mist bg-white p-6">
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-14 shrink-0 overflow-hidden rounded-t-full bg-mist">
                       {member.photoUrl ? (
@@ -163,7 +184,7 @@ export default function About() {
 
                   {member.responsibilities && member.responsibilities !== '<p><br></p>' && (
                     <div
-                      className="mt-4 border-t border-mist pt-4 text-sm leading-relaxed text-quiet max-w-none break-words [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4 [&_li]:mt-1"
+                      className="student-responsibilities mt-4 border-t border-mist pt-4 text-sm leading-relaxed text-quiet max-w-none break-words [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4 [&_li]:mt-1"
                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(member.responsibilities) }}
                     />
                   )}

@@ -2,6 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Team descriptions can contain editor-supplied white-space/width styles. */
+.student-responsibilities,
+.student-responsibilities * {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 * {

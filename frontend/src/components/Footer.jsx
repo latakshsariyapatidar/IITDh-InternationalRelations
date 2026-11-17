@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useSiteContent } from '../contexts/SiteContentContext'
 import SubNavigationData from '../data/SubNavigationData'
+import { CAMPUS_ADDRESS } from '../data/iroContent'
+
+const SHOW_QUICK_LINKS = false
 
 const SOCIAL_LINKS = [
   {
@@ -80,7 +83,7 @@ export default function Footer() {
           </div>
 
           {/* The six main sections */}
-          <nav aria-label="Main sections" className="lg:col-span-2">
+          <nav aria-label="Main sections" className={SHOW_QUICK_LINKS ? 'lg:col-span-2' : 'lg:col-span-3'}>
             <h4 className="text-sm font-semibold text-saffron mb-4">Explore</h4>
             <ul className="space-y-2.5 text-sm">
               {SubNavigationData.map((item) => (
@@ -90,7 +93,7 @@ export default function Footer() {
           </nav>
 
           {/* Quicklinks */}
-          <nav aria-label="Quicklinks" className="lg:col-span-3">
+          {SHOW_QUICK_LINKS && <nav aria-label="Quicklinks" className="lg:col-span-3">
             <h4 className="text-sm font-semibold text-saffron mb-4">Quicklinks</h4>
             <ul className="space-y-2.5 text-sm">
               {QUICK_LINKS.map((item) => (
@@ -105,16 +108,14 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </nav>
+          </nav>}
 
           {/* Contact & Address */}
-          <div className="lg:col-span-3">
+          <div className={SHOW_QUICK_LINKS ? 'lg:col-span-3' : 'lg:col-span-5'}>
             <h4 className="text-sm font-semibold text-saffron mb-4">Office Address</h4>
             <address className="not-italic text-sm leading-relaxed text-white/70">
               International Relations Office<br />
-              IIT Dharwad, Chikkamalligawad<br />
-              Dharwad, Karnataka 580 007<br />
-              India
+              {CAMPUS_ADDRESS}
             </address>
             <p className="mt-5 text-sm">
               <Link to="/contact" className="text-white underline decoration-saffron underline-offset-4 hover:text-saffron transition-colors">Contact Us</Link>

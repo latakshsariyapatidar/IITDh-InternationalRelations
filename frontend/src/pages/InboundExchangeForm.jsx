@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { CAMPUS_ADDRESS } from '../data/iroContent';
 import apiClient from '../api/client';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -394,7 +395,7 @@ export default function InboundExchangeForm() {
           </div>
 
           <div className="text-xs text-brand-purpleLight/40 border-t border-brand-purple/20 pt-6">
-            IIT Dharwad, Permanent Campus, Chikkamalligawad, Karnataka - 580007
+            {CAMPUS_ADDRESS}
           </div>
         </div>
         
