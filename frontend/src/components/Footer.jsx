@@ -127,8 +127,6 @@ export default function Footer() {
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-4 text-xs text-white/50">
           <p>{getContent("footer.copyrightText", "© 2026 International Relations Office, IIT Dharwad. All rights reserved.")}</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Accessibility</a>
             <a href="https://www.iitdh.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               Visit IITDH Main Website
             </a>

@@ -420,39 +420,7 @@ export default function Collaboration() {
 
 
       {/* Faculty Funding */}
-      <section className="bg-plum-deep text-white py-20 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            tone="dark"
-            title="Opportunities for IITDH Faculty"
-          />
-          {/* Opportunities supplied in the approved faculty document, including its poster. */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <article className="rounded-2xl bg-white/5 p-7 ring-1 ring-inset ring-white/10">
-              <h3 className="text-xl font-medium">India–Japan Cooperative Science Programme (IJCSP)</h3>
-              <p className="mt-3 text-white/75 leading-relaxed">
-                The Department of Science &amp; Technology (DST), Government of India, and the Japan Society for the Promotion of Science (JSPS) invite proposals for joint research projects and joint workshops &amp; seminars. Open to eligible Indian researchers and scientists.
-              </p>
-              <p className="mt-3 text-white/75 leading-relaxed">Priority research areas: Physical Sciences; Chemical Sciences; Life Sciences &amp; Agriculture; Mathematics &amp; Computational Science; Astronomy &amp; Earth Sciences; Materials Science &amp; Engineering.</p>
-              <p className="mt-2 text-sm text-saffron/90 font-medium">
-                Last date for proposal submission: September 3, 2026 (closed)
-              </p>
-              <a href="https://www.onlinedst.gov.in" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-semibold text-saffron underline decoration-saffron/50 underline-offset-4 hover:decoration-saffron">
-                Details and applications on onlinedst.gov.in
-              </a>
-            </article>
-            <article className="rounded-2xl bg-white/5 p-7 ring-1 ring-inset ring-white/10">
-              <h3 className="text-xl font-medium">Finnish Indian Consortia for Research and Education (FICORE)</h3>
-              <p className="mt-3 text-white/75 leading-relaxed">
-                A network of 23 IITs and 15 Finnish higher education institutions. See the funding landscape for India collaboration in EU, Finnish and Indian contexts.
-              </p>
-              <a href="https://www.aalto.fi/en/events/funding-landscape-for-india-collaboration-eu-finland-and-india-contexts" target="_blank" rel="noopener noreferrer" className="mt-5 inline-block text-sm font-semibold text-saffron underline decoration-saffron/50 underline-offset-4 hover:decoration-saffron">
-                Funding landscape for India collaboration
-              </a>
-            </article>
-          </div>
-        </div>
-      </section>
+
     </div>
   )
 }
